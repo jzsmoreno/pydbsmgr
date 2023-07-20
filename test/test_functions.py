@@ -195,3 +195,4 @@ def test_convert_date():
 
 def test_clean_and_convert_to():
     assert clean_and_convert_to("20/02/2022 02:03:42") == "2022-02-20"
+    assert clean_and_convert_to("20-02-2022 02:03:42") == "2022-02-20"
