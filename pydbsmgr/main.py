@@ -155,6 +155,8 @@ def clean_and_convert_to(x: str) -> str:
         The cleaned and converted string.
     """
     # pattern_to_year = r"\d{4}"
+
+    x = str(x)
     x = remove_char(x)
     try:
         x, find_ = check_if_isemail(x)
@@ -221,8 +223,8 @@ def check_dtypes(dataframe: DataFrame, datatypes: Series) -> DataFrame:
         The DataFrame with updated data types.
     """
     cols = dataframe.columns
-    column_index = 0
-    for datatype in datatypes:
+
+    for column_index, datatype in enumerate(datatypes):
         if datatype == "object" or datatype == "datetime64[ns]":
             dataframe[cols[column_index]] = dataframe[cols[column_index]].apply(
                 clean_and_convert_to
@@ -236,12 +238,36 @@ def check_dtypes(dataframe: DataFrame, datatypes: Series) -> DataFrame:
                         "datetime64[ns]"
                     )
                 except:
-                    None
-        column_index += 1
+                    warning_type = "UserWarning"
+                    msg = "It was not possible to clean the column {%s}" % cols[column_index]
+                    print(f"{warning_type}: {msg}")
     return dataframe
 
 
-def create_yaml_tree(yaml_name: str, df_info: DataFrame) -> None:
+def create_yaml_from_df(
+    df_: DataFrame, yaml_name: str = "./output.yaml", dabase_name: str = "database"
+) -> None:
+
+    df_info, df = check_values(df_, df_name="df_name", sheet_name="sheet_name")
+
+    df_info["data type"] = [str(_type) for _type in df_info["data type"].to_list()]
+    df_info["sql name"] = [col_name.replace(" ", "_") for col_name in df_info["column name"]]
+
+    data = {}
+    for col_name, data_type, sql_name in zip(
+        df_info["column name"].to_list(),
+        df_info["data type"],
+        df_info["sql name"].to_list(),
+    ):
+        data[col_name] = {"type": [data_type], "sql_name": [sql_name]}
+
+    yaml_data = yaml.dump({dabase_name: data})
+
+    with open(yaml_name, "w") as file:
+        file.write(yaml_data)
+
+
+def create_yaml_tree(yaml_name: str, df_info: DataFrame, dabase_name: str = "database") -> None:
     """
     Function that creates a yaml configuration file for database data type validation.
 
@@ -251,6 +277,8 @@ def create_yaml_tree(yaml_name: str, df_info: DataFrame) -> None:
         The name of the yaml configuration file to be created.
     df_info : DataFrame
         The DataFrame with the column information for data type validation.
+    database : str
+        The header of the `.yaml` file. By default it is set to `database`
 
     Returns
     -------
@@ -264,7 +292,7 @@ def create_yaml_tree(yaml_name: str, df_info: DataFrame) -> None:
     ):
         data[col_name] = {"type": [data_type], "sql_name": [sql_name]}
 
-    yaml_data = yaml.dump({"database": data})
+    yaml_data = yaml.dump({dabase_name: data})
 
     with open(yaml_name, "w") as file:
         file.write(yaml_data)
@@ -281,13 +309,44 @@ def drop_empty_columns(df_: DataFrame) -> DataFrame:
     return df_[cols_to_keep].copy()
 
 
+def intersection_cols(dfs_: List[DataFrame]) -> DataFrame:
+    """
+    Function that resolves columns issues of a list of dataframes
+
+    Parameters
+    ----------
+    dfs_ : List[DataFrame]
+        The `list` of dataframes with columns to be resolves.
+
+    Returns
+    -------
+    dfs_ : List[DataFrame]
+        The `list` of dataframes with the corrections in their columns (intersection).
+    """
+    min_cols = []
+    index_dfs = []
+    for i, df in enumerate(dfs_):
+        min_cols.append(len(df.columns))
+        index_dfs.append(i)
+    df_dict = dict(zip(min_cols, index_dfs))
+
+    min_col = min(min_cols)
+    index_min = df_dict[min_col]
+    cols_ = set(dfs_[index_min].columns)
+    for i, df in enumerate(dfs_):
+        dfs_[i] = (dfs_[i][list(cols_)]).copy()
+
+    return dfs_
+
+
 def check_values(
     df_: DataFrame,
     df_name: str,
     sheet_name: str,
-    mode: bool = True,
+    mode: bool = False,
     cols_upper_case: bool = False,
     drop_empty_cols: bool = True,
+    directory_name: str = "report",
 ) -> Tuple[DataFrame, DataFrame]:
     """
     Perform data validation on a DataFrame and create a Data Quality Assesment Report on the DataFrame.
@@ -319,14 +378,21 @@ def check_values(
     df = check_dtypes(df, df.dtypes)
     df = df.replace("Nan", np.nan)
     df = df.loc[:, ~df.columns.str.contains("^unnamed")]
-    # print(f"Total size of {df_name}: ", "{:,}".format(len(df)))
+
     info = []
     title = "Report " + df_name + "_" + sheet_name
     if mode:
         # profile = ProfileReport(df, title=title)
-        # profile.to_file("./Detail of the report/" + title + ".html")
+        # profile.to_file("./" + directory_name + "/" + title + ".html")
+
+        if not os.path.exists(directory_name):
+            os.mkdir(directory_name)
+            warning_type = "UserWarning"
+            msg = "The directory {%s} was created" % directory_name
+            print(f"{warning_type}: {msg}")
+
         ax = msno.matrix(df)
-        ax.get_figure().savefig("./Detail of the report/" + title + ".png", dpi=300)
+        ax.get_figure().savefig("./" + directory_name + "/" + title + ".png", dpi=300)
     for col in df.columns:
         try:
             if col.find("unnamed") == -1:
@@ -347,7 +413,7 @@ def check_values(
                         unique_vals,
                     ]
                 )
-                # print(str(col)+' : 'f"{(percentage)*100:.2f}%")
+
         except:
             None
     info = np.array(info).reshape((-1, 8))
@@ -378,7 +444,7 @@ def check_for_list(
     dfs_: List[DataFrame],
     dfs_names: List[str],
     sheet_names: List[str],
-    mode: bool = True,
+    mode: bool = False,
     yaml_name: str = "./output.yaml",
     report_name: str = "./report-health-checker.html",
     encoding: str = "latin1",
@@ -401,6 +467,7 @@ def check_for_list(
     df_sheet_files_info.to_html(report_name, index=False, encoding=encoding)
 
     if concat_vertically:
+        dataframes = intersection_cols(dataframes)
         df_concatenated = pd.concat(dataframes, axis=0)
     else:
         df_concatenated = dataframes
