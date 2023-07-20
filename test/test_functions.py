@@ -9,13 +9,13 @@ from pandas.core.indexes.base import Index
 from pandas.core.series import Series
 
 
-def clean_names(x: str, pattern: str = r"[a-zA-Zñáéíóú_]+\b") -> str:
+def clean_names(dirty_string: str, pattern: str = r"[a-zA-Zñáéíóú_]+\b") -> str:
     """
     Receive a string and clean it of special characters
 
     Parameters
     ----------
-    x : str
+    dirty_string : str
         string of characters
     pattern : str
         regular expression string
@@ -25,57 +25,123 @@ def clean_names(x: str, pattern: str = r"[a-zA-Zñáéíóú_]+\b") -> str:
     result : str
         clean character string
     """
-    result = re.findall(pattern, str(x).replace("_", ""))
+    result = re.findall(pattern, str(dirty_string).replace("_", ""))
     if len(result) > 0:
         result = "_".join(result)
     else:
         pattern = r"[a-zA-Z]+"
-        result = re.findall(pattern, str(x).replace("_", ""))
+        result = re.findall(pattern, str(dirty_string).replace("_", ""))
         result = "_".join(result)
     return result
 
 
-def clean_transform(x: Index, mode: bool = True) -> List[str]:
-    y = []
-    for i in x:
+def clean_transform(col_index: Index, mode: bool = True) -> List[str]:
+    """
+    Transforms a column index by cleaning the column names and if needed makes them capital.
+
+    Parameters
+    ----------
+        col_index : Index
+            The column index to be transformed.
+        mode : bool = True
+            Indicates if names will be capitalized (True as default).
+
+    Returns
+    ----------
+        List : str
+            The transformed column names as a list of strings.
+    """
+    col_name_list = []
+    for col in col_index:
         if mode:
-            y.append(str(clean(i)).title())
+            col_name_list.append(str(clean(col)).title())
         else:
-            y.append(clean(i))
-    return y
+            col_name_list.append(clean(col))
+    return col_name_list
 
 
-def remove_char(x: str) -> str:
+def remove_char(input_string: str) -> str:
+    """
+    Removes special characters from a string.
+
+    Parameters
+    ----------
+        input_string : str
+            The input string from which characters will be removed.
+
+    Returns
+    ----------
+        str : The string with specified characters removed.
+    """
     list_of_char = ["#", "$", "*", "?", "!"]
-    for i in list_of_char:
+    for char in list_of_char:
         try:
-            x = x.replace(i, "")
+            input_string = input_string.replace(char, "")
         except:
-            return x
-    return x
+            return input_string
+    return input_string
 
 
-def check_if_isemail(x: str) -> str:
-    find_ = False
-    if str(x).find("@") != -1:
-        x = str(clean(x))
-        find_ = True
+def check_if_isemail(check_email: str) -> str:
+    """
+    Checks if a string is an email address and returns the cleaned string and a flag indicating if the string is an email.
 
-    return x, find_
+    Parameters
+    ----------
+        check_email : str
+            The input string to be checked for an email address.
+
+    Returns
+    ----------
+        Tuple : str, bool
+            A tuple containing the cleaned string and a boolean flag indicating if an email address was found.
+    """
+    found_email = False
+    if str(check_email).find("@") != -1:
+        check_email = str(clean(check_email))
+        found_email = True
+
+    return check_email, found_email
 
 
-def convert_date(x: str) -> str:
+def convert_date(date_string: str) -> str:
+    """
+    Converts a string of a date to a proper date format.
+
+    Parameters
+    ----------
+    date_string : str
+        The input string representing a date.
+
+    Returns
+    -------
+    proper_date : str
+        The date string in the proper format 'YYYY-MM-DD'.
+    """
     try:
-        x = str(pd.to_datetime(x, format="%Y%m%d", errors="raise"))[:10]
+        proper_date = str(pd.to_datetime(date_string, format="%Y%m%d", errors="raise"))[:10]
     except:
         try:
-            x = str(pd.to_datetime(x, format="%d%m%Y", errors="raise"))[:10]
+            proper_date = str(pd.to_datetime(date_string, format="%d%m%Y", errors="raise"))[:10]
         except:
-            x = str(pd.to_datetime(x, format="%Y%m%d", errors="ignore"))[:10]
-    return x
+            proper_date = str(pd.to_datetime(date_string, format="%Y%m%d", errors="ignore"))[:10]
+    return proper_date
 
 
 def clean_and_convert_to(x: str) -> str:
+    """
+    Performs cleaning and some conversions on a string.
+
+    Parameters
+    ----------
+    x : str
+        The input string to be cleaned and converted.
+
+    Returns
+    -------
+    str
+        The cleaned and converted string.
+    """
     # pattern_to_year = r"\d{4}"
     x = remove_char(x)
     try:
@@ -98,7 +164,7 @@ def clean_and_convert_to(x: str) -> str:
                     else:
                         if x.find("//") == -1:
                             x_ = x.replace(".", " ")
-                            x = clean(x_).title()
+                            x = clean(x_)
                 else:
                     x = clean(x)
     except:
