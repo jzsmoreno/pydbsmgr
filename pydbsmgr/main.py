@@ -249,7 +249,7 @@ def check_dtypes(dataframe: DataFrame, datatypes: Series) -> DataFrame:
                 except:
                     warning_type = "UserWarning"
                     msg = (
-                        "It was not possible to convert the column {%s} to date type"
+                        "It was not possible to convert the column {%s} to datetime64[ns] type"
                         % cols[column_index]
                     )
                     print(f"{warning_type}: {msg}")
