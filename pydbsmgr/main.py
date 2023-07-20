@@ -223,14 +223,18 @@ def check_dtypes(dataframe: DataFrame, datatypes: Series) -> DataFrame:
     cols = dataframe.columns
     column_index = 0
     for datatype in datatypes:
-        if datatype == "object":
-            dataframe[cols[column_index]] = dataframe[cols[column_index]].apply(clean_and_convert_to)
+        if datatype == "object" or datatype == "datetime64[ns]":
+            dataframe[cols[column_index]] = dataframe[cols[column_index]].apply(
+                clean_and_convert_to
+            )
             dataframe[cols[column_index]] = dataframe[cols[column_index]].apply(correct_nan)
             try:
                 dataframe[cols[column_index]] = dataframe[cols[column_index]].map(str.strip)
             except:
                 try:
-                    dataframe[cols[column_index]] = dataframe[cols[column_index]].astype("datetime64[ns]")
+                    dataframe[cols[column_index]] = dataframe[cols[column_index]].astype(
+                        "datetime64[ns]"
+                    )
                 except:
                     None
         column_index += 1
@@ -266,8 +270,24 @@ def create_yaml_tree(yaml_name: str, df_info: DataFrame) -> None:
         file.write(yaml_data)
 
 
+def drop_empty_columns(df_: DataFrame) -> DataFrame:
+    """
+    Function that removes empty columns
+    """
+    cols_to_keep = []
+    for col in df_.columns:
+        if not (pd.isnull(df_[col]).sum() == len(df_[col])):
+            cols_to_keep.append(col)
+    return df_[cols_to_keep].copy()
+
+
 def check_values(
-    df_: DataFrame, df_name: str, sheet_name: str, mode: bool = True, cols_upper_case: bool = False
+    df_: DataFrame,
+    df_name: str,
+    sheet_name: str,
+    mode: bool = True,
+    cols_upper_case: bool = False,
+    drop_empty_cols: bool = True,
 ) -> Tuple[DataFrame, DataFrame]:
     """
     Perform data validation on a DataFrame and create a Data Quality Assesment Report on the DataFrame.
@@ -291,6 +311,10 @@ def check_values(
         A tuple containing the information DataFrame and the validated DataFrame.
     """
     df = df_.copy()
+
+    if drop_empty_cols:
+        df = drop_empty_columns(df)
+
     df.columns = clean_transform(df.columns, cols_upper_case)
     df = check_dtypes(df, df.dtypes)
     df = df.replace("Nan", np.nan)
@@ -359,12 +383,19 @@ def check_for_list(
     report_name: str = "./report-health-checker.html",
     encoding: str = "latin1",
     concat_vertically: bool = False,
+    drop_empty_cols: bool = True,
 ) -> Tuple[DataFrame, DataFrame]:
     """Function that performs the implementation of the check_values function on lists of dataframes."""
     dataframes = []
     df_sheet_files_info = pd.DataFrame()
     for j, df in enumerate(dfs_):
-        info, df = check_values(df, df_name=dfs_names[j], sheet_name=sheet_names[j], mode=mode)
+        info, df = check_values(
+            df,
+            df_name=dfs_names[j],
+            sheet_name=sheet_names[j],
+            mode=mode,
+            drop_empty_cols=drop_empty_cols,
+        )
         dataframes.append(df)
         df_sheet_files_info = pd.concat([df_sheet_files_info, info])
     df_sheet_files_info.to_html(report_name, index=False, encoding=encoding)
