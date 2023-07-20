@@ -156,7 +156,16 @@ def clean_and_convert_to(x: str) -> str:
     """
     # pattern_to_year = r"\d{4}"
 
-    x = str(x)
+    if str(x).find(".") != -1:
+        if x.isnumeric():
+            return x
+    else:
+        result = re.findall(r"^[A-Za-z0-9]+$", str(x))
+        try:
+            return result[0]
+        except:
+            x = str(x)
+
     x = remove_char(x)
     try:
         x, find_ = check_if_isemail(x)
@@ -239,7 +248,10 @@ def check_dtypes(dataframe: DataFrame, datatypes: Series) -> DataFrame:
                     )
                 except:
                     warning_type = "UserWarning"
-                    msg = "It was not possible to clean the column {%s}" % cols[column_index]
+                    msg = (
+                        "It was not possible to convert the column {%s} to date type"
+                        % cols[column_index]
+                    )
                     print(f"{warning_type}: {msg}")
     return dataframe
 
