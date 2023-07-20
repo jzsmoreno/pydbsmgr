@@ -372,7 +372,7 @@ def check_for_list(
     if concat_vertically:
         df_concatenated = pd.concat(dataframes, axis=0)
     else:
-        df_concatenated = dfs_
+        df_concatenated = dataframes
 
     df_sheet_files_info["data type"] = [
         str(_type) for _type in df_sheet_files_info["data type"].to_list()
