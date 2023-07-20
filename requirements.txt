@@ -1,0 +1,12 @@
+numpy
+pandas
+clean-text
+missingno
+pyodbc
+ipython
+SQLAlchemy
+azure-storage-blob==12.16.0
+python-dotenv==1.0.0
+openpyxl==3.1.2
+fastparquet
+pyarrow
