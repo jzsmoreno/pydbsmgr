@@ -141,6 +141,13 @@ def convert_date(date_string: str) -> str:
     return proper_date
 
 
+def is_number_regex(s):
+    """Returns True if string is a number."""
+    if re.match("^\d+?\.\d+?$", s) is None:
+        return s.isdigit()
+    return True
+
+
 def clean_and_convert_to(x: str) -> str:
     """
     Performs cleaning and some conversions on a string.
@@ -158,8 +165,11 @@ def clean_and_convert_to(x: str) -> str:
     # pattern_to_year = r"\d{4}"
 
     if str(x).find(".") != -1:
-        if str(x).isnumeric():
-            return x
+        if is_number_regex(str(x)):
+            try:
+                return float(x)
+            except:
+                return x
     else:
         result = re.findall(r"^[A-Za-z0-9]+$", str(x))
         try:
