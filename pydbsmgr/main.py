@@ -53,15 +53,15 @@ def clean_transform(col_index: Index, mode: bool = True) -> List[str]:
 
     Parameters
     ----------
-        col_index : Index
-            The column index to be transformed.
-        mode : bool = True
-            Indicates if names will be capitalized (True as default).
+    col_index : Index
+        The column index to be transformed.
+    mode : bool
+        Indicates if names will be capitalized. By default it is set to `True`.
 
     Returns
     ----------
-        col_name_list : str
-            The transformed column names as a `list` of strings.
+    col_name_list : str
+        The transformed column names as a `list` of strings.
     """
     col_name_list = []
     for col in col_index:
@@ -78,13 +78,13 @@ def remove_char(input_string: str) -> str:
 
     Parameters
     ----------
-        input_string : str
-            The input string from which characters will be removed.
+    input_string : str
+        The input string from which characters will be removed.
 
     Returns
     ----------
-        input_string : str
-            The string with specified characters removed.
+    input_string : str
+        The string with specified characters removed.
     """
     list_of_char = ["#", "$", "*", "?", "!"]
     for char in list_of_char:
@@ -101,13 +101,13 @@ def check_if_isemail(check_email: str) -> Tuple[str, bool]:
 
     Parameters
     ----------
-        check_email : str
-            The input string to be checked for an email address.
+    check_email : str
+        The input string to be checked for an email address.
 
     Returns
     ----------
-        check_email, found_email : str, bool
-            A tuple containing the cleaned string and a boolean flag indicating if an email address was found.
+    check_email, found_email : str, bool
+        A tuple containing the cleaned string and a boolean flag indicating if an email address was found.
     """
     found_email = False
     if str(check_email).find("@") != -1:
@@ -119,7 +119,7 @@ def check_if_isemail(check_email: str) -> Tuple[str, bool]:
 
 def convert_date(date_string: str) -> str:
     """
-    Converts a string of a date to a proper date format.
+    Converts a `str` of a date to a proper `datetime64[ns]` format.
 
     Parameters
     ----------
@@ -129,7 +129,7 @@ def convert_date(date_string: str) -> str:
     Returns
     -------
     proper_date : str
-        The date string in the proper format 'YYYY-MM-DD'.
+        The date string in the proper format `YYYY-MM-DD`.
     """
     try:
         proper_date = str(pd.to_datetime(date_string, format="%Y%m%d", errors="raise"))[:10]
@@ -150,7 +150,7 @@ def is_number_regex(s):
 
 def clean_and_convert_to(x: str) -> str:
     """
-    Performs cleaning and some conversions on a string.
+    Performs cleaning and some conversions on a `str`.
 
     Parameters
     ----------
@@ -162,20 +162,34 @@ def clean_and_convert_to(x: str) -> str:
     x : str
         The cleaned and converted string.
     """
-    # pattern_to_year = r"\d{4}"
 
-    if str(x).find(".") != -1:
-        if is_number_regex(str(x)):
+    # Consider cases where a number is passed as a `str`
+    if is_number_regex(str(x)):
+        if str(x).find(".") != -1:
             try:
                 return float(x)
             except:
-                return x
+                return np.nan
+        else:
+            try:
+                return int(x)
+            except:
+                return np.nan
     else:
-        result = re.findall(r"^[A-Za-z0-9]+$", str(x))
-        try:
-            return result[0]
-        except:
-            x = str(x)
+        # Consider cases in which a `float` number is passed as a `str` and is erroneous
+        if str(x).find(".") != -1:
+            try:
+                return float(x)
+            except:
+                x = str(x)
+        # Cases in which we have an identifier with numbers and letters
+        else:
+            result = re.findall(r"^[A-Za-z0-9]+$", str(x))
+            try:
+                return result[0]
+            # Case in which none of the above applies
+            except:
+                x = str(x)
 
     x = remove_char(x)
     try:
@@ -183,8 +197,7 @@ def clean_and_convert_to(x: str) -> str:
         if (x.find("/") != -1 or x.find("-")) != -1 and not (x.find("//") or x.find("\\")) != -1:
             x = x.replace("/", "")
             x = x.replace("-", "")
-            # result = re.findall(pattern_to_year, x)
-            # year = result[0]
+
             if len(x) == 8:
                 x = convert_date(x)
             elif str(x).find(":") != -1:
@@ -208,7 +221,7 @@ def clean_and_convert_to(x: str) -> str:
 
 def correct_nan(check_missing: str) -> str:
     """
-    Corrects the format of missing values in a string to the correct numpy.nan.
+    Corrects the format of missing values in a `str` to the correct `np.nan`.
 
     Parameters
     ----------
@@ -228,19 +241,19 @@ def correct_nan(check_missing: str) -> str:
 
 def check_dtypes(dataframe: DataFrame, datatypes: Series) -> DataFrame:
     """
-    Checks and updates the data types of columns in a DataFrame.
+    Checks and updates the data types of columns in a `DataFrame`.
 
     Parameters
     ----------
     dataframe : DataFrame
-        The DataFrame to check and update the data types.
+        The `DataFrame` to check and update the data types.
     datatypes : Series
-        The Series containing the desired data types for each column in the DataFrame.
+        The `Series` containing the desired data types for each column in the `DataFrame`.
 
     Returns
     -------
     dataframe : DataFrame
-        The DataFrame with updated data types.
+        The `DataFrame` with updated data types.
     """
     cols = dataframe.columns
 
@@ -392,11 +405,11 @@ def check_values(
     Parameters
     ----------
     df_ : DataFrame
-        The DataFrame to be validated.
+        The `DataFrame` to be validated.
     df_name : str
-        The name of the DataFrame.
+        The name of the `DataFrame`.
     sheet_name : str
-        The name of the excel sheet within the DataFrame.
+        The name of the excel sheet within the `DataFrame`.
     mode : bool
         Indicates whether to generate a visualization and report in `html`. By default it is set to `False`.
     cols_upper_case : bool
@@ -405,7 +418,7 @@ def check_values(
     Returns
     -------
     info, df : DataFrame, DataFrame
-        A tuple containing the information DataFrame and the validated DataFrame.
+        A tuple containing the information `DataFrame` and the validated `DataFrame`.
     """
     df = df_.copy()
 
@@ -489,7 +502,34 @@ def check_for_list(
     concat_vertically: bool = False,
     drop_empty_cols: bool = True,
 ) -> Tuple[DataFrame, DataFrame]:
-    """Function that performs the implementation of the check_values function on lists of dataframes."""
+    """Function that performs the implementation of the check_values function on lists of dataframes.
+
+    Parameters
+    ----------
+    dfs_ : List[DataFrame]
+        The `list` of dataframes to be validated.
+    dfs_names : List[str]
+        The `list` containing the dataframe names.
+    sheet_names : List[str]
+        The `list` containing the names of the sheets for each dataframe. Applies for `.xlsx` files.
+    mode : bool
+        Indicates whether to generate a visualization and report in `html`. By default it is set to `False`.
+    yaml_name : str
+        Indicates the name of the `.yaml` file that will serve as a template for the creation of the SQL table. By default it is set to `./output.yaml`
+    report_name : str
+        Name of the quality assessment report. By default it is set to `./report-health-checker.html`
+    encoding : str
+        The encoding of dataframes. By default it is set to `latin1`
+    concat_vertically : bool
+        Variable indicating whether the list of dataframes should be vertically concatenated into a single one. By default it is set to `False`
+    drop_empty_cols : bool
+        Variable indicating whether columns with all their values empty should be removed. By default it is set to `True`
+
+    Returns
+    -------
+    df_concatenated, df_sheet_files_info : DataFrame, DataFrame
+        A tuple containing the validated `DataFrames` concatenated or not, depending on the `concat_vertically` variable and the `DataFrame` information.
+    """
     dataframes = []
     df_sheet_files_info = pd.DataFrame()
     for j, df in enumerate(dfs_):
