@@ -1,6 +1,7 @@
 import re
 from typing import List, Tuple
 
+import numpy as np
 import pandas as pd
 import pytest
 from cleantext import clean
@@ -128,9 +129,16 @@ def convert_date(date_string: str) -> str:
     return proper_date
 
 
+def is_number_regex(s):
+    """Returns True if string is a number."""
+    if re.match("^\d+?\.\d+?$", s) is None:
+        return s.isdigit()
+    return True
+
+
 def clean_and_convert_to(x: str) -> str:
     """
-    Performs cleaning and some conversions on a string.
+    Performs cleaning and some conversions on a `str`.
 
     Parameters
     ----------
@@ -139,18 +147,45 @@ def clean_and_convert_to(x: str) -> str:
 
     Returns
     -------
-    str
+    x : str
         The cleaned and converted string.
     """
-    # pattern_to_year = r"\d{4}"
+
+    # Consider cases where a number is passed as a `str`
+    if is_number_regex(str(x)):
+        if str(x).find(".") != -1:
+            try:
+                return float(x)
+            except:
+                return np.nan
+        else:
+            try:
+                return int(x)
+            except:
+                return np.nan
+    else:
+        # Consider cases in which a `float` number is passed as a `str` and is erroneous
+        if str(x).find(".") != -1:
+            try:
+                return float(x)
+            except:
+                x = str(x)
+        # Cases in which we have an identifier with numbers and letters
+        else:
+            result = re.findall(r"^[A-Za-z0-9]+$", str(x))
+            try:
+                return result[0]
+            # Case in which none of the above applies
+            except:
+                x = str(x)
+
     x = remove_char(x)
     try:
         x, find_ = check_if_isemail(x)
         if (x.find("/") != -1 or x.find("-")) != -1 and not (x.find("//") or x.find("\\")) != -1:
             x = x.replace("/", "")
             x = x.replace("-", "")
-            # result = re.findall(pattern_to_year, x)
-            # year = result[0]
+
             if len(x) == 8:
                 x = convert_date(x)
             elif str(x).find(":") != -1:
@@ -170,6 +205,26 @@ def clean_and_convert_to(x: str) -> str:
     except:
         None
     return x
+
+
+def correct_nan(check_missing: str) -> str:
+    """
+    Corrects the format of missing values in a `str` to the correct `np.nan`.
+
+    Parameters
+    ----------
+    check_missing : str
+        The string to be checked for incorrect missing value format.
+
+    Returns
+    -------
+    check_missing : str
+        The corrected string format or `np.nan`.
+    """
+    if str(check_missing).find("nan") != -1:
+        return np.nan
+    else:
+        return check_missing
 
 
 def test_clean_names():
@@ -196,3 +251,7 @@ def test_convert_date():
 def test_clean_and_convert_to():
     assert clean_and_convert_to("20/02/2022 02:03:42") == "2022-02-20"
     assert clean_and_convert_to("20-02-2022 02:03:42") == "2022-02-20"
+
+
+def test_correct_nan():
+    assert type(correct_nan("nan")) == type(np.nan)
