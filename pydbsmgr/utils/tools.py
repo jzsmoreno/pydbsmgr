@@ -1,6 +1,10 @@
 import os
 
+import numpy as np
+import pandas as pd
 import yaml
+from pandas.core.frame import DataFrame
+
 
 def check_column_types(df: DataFrame, drop_rows: bool = True, int_replace: int = -1) -> DataFrame:
     """
@@ -8,18 +12,19 @@ def check_column_types(df: DataFrame, drop_rows: bool = True, int_replace: int =
 
     Parameters
     ----------
-    df : `DataFrame`
+    df : DataFrame
         The input `DataFrame` to check and correct data types.
-    drop_rows : `bool`, optional
-        If `True`, rows with incorrect data types will be dropped, by default `True`.
-    int_replace : `int`, optional
-        The value used to replace incorrect integer values if `drop_rows` is `False`, by default -1.
+    drop_rows : bool
+        If `True`, rows with incorrect data types will be dropped. By default it is set to `True`.
+    int_replace : int
+        The value used to replace incorrect integer values if `drop_rows` is `False`. By default it is set to -1.
 
     Returns
     -------
-    DataFrame
+    df_ : DataFrame
         A new `DataFrame` with corrected data types or dropped rows based on the options chosen.
     """
+
     def check_float(x):
         if isinstance(x, str):
             try:
@@ -47,10 +52,6 @@ def check_column_types(df: DataFrame, drop_rows: bool = True, int_replace: int =
 
                 if val_dtype == "float":
                     df_[col] = df_[col].apply(check_float)
-                    # if drop_rows:
-                    #     df_ = df_.loc[df_[col].notnull()]
-                    # else:
-                    #     df_[col] = df_[col].fillna(int_replace)
                     df_[col] = df_[col].astype(dict_dtypes[val_dtype])
 
                 if val_dtype == "int":
@@ -61,7 +62,6 @@ def check_column_types(df: DataFrame, drop_rows: bool = True, int_replace: int =
                         df_[col] = df_[col].fillna(int_replace)
                     df_[col] = df_[col].astype(dict_dtypes[val_dtype])
     return df_
-
 
 
 def create_directory(data, parent_path=""):
