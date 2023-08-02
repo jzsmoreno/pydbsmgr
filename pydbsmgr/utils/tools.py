@@ -1,8 +1,8 @@
 import os
 
 import numpy as np
-import pandas as pd
 import yaml
+from loguru import logger
 from pandas.core.frame import DataFrame
 
 
@@ -12,18 +12,21 @@ def check_column_types(df: DataFrame, drop_rows: bool = True, int_replace: int =
 
     Parameters
     ----------
-    df : DataFrame
+    df : `DataFrame`
         The input `DataFrame` to check and correct data types.
-    drop_rows : bool
-        If `True`, rows with incorrect data types will be dropped. By default it is set to `True`.
-    int_replace : int
-        The value used to replace incorrect integer values if `drop_rows` is `False`. By default it is set to -1.
+    drop_rows : `bool`, optional
+        If `True`, rows with incorrect data types will be dropped, by default `True`.
+    int_replace : `int`, optional
+        The value used to replace incorrect integer values if `drop_rows` is `False`, by default -1.
 
     Returns
     -------
-    df_ : DataFrame
+    DataFrame
         A new `DataFrame` with corrected data types or dropped rows based on the options chosen.
     """
+    logger.remove(0)
+    logger.add("check_col_types_{time}.log")
+
 
     def check_float(x):
         if isinstance(x, str):
@@ -40,7 +43,9 @@ def check_column_types(df: DataFrame, drop_rows: bool = True, int_replace: int =
                 return np.nan
 
     df_ = df.copy()
+    logger.info("`DataFrame` has been copied.")
     dict_dtypes = dict(zip(["float", "int", "str"], ["float64", "int64", "object"]))
+    logger.info("Dictionary with created dtypes")
     for col in df_.columns:
         col_dtype = df_[col].dtype
         col_samples = df_[col].sample(n=round(len(df_[col]) * 0.01))
@@ -61,6 +66,7 @@ def check_column_types(df: DataFrame, drop_rows: bool = True, int_replace: int =
                     else:
                         df_[col] = df_[col].fillna(int_replace)
                     df_[col] = df_[col].astype(dict_dtypes[val_dtype])
+        logger.success(f"Successfully transformed the '{col}' column into {col_dtype}.")
     return df_
 
 
@@ -84,6 +90,5 @@ def create_directories_from_yaml(yaml_file):
 
 
 if __name__ == "__main__":
-
     yaml_file = "directories.yaml"
     create_directories_from_yaml(yaml_file)
