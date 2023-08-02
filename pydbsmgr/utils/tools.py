@@ -42,9 +42,9 @@ def check_column_types(df: DataFrame, drop_rows: bool = True, int_replace: int =
                 return np.nan
 
     df_ = df.copy()
-    logger.info("DF copied")
+    logger.info("`DataFrame` has been copied.")
     dict_dtypes = dict(zip(["float", "int", "str"], ["float64", "int64", "object"]))
-    logger.info("Dictionary with dtypes created")
+    logger.info("Dictionary with created dtypes")
     for col in df_.columns:
         col_dtype = df_[col].dtype
         col_samples = df_[col].sample(n=round(len(df_[col]) * 0.01))
@@ -69,7 +69,7 @@ def check_column_types(df: DataFrame, drop_rows: bool = True, int_replace: int =
                     else:
                         df_[col] = df_[col].fillna(int_replace)
                     df_[col] = df_[col].astype("Int64")
-        logger.success(f"Succesfully tranformed column {col} into {col_dtype}.")
+        logger.success(f"Successfully transformed the '{col}' column into {col_dtype}.")
     return df_
 
 

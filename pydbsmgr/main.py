@@ -70,7 +70,7 @@ def clean_transform(col_index: Index, mode: bool = True) -> List[str]:
     for col in col_index:
         if mode:
             col_name_list.append(str(clean(col)).title())
-            logger.debug("Names have been capitalized")
+            logger.debug("The column names have been capitalized.")
         else:
             col_name_list.append(clean(col))
     return col_name_list
@@ -94,9 +94,9 @@ def remove_char(input_string: str) -> str:
     for char in list_of_char:
         try:
             input_string = input_string.replace(char, "")
-            logger.debug(f"Character {char} has been removed from string")
+            logger.debug(f"The character {char} has been removed from the string.")
         except:
-            logger.debug(f"No character {char} in the string")
+            logger.debug(f"There is no {char} character in string.")
             return input_string
     return input_string
 
@@ -119,7 +119,7 @@ def check_if_isemail(check_email: str) -> Tuple[str, bool]:
     if str(check_email).find("@") != -1:
         check_email = str(clean(check_email))
         found_email = True
-        logger.info(f"An email has been detected.")
+        logger.info(f"An e-mail has been detected.")
 
     return check_email, found_email
 
@@ -140,15 +140,15 @@ def convert_date(date_string: str) -> str:
     """
     try:
         proper_date = str(pd.to_datetime(date_string, format="%Y%m%d", errors="raise"))[:10]
-        logger.debug(f"No manipulation of the date needed to transform.")
+        logger.debug(f"It is not necessary to manipulate the date to transform.")
     except:
-        logger.debug(f"Date cannot be transformed, need to change format.")
+        logger.debug(f"The date cannot be transformed, the format must be changed.")
         try:
             proper_date = str(pd.to_datetime(date_string, format="%d%m%Y", errors="raise"))[:10]
-            logger.debug(f"Date transformed correctly to format DD/MM/YYY.")
+            logger.debug(f"Date correctly transformed from DD/MM/YYY format.")
         except:
             proper_date = str(pd.to_datetime(date_string, format="%Y%m%d", errors="ignore"))[:10]
-            logger.debug(f"Date transformed correctly to format YYYY/MM/DD.")
+            logger.debug(f"Date correctly transformed from YYYY/MM/DD format.")
     return proper_date
 
 
@@ -177,32 +177,32 @@ def clean_and_convert_to(x: str) -> str:
     # Consider cases where a number is passed as a `str`
     if is_number_regex(str(x)):
         if str(x).find(".") != -1:
-            logger.debug(f"Decimal point has been found. Converting to float...")
+            logger.debug(f"Decimal point found. Converting to `float`...")
             try:
-                logger.success(f"Converted succesfully to float.")
+                logger.success(f"Successfully converted to `float`.")
                 return float(x)
             except:
                 logger.error(f"Could not convert to float, converted to `np.nan`.")
                 return np.nan
         else:
-            logger.debug(f"Decimal point has not been found, converting to int...")
+            logger.debug(f"The decimal point has not been found, converting to `int`...")
             try:
-                logger.success(f"Converted succesfully to int.")
+                logger.success(f"Successfully converted to `int`.")
                 return int(x)
             except:
-                logger.error(f"Could not convert to int, converted to `np.nan`.")
+                logger.error(f"Could not convert to `int`, converted to `np.nan`..")
                 return np.nan
     else:
         # Consider cases in which a `float` number is passed as a `str` and is erroneous
         if str(x).find(".") != -1:
-            logger.info(f"Decimal point has been found, converting to float...")
+            logger.info(f"Decimal point found. Converting to `float`...")
             try:
-                logger.success(f"Converted succesfully to float.")
+                logger.success(f"Successfully converted to `float`.")
                 return float(x)
             except:
-                logger.error(f"Could not convert {x} to float, converting to string...")
+                logger.error(f"Could not convert {x} to float, converting to `str`...")
                 x = str(x)
-                logger.info(f"Succesfully converted {x} to string.")
+                logger.info(f"Successfully converted {x} to `str`.")
         # Cases in which we have an identifier with numbers and letters
         else:
             result = re.findall(r"^[A-Za-z0-9]+$", str(x))
@@ -218,17 +218,17 @@ def clean_and_convert_to(x: str) -> str:
         if (x.find("/") != -1 or x.find("-")) != -1 and not (x.find("//") or x.find("\\")) != -1:
             x = x.replace("/", "")
             x = x.replace("-", "")
-            logger.debug(f"String has been cleaned for special characters.")
+            logger.debug(f"The string has been cleaned of special characters.")
 
             if len(x) == 8:
                 x = convert_date(x)
-                logger.success(f"Date has been transformed correctly.")
+                logger.success(f"The date has been transformed correctly.")
             elif str(x).find(":") != -1:
                 x = convert_date(x[:8])
-                logger.success(f"Date has been transformed correctly.")
+                logger.success(f"The date has been transformed correctly.")
         else:
             if not find_:
-                logger.info(f"Email has not been found.")
+                logger.info(f"The e-mail has not been found.")
                 if str(x).find(".") != -1:
                     x_ = x.replace(".", "")
                     if len(x) == 8:
@@ -240,7 +240,7 @@ def clean_and_convert_to(x: str) -> str:
                 else:
                     x = clean(x)
     except:
-        logger.info(f"No tranformation has been made and string will be returnd as it came.")
+        logger.info(f"No transformation has been performed and the character will be returned as it came.")
         None
     return x
 
@@ -408,12 +408,12 @@ def intersection_cols(dfs_: List[DataFrame]) -> DataFrame:
     df_dict = dict(zip(min_cols, index_dfs))
 
     min_col = min(min_cols)
-    logger.info(f"Minimum number of colums is {min_col}")
+    logger.info(f"The minimum number of columns is {min_col}.")
     index_min = df_dict[min_col]
     cols_ = set(dfs_[index_min].columns)
     for i, df in enumerate(dfs_):
         dfs_[i] = (dfs_[i][list(cols_)]).copy()
-    logger.success(f"Successfully kept intersecting columns only.")
+    logger.success(f"Successfully maintains only intersecting columns.")
 
     return dfs_
 
@@ -449,24 +449,23 @@ def check_values(
         A tuple containing the information `DataFrame` and the validated `DataFrame`.
     """
     df = df_.copy()
-    logger.info(f"Df has been copied.")
+    logger.info(f"`DataFrame` has been copied.")
 
     if drop_empty_cols:
         df = drop_empty_columns(df)
-        logger.info(f"Empty columns have been droppes")
+        logger.info(f"Empty columns have been removed.")
 
     df.columns = clean_transform(df.columns, cols_upper_case)
     logger.info("Columns have been cleaned and transformed.")
     df = check_dtypes(df, df.dtypes)
-    logger.info("Dtyped have been verified.")
+    logger.info("The data type has been verified.")
     df = df.replace("Nan", np.nan)
-    logger.info("Nan strings have been replaed for np.nan")
+    logger.info("The nan strings have been replaced by np.nan.")
     df = df.loc[:, ~df.columns.str.contains("^unnamed")]
-    logger.info("Only named columns have been kept.")
+    logger.info("Only the named columns have been retained.")
 
     info = []
     title = "Report " + df_name + "_" + sheet_name
-    logger.info(f"Report has been creaated with the name {title}")
     if mode:
         # profile = ProfileReport(df, title=title)
         # profile.to_file("./" + directory_name + "/" + title + ".html")
@@ -476,7 +475,7 @@ def check_values(
             warning_type = "UserWarning"
             msg = "The directory {%s} was created" % directory_name
             print(f"{warning_type}: {msg}")
-            logger.info(f"The directory {directory_name} has been created.")
+            logger.info(f"The {directory_name} directory has been created.")
 
         ax = msno.matrix(df)
         ax.get_figure().savefig("./" + directory_name + "/" + title + ".png", dpi=300)
@@ -577,9 +576,10 @@ def check_for_list(
             drop_empty_cols=drop_empty_cols,
         )
         dataframes.append(df)
-        logger.iinfo(f"DataFrame {df} has been appended to dataframes list")
+        logger.info(f"DataFrame '{dfs_names[j]}' has been added to the list of dataframes")
         df_sheet_files_info = pd.concat([df_sheet_files_info, info])
     df_sheet_files_info.to_html(report_name, index=False, encoding=encoding)
+    logger.info(f"A report has been created under the name '{report_name}'")
 
     if concat_vertically:
         dataframes = intersection_cols(dataframes)
