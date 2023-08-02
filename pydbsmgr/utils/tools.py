@@ -1,6 +1,10 @@
 import os
 
+import numpy as np
 import yaml
+from loguru import logger
+from pandas.core.frame import DataFrame
+
 
 def check_column_types(df: DataFrame, drop_rows: bool = True, int_replace: int = -1) -> DataFrame:
     """
@@ -20,6 +24,9 @@ def check_column_types(df: DataFrame, drop_rows: bool = True, int_replace: int =
     DataFrame
         A new `DataFrame` with corrected data types or dropped rows based on the options chosen.
     """
+    logger.remove(0)
+    logger.add("check_col_types_{time}.log")
+
     def check_float(x):
         if isinstance(x, str):
             try:
@@ -35,7 +42,9 @@ def check_column_types(df: DataFrame, drop_rows: bool = True, int_replace: int =
                 return np.nan
 
     df_ = df.copy()
+    logger.info("DF copied")
     dict_dtypes = dict(zip(["float", "int", "str"], ["float64", "int64", "object"]))
+    logger.info("Dictionary with dtypes created")
     for col in df_.columns:
         col_dtype = df_[col].dtype
         col_samples = df_[col].sample(n=round(len(df_[col]) * 0.01))
@@ -59,9 +68,9 @@ def check_column_types(df: DataFrame, drop_rows: bool = True, int_replace: int =
                         df_ = df_.loc[df_[col].notnull()]
                     else:
                         df_[col] = df_[col].fillna(int_replace)
-                    df_[col] = df_[col].astype(dict_dtypes[val_dtype])
+                    df_[col] = df_[col].astype("Int64")
+        logger.success(f"Succesfully tranformed column {col} into {col_dtype}.")
     return df_
-
 
 
 def create_directory(data, parent_path=""):
@@ -84,6 +93,5 @@ def create_directories_from_yaml(yaml_file):
 
 
 if __name__ == "__main__":
-
     yaml_file = "directories.yaml"
     create_directories_from_yaml(yaml_file)
