@@ -25,7 +25,8 @@ setuptools.setup(
         "SQLAlchemy",
         "pyyaml",
         "pyarrow",
-        "fastparquet"
+        "fastparquet",
+        "loguru",
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
