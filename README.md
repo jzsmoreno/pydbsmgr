@@ -1,3 +1,4 @@
+![pydbsmgr](https://raw.githubusercontent.com/jzsmoreno/pydbsmgr/main/pydbsmgr.png)
 # pydbsmgr
 Python package for database control and administration as well as for DataFrame processing.
 
