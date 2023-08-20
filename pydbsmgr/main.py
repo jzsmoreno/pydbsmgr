@@ -21,8 +21,6 @@ warnings.filterwarnings("ignore")
 
 ########################################################################################
 
-logger.add("main_{time}.log", rotation="100 KB")
-
 
 def clean_names(dirty_string: str, pattern: str = r"[a-zA-Zñáéíóú_]+\b") -> str:
     """
@@ -70,7 +68,6 @@ def clean_transform(col_index: Index, mode: bool = True) -> List[str]:
     for col in col_index:
         if mode:
             col_name_list.append(str(clean(col)).title())
-            logger.debug("The column names have been capitalized.")
         else:
             col_name_list.append(clean(col))
     return col_name_list
@@ -94,9 +91,7 @@ def remove_char(input_string: str) -> str:
     for char in list_of_char:
         try:
             input_string = input_string.replace(char, "")
-            logger.debug(f"The character {char} has been removed from the string.")
         except:
-            logger.debug(f"There is no {char} character in string.")
             return input_string
     return input_string
 
@@ -140,15 +135,11 @@ def convert_date(date_string: str) -> str:
     """
     try:
         proper_date = str(pd.to_datetime(date_string, format="%Y%m%d", errors="raise"))[:10]
-        logger.debug(f"It is not necessary to manipulate the date to transform.")
     except:
-        logger.debug(f"The date cannot be transformed, the format must be changed.")
         try:
             proper_date = str(pd.to_datetime(date_string, format="%d%m%Y", errors="raise"))[:10]
-            logger.debug(f"Date correctly transformed from DD/MM/YYY format.")
         except:
             proper_date = str(pd.to_datetime(date_string, format="%Y%m%d", errors="ignore"))[:10]
-            logger.debug(f"Date correctly transformed from YYYY/MM/DD format.")
     return proper_date
 
 
@@ -177,17 +168,13 @@ def clean_and_convert_to(x: str) -> str:
     # Consider cases where a number is passed as a `str`
     if is_number_regex(str(x)):
         if str(x).find(".") != -1:
-            logger.debug(f"Decimal point found. Converting to `float`...")
             try:
-                logger.success(f"Successfully converted to `float`.")
                 return float(x)
             except:
                 logger.error(f"Could not convert to float, converted to `np.nan`.")
                 return np.nan
         else:
-            logger.debug(f"The decimal point has not been found, converting to `int`...")
             try:
-                logger.success(f"Successfully converted to `int`.")
                 return int(x)
             except:
                 logger.error(f"Could not convert to `int`, converted to `np.nan`..")
@@ -195,14 +182,12 @@ def clean_and_convert_to(x: str) -> str:
     else:
         # Consider cases in which a `float` number is passed as a `str` and is erroneous
         if str(x).find(".") != -1:
-            logger.info(f"Decimal point found. Converting to `float`...")
             try:
-                logger.success(f"Successfully converted to `float`.")
                 return float(x)
             except:
                 logger.error(f"Could not convert {x} to float, converting to `str`...")
                 x = str(x)
-                logger.info(f"Successfully converted {x} to `str`.")
+                logger.success(f"Successfully converted {x} to `str`.")
         # Cases in which we have an identifier with numbers and letters
         else:
             result = re.findall(r"^[A-Za-z0-9]+$", str(x))
@@ -218,17 +203,13 @@ def clean_and_convert_to(x: str) -> str:
         if (x.find("/") != -1 or x.find("-")) != -1 and not (x.find("//") or x.find("\\")) != -1:
             x = x.replace("/", "")
             x = x.replace("-", "")
-            logger.debug(f"The string has been cleaned of special characters.")
 
             if len(x) == 8:
                 x = convert_date(x)
-                logger.success(f"The date has been transformed correctly.")
             elif str(x).find(":") != -1:
                 x = convert_date(x[:8])
-                logger.success(f"The date has been transformed correctly.")
         else:
             if not find_:
-                logger.info(f"The e-mail has not been found.")
                 if str(x).find(".") != -1:
                     x_ = x.replace(".", "")
                     if len(x) == 8:
@@ -240,7 +221,9 @@ def clean_and_convert_to(x: str) -> str:
                 else:
                     x = clean(x)
     except:
-        logger.info(f"No transformation has been performed and the character will be returned as it came.")
+        logger.info(
+            f"No transformation has been performed, the character will be returned as it came."
+        )
         None
     return x
 
@@ -449,6 +432,7 @@ def check_values(
         A tuple containing the information `DataFrame` and the validated `DataFrame`.
     """
     df = df_.copy()
+    logger.add(df_name + "_{time}.log", rotation="100 KB")
     logger.info(f"`DataFrame` has been copied.")
 
     if drop_empty_cols:
@@ -460,7 +444,7 @@ def check_values(
     df = check_dtypes(df, df.dtypes)
     logger.info("The data type has been verified.")
     df = df.replace("Nan", np.nan)
-    logger.info("The nan strings have been replaced by np.nan.")
+    logger.info("The `nan` strings have been replaced by `np.nan`.")
     df = df.loc[:, ~df.columns.str.contains("^unnamed")]
     logger.info("Only the named columns have been retained.")
 

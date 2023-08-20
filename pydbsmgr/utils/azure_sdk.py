@@ -32,22 +32,15 @@ class StorageBlobContainerController:
         )
         self._container_client = self._blob_service_client.get_container_client(self.container_name)
 
-    def get_BlobPrefix(self, directory_name: str) -> BlobPrefix:
-        self.file_list = self._container_client.walk_blobs(directory_name + "/", delimiter="/")
-        return self.file_list
+    def get_BlobList(self, directory_name: str) -> List[str]:
+        _BlobPrefix = self._get_BlobPrefix(directory_name)
+        _BlobList = []
+        for _blob in _BlobPrefix:
+            _BlobList.append(_blob["name"])
+        _BlobList.sort()
+        return _BlobList
 
-    def set_BlobPrefix(self, file_list: list) -> None:
-        self.file_list = self._list_to_BlobPrefix(file_list)
-
-    def print_BlobItem(self) -> None:
-        for file in self.file_list:
-            print("File name : ", file["name"].split("/")[-1])
-
-    def print_BlobPrefix(self) -> None:
-        for file in self.file_list:
-            print("File name : ", file["name"])
-
-    def get_parquet_from_directory(
+    def get_parquet(
         self, directory_name: str, regex: str, manual_mode: bool = False, engine: str = "pyarrow"
     ) -> Tuple[List[DataFrame], List[str]]:
         """Perform reading of `.parquet` and `.parquet.gzip` files in container-directory"""
@@ -85,7 +78,7 @@ class StorageBlobContainerController:
 
         return dataframes, dataframe_names
 
-    def upload_parquet_from_dfs(
+    def upload_parquet(
         self,
         directory_name: str,
         dfs: List[DataFrame],
@@ -113,7 +106,7 @@ class StorageBlobContainerController:
             else:
                 raise ValueError(f"{format_type} not supported")
 
-    def get_excel_csv_from_directory(
+    def get_excel_csv(
         self, directory_name: str, regex: str, manual_mode: bool = False, encoding: str = "latin1"
     ) -> Tuple[List[DataFrame], List[str]]:
         """Perform reading of `.xlsx` and `.csv` files in container-directory"""
@@ -153,7 +146,7 @@ class StorageBlobContainerController:
 
         return dataframes, dataframe_names
 
-    def upload_excel_csv_from_dfs(
+    def upload_excel_csv(
         self,
         directory_name: str,
         dfs: List[DataFrame],
@@ -181,20 +174,35 @@ class StorageBlobContainerController:
             else:
                 raise ValueError(f"{format_type} not supported")
 
-    def show_all_blobs(self):
+    def show_all_blobs(self) -> None:
         """Show directories from a container"""
         print(f"Container Name: {self.container_name}")
         for blob in self._container_client.list_blobs():
             if len(blob["name"].split("/")) > 1:
                 print("\tBlob name : {}".format(blob["name"]))
 
-    def show_blobs_from_directory(self, directory_name):
+    def show_blobs(self, directory_name) -> None:
         """Show blobs from a directory"""
         print(f"Container Name: {self.container_name}")
         print(f"\tDirectory Name: {directory_name}")
         file_list = self._container_client.walk_blobs(directory_name + "/", delimiter="/")
         for file in file_list:
             print("\t\tBlob name: {}".format(file["name"].split("/")[1]))
+
+    def _get_BlobPrefix(self, directory_name: str) -> BlobPrefix:
+        self.file_list = self._container_client.walk_blobs(directory_name + "/", delimiter="/")
+        return self.file_list
+
+    def set_BlobPrefix(self, file_list: list) -> None:
+        self.file_list = self._list_to_BlobPrefix(file_list)
+
+    def _print_BlobItem(self) -> None:
+        for file in self.file_list:
+            print("File name : ", file["name"].split("/")[-1])
+
+    def _print_BlobPrefix(self) -> None:
+        for file in self.file_list:
+            print("File name : ", file["name"])
 
     def _list_to_BlobPrefix(self, my_list: list) -> BlobPrefix:
         """Converts a list of iterable directory items into a BlobPrefix class"""

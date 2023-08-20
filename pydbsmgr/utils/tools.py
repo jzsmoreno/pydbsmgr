@@ -1,9 +1,29 @@
+import glob
 import os
 
 import numpy as np
+import psutil
 import yaml
-from loguru import logger
 from pandas.core.frame import DataFrame
+
+
+def terminate_process_holding_file(file_path):
+    for proc in psutil.process_iter(["pid", "open_files"]):
+        try:
+            if any(file_path in file_info.path for file_info in proc.open_files()):
+                print(f"Terminating process {proc.pid} holding the file.")
+                proc.terminate()
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            pass
+
+
+def erase_files(format: str = "log") -> None:
+    for filename in glob.glob("*." + format):
+        try:
+            os.remove(filename)
+        except:
+            terminate_process_holding_file(filename)
+            os.remove(filename)
 
 
 def check_column_types(df: DataFrame, drop_rows: bool = True, int_replace: int = -1) -> DataFrame:
@@ -24,9 +44,6 @@ def check_column_types(df: DataFrame, drop_rows: bool = True, int_replace: int =
     DataFrame
         A new `DataFrame` with corrected data types or dropped rows based on the options chosen.
     """
-    logger.remove(0)
-    logger.add("check_col_types_{time}.log")
-
 
     def check_float(x):
         if isinstance(x, str):
@@ -43,9 +60,7 @@ def check_column_types(df: DataFrame, drop_rows: bool = True, int_replace: int =
                 return np.nan
 
     df_ = df.copy()
-    logger.info("`DataFrame` has been copied.")
     dict_dtypes = dict(zip(["float", "int", "str"], ["float64", "int64", "object"]))
-    logger.info("Dictionary with created dtypes")
     for col in df_.columns:
         col_dtype = df_[col].dtype
         col_samples = df_[col].sample(n=round(len(df_[col]) * 0.01))
@@ -66,7 +81,7 @@ def check_column_types(df: DataFrame, drop_rows: bool = True, int_replace: int =
                     else:
                         df_[col] = df_[col].fillna(int_replace)
                     df_[col] = df_[col].astype(dict_dtypes[val_dtype])
-        logger.success(f"Successfully transformed the '{col}' column into {col_dtype}.")
+        print(f"Successfully transformed the '{col}' column into {col_dtype}.")
     return df_
 
 
