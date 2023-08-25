@@ -404,7 +404,6 @@ def intersection_cols(dfs_: List[DataFrame]) -> DataFrame:
 def check_values(
     df_: DataFrame,
     df_name: str,
-    sheet_name: str,
     mode: bool = False,
     cols_upper_case: bool = False,
     drop_empty_cols: bool = True,
@@ -419,8 +418,6 @@ def check_values(
         The `DataFrame` to be validated.
     df_name : str
         The name of the `DataFrame`.
-    sheet_name : str
-        The name of the excel sheet within the `DataFrame`.
     mode : bool
         Indicates whether to generate a visualization and report in `html`. By default it is set to `False`.
     cols_upper_case : bool
@@ -449,7 +446,7 @@ def check_values(
     logger.info("Only the named columns have been retained.")
 
     info = []
-    title = "Report " + df_name + "_" + sheet_name
+    title = "Report " + df_name
     if mode:
         # profile = ProfileReport(df, title=title)
         # profile.to_file("./" + directory_name + "/" + title + ".html")
@@ -476,7 +473,6 @@ def check_values(
                         col,
                         datatype,
                         df_name,
-                        sheet_name,
                         nrows,
                         nrows_missing,
                         percentage,
@@ -486,14 +482,13 @@ def check_values(
 
         except:
             None
-    info = np.array(info).reshape((-1, 8))
+    info = np.array(info).reshape((-1, 7))
     info = pd.DataFrame(
         info,
         columns=[
             "column name",
             "data type",
             "database name",
-            "sheet name",
             "# rows",
             "# missing rows",
             "# missing rows (percentage)",
@@ -513,7 +508,6 @@ def check_values(
 def check_for_list(
     dfs_: List[DataFrame],
     dfs_names: List[str],
-    sheet_names: List[str],
     mode: bool = False,
     yaml_name: str = "./output.yaml",
     report_name: str = "./report-health-checker.html",
@@ -529,8 +523,6 @@ def check_for_list(
         The `list` of dataframes to be validated.
     dfs_names : List[str]
         The `list` containing the dataframe names.
-    sheet_names : List[str]
-        The `list` containing the names of the sheets for each dataframe. Applies for `.xlsx` files.
     mode : bool
         Indicates whether to generate a visualization and report in `html`. By default it is set to `False`.
     yaml_name : str
@@ -555,7 +547,6 @@ def check_for_list(
         info, df = check_values(
             df,
             df_name=dfs_names[j],
-            sheet_name=sheet_names[j],
             mode=mode,
             drop_empty_cols=drop_empty_cols,
         )
@@ -632,7 +623,7 @@ if __name__ == "__main__":
                 name_xls = name_xls.replace(extension, "")
                 print("Reading file : ", name_xls, "sheet :", sheet_name)
                 df = df.T.drop_duplicates().T
-                info, df = check_values(df, name_xls, sheet_name)
+                info, df = check_values(df, name_xls)
                 df.to_excel(writer, sheet_name="rpt_" + str(j), index=False)
                 docs.append(["rpt_" + str(j), name_xls, sheet_name])
                 clearConsole()

@@ -19,7 +19,7 @@ def get_connection_string() -> str:
     return os.getenv("CONNECTION_STRING")
 
 
-class StorageBlobContainerController:
+class StorageController:
     """Retrive blobs from a container/directory"""
 
     def __init__(self, connection_string: str, container_name: str):
