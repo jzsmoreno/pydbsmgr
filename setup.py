@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="pydbsmgr",
-    version="0.2.1",
+    version="0.2.2",
     author="J. A. Moreno-Guerra",
     author_email="jzs.gm27@gmail.com",
     description="Testing installation of Package",
@@ -14,7 +14,7 @@ setuptools.setup(
     url="https://github.com/jzsmoreno/pydbsmgr",
     project_urls={"Bug Tracker": "https://github.com/jzsmoreno/pydbsmgr"},
     license="MIT",
-    packages=["pydbsmgr"],
+    packages=setuptools.find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     install_requires=[
         "numpy",
         "pandas",
