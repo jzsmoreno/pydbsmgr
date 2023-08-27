@@ -181,6 +181,14 @@ class StorageController:
             if len(blob["name"].split("/")) > 1:
                 print("\tBlob name : {}".format(blob["name"]))
 
+    def get_all_blob(self) -> List[str]:
+        """Get all blob names from a container"""
+        blob_names = []
+        for blob in self._container_client.list_blobs():
+            if len(blob["name"].split("/")) > 1:
+                blob_names.append(blob["name"])
+        return blob_names
+
     def show_blobs(self, directory_name) -> None:
         """Show blobs from a directory"""
         print(f"Container Name: {self.container_name}")
