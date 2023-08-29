@@ -114,7 +114,7 @@ def check_if_isemail(check_email: str) -> Tuple[str, bool]:
     if str(check_email).find("@") != -1:
         check_email = str(clean(check_email))
         found_email = True
-        logger.info(f"An e-mail has been detected.")
+        print(f"An e-mail has been detected.")
 
     return check_email, found_email
 
@@ -171,13 +171,13 @@ def clean_and_convert_to(x: str) -> str:
             try:
                 return float(x)
             except:
-                logger.error(f"Could not convert to float, converted to `np.nan`.")
+                print(f"Could not convert to float, converted to `np.nan`.")
                 return np.nan
         else:
             try:
                 return int(x)
             except:
-                logger.error(f"Could not convert to `int`, converted to `np.nan`..")
+                print(f"Could not convert to `int`, converted to `np.nan`..")
                 return np.nan
     else:
         # Consider cases in which a `float` number is passed as a `str` and is erroneous
@@ -185,9 +185,9 @@ def clean_and_convert_to(x: str) -> str:
             try:
                 return float(x)
             except:
-                logger.error(f"Could not convert {x} to float, converting to `str`...")
+                print(f"Could not convert {x} to float, converting to `str`...")
                 x = str(x)
-                logger.success(f"Successfully converted {x} to `str`.")
+                print(f"Successfully converted {x} to `str`.")
         # Cases in which we have an identifier with numbers and letters
         else:
             result = re.findall(r"^[A-Za-z0-9]+$", str(x))
@@ -221,9 +221,7 @@ def clean_and_convert_to(x: str) -> str:
                 else:
                     x = clean(x)
     except:
-        logger.info(
-            f"No transformation has been performed, the character will be returned as it came."
-        )
+        print(f"No transformation has been performed, the character will be returned as it came.")
         None
     return x
 
