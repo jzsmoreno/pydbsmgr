@@ -30,11 +30,12 @@ def merge_by_coincidence(df1: DataFrame, df2: DataFrame, tol: float = 0.9) -> Da
     if num_col1 < num_col2:
         min_cols = set(df1.columns)
         min_cols = list(min_cols.intersection(set(df2.columns)))
-        df2 = (df2[min_cols]).copy()
     else:
         min_cols = set(df2.columns)
         min_cols = list(min_cols.intersection(set(df1.columns)))
-        df1 = (df1[min_cols]).copy()
+
+    df2 = (df2[min_cols]).copy()
+    df1 = (df1[min_cols]).copy()
     diff = total_columns.difference(set(min_cols))
 
     df = pd.concat([df1, df2], ignore_index=True)
