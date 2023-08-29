@@ -2,9 +2,50 @@ import glob
 import os
 
 import numpy as np
+import pandas as pd
 import psutil
 import yaml
 from pandas.core.frame import DataFrame
+
+
+def column_coincidence(df1: DataFrame, df2: DataFrame) -> float:
+    if not isinstance(df1, pd.DataFrame) or not isinstance(df2, pd.DataFrame):
+        raise ValueError("Both inputs should be pandas DataFrames")
+
+    column_names1 = set(df1.columns)
+    column_names2 = set(df2.columns)
+
+    common_columns = column_names1.intersection(column_names2)
+    total_columns = column_names1.union(column_names2)
+
+    coincidence_percentage = len(common_columns) / len(total_columns)
+    return coincidence_percentage
+
+
+def merge_by_coincidence(df1: DataFrame, df2: DataFrame, tol: float = 0.9) -> DataFrame:
+    percentage = column_coincidence(df1, df2)
+    total_columns = set(df1.columns).union(set(df2.columns))
+    num_col1 = len(df1.columns)
+    num_col2 = len(df2.columns)
+    if num_col1 < num_col2:
+        min_cols = set(df1.columns)
+        min_cols = list(min_cols.intersection(set(df2.columns)))
+        df2 = (df2[min_cols]).copy()
+    else:
+        min_cols = set(df2.columns)
+        min_cols = list(min_cols.intersection(set(df1.columns)))
+        df1 = (df1[min_cols]).copy()
+    diff = total_columns.difference(set(min_cols))
+
+    df = pd.concat([df1, df2], ignore_index=True)
+    if percentage > tol:
+        print("The following columns were lost : ", diff)
+    else:
+        print(
+            f"The following columns were missed with a match percentage of {percentage*100:.2f}% : ",
+            diff,
+        )
+    return df
 
 
 def terminate_process_holding_file(file_path):
