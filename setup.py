@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="pydbsmgr",
-    version="0.2.5",
+    version="0.2.6",
     author="J. A. Moreno-Guerra",
     author_email="jzs.gm27@gmail.com",
     description="Testing installation of Package",
@@ -24,6 +24,9 @@ setuptools.setup(
         "ipython",
         "SQLAlchemy",
         "pyyaml",
+        "azure-storage-blob==12.16.0",
+        "python-dotenv==1.0.0",
+        "openpyxl==3.1.2",
         "pyarrow",
         "fastparquet",
         "loguru",
