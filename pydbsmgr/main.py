@@ -67,9 +67,9 @@ def clean_transform(col_index: Index, mode: bool = True) -> List[str]:
     col_name_list = []
     for col in col_index:
         if mode:
-            col_name_list.append(str(clean(col)).title())
+            col_name_list.append(remove_char(str(clean(col)).title()))
         else:
-            col_name_list.append(clean(col))
+            col_name_list.append(remove_char(clean(col)))
     return col_name_list
 
 
@@ -177,7 +177,7 @@ def clean_and_convert_to(x: str) -> str:
             try:
                 return int(x)
             except:
-                print(f"Could not convert to `int`, converted to `np.nan`..")
+                print(f"Could not convert to `int`, converted to `np.nan`.")
                 return np.nan
     else:
         # Consider cases in which a `float` number is passed as a `str` and is erroneous
@@ -217,9 +217,13 @@ def clean_and_convert_to(x: str) -> str:
                     else:
                         if x.find("//") == -1:
                             x_ = x.replace(".", " ")
-                            x = clean(x_)
+                            x_ = " ".join(x_.split())
+                            x_ = clean(x_)
+                            x = x_.title()
                 else:
                     x = clean(x)
+                    x = " ".join(x.split())
+                    x = x.title()
     except:
         print(f"No transformation has been performed, the character will be returned as it came.")
         None

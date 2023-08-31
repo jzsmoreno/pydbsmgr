@@ -42,22 +42,22 @@ def clean_transform(col_index: Index, mode: bool = True) -> List[str]:
 
     Parameters
     ----------
-        col_index : Index
-            The column index to be transformed.
-        mode : bool = True
-            Indicates if names will be capitalized (True as default).
+    col_index : Index
+        The column index to be transformed.
+    mode : bool
+        Indicates if names will be capitalized. By default it is set to `True`.
 
     Returns
     ----------
-        List : str
-            The transformed column names as a list of strings.
+    col_name_list : str
+        The transformed column names as a `list` of strings.
     """
     col_name_list = []
     for col in col_index:
         if mode:
-            col_name_list.append(str(clean(col)).title())
+            col_name_list.append(remove_char(str(clean(col)).title()))
         else:
-            col_name_list.append(clean(col))
+            col_name_list.append(remove_char(clean(col)))
     return col_name_list
 
 
@@ -157,11 +157,13 @@ def clean_and_convert_to(x: str) -> str:
             try:
                 return float(x)
             except:
+                print(f"Could not convert to float, converted to `np.nan`.")
                 return np.nan
         else:
             try:
                 return int(x)
             except:
+                print(f"Could not convert to `int`, converted to `np.nan`.")
                 return np.nan
     else:
         # Consider cases in which a `float` number is passed as a `str` and is erroneous
@@ -169,7 +171,9 @@ def clean_and_convert_to(x: str) -> str:
             try:
                 return float(x)
             except:
+                print(f"Could not convert {x} to float, converting to `str`...")
                 x = str(x)
+                print(f"Successfully converted {x} to `str`.")
         # Cases in which we have an identifier with numbers and letters
         else:
             result = re.findall(r"^[A-Za-z0-9]+$", str(x))
@@ -199,10 +203,15 @@ def clean_and_convert_to(x: str) -> str:
                     else:
                         if x.find("//") == -1:
                             x_ = x.replace(".", " ")
-                            x = clean(x_)
+                            x_ = " ".join(x_.split())
+                            x_ = clean(x_)
+                            x = x_.title()
                 else:
                     x = clean(x)
+                    x = " ".join(x.split())
+                    x = x.title()
     except:
+        print(f"No transformation has been performed, the character will be returned as it came.")
         None
     return x
 
