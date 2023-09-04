@@ -201,13 +201,18 @@ def clean_and_convert_to(x: str) -> str:
     try:
         x, find_ = check_if_isemail(x)
         if (x.find("/") != -1 or x.find("-")) != -1 and not (x.find("//") or x.find("\\")) != -1:
-            x = x.replace("/", "")
-            x = x.replace("-", "")
+            x_ = x.replace("/", "")
+            x_ = x_.replace("-", "")
 
-            if len(x) == 8:
-                x = convert_date(x)
-            elif str(x).find(":") != -1:
-                x = convert_date(x[:8])
+            if len(x_) == 8:
+                x = convert_date(x_)
+            else:
+                if str(x_).find(":") != -1:
+                    x = convert_date(x_[:8])
+                else:
+                    print("No date found.")
+                    x = clean(x)
+                    x = x.title()
         else:
             if not find_:
                 if str(x).find(".") != -1:
