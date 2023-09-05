@@ -68,63 +68,81 @@ def erase_files(format: str = "log") -> None:
             os.remove(filename)
 
 
-def check_column_types(df: DataFrame, drop_rows: bool = True, int_replace: int = -1) -> DataFrame:
-    """
-    Check and correct the data types of columns in a `DataFrame`.
+class ColumnsDtypes:
+    """Convert all columns to specified dtype."""
 
-    Parameters
-    ----------
-    df : `DataFrame`
-        The input `DataFrame` to check and correct data types.
-    drop_rows : `bool`, optional
-        If `True`, rows with incorrect data types will be dropped, by default `True`.
-    int_replace : `int`, optional
-        The value used to replace incorrect integer values if `drop_rows` is `False`, by default -1.
+    def __init__(self, df_: DataFrame):
+        self.df = df_.copy()
 
-    Returns
-    -------
-    DataFrame
-        A new `DataFrame` with corrected data types or dropped rows based on the options chosen.
-    """
+    def correct(self) -> DataFrame:
+        self._check_int_float()
+        self._check_datetime()
+        return self.df
 
-    def check_float(x):
-        if isinstance(x, str):
-            try:
-                return float(x)
-            except:
-                return np.nan
+    def _check_int_float(self, drop_rows: bool = False) -> None:
+        """
+        Check and correct the data types of columns in a `DataFrame`.
+        """
 
-    def check_int(x):
-        if isinstance(x, str):
-            try:
-                return int(x)
-            except:
-                return np.nan
+        def check_float(x):
+            if isinstance(x, str):
+                try:
+                    return float(x)
+                except:
+                    return np.nan
 
-    df_ = df.copy()
-    dict_dtypes = dict(zip(["float", "int", "str"], ["float64", "int64", "object"]))
-    for col in df_.columns:
-        col_dtype = df_[col].dtype
-        col_samples = df_[col].sample(n=round(len(df_[col]) * 0.01))
-        for sample in col_samples:
-            val_dtype = type(sample).__name__
-            if not dict_dtypes[val_dtype] == col_dtype:
-                # print(f'The dtype of the sample {sample} is {val_dtype} and does not match the dtype of the column {col} which is {col_dtype}')
-                df_[col] = df_[col].replace("nan", np.nan)
+        def check_int(x):
+            if isinstance(x, str):
+                try:
+                    return int(x)
+                except:
+                    return np.nan
 
-                if val_dtype == "float":
-                    df_[col] = df_[col].apply(check_float)
-                    df_[col] = df_[col].astype(dict_dtypes[val_dtype])
+        df_ = (self.df).copy()
+        dict_dtypes = dict(zip(["float", "int", "str"], ["float64", "Int64", "object"]))
+        for col in df_.columns:
+            col_dtype = df_[col].dtype
+            col_samples = df_[col].sample(n=round(len(df_[col]) * 0.01))
+            for sample in col_samples:
+                val_dtype = type(sample).__name__
+                if not dict_dtypes[val_dtype] == col_dtype:
+                    df_[col] = df_[col].replace("nan", np.nan)
 
-                if val_dtype == "int":
-                    df_[col] = df_[col].apply(check_int)
-                    if drop_rows:
-                        df_ = df_.loc[df_[col].notnull()]
-                    else:
-                        df_[col] = df_[col].fillna(int_replace)
-                    df_[col] = df_[col].astype(dict_dtypes[val_dtype])
-        print(f"Successfully transformed the '{col}' column into {col_dtype}.")
-    return df_
+                    if val_dtype == "float":
+                        df_[col] = df_[col].apply(check_float)
+                        df_[col] = df_[col].astype(dict_dtypes[val_dtype])
+
+                    if val_dtype == "int":
+                        df_[col] = df_[col].apply(check_int)
+                        if drop_rows:
+                            df_ = df_.loc[df_[col].notnull()]
+                        else:
+                            df_[col] = df_[col].astype(dict_dtypes[val_dtype])
+            print(f"Successfully transformed the '{col}' column into {col_dtype}.")
+        self.df = df_
+
+    def _check_datetime(self) -> None:
+        """
+        Check and convert date-time string columns to datetime objects.
+        """
+        df_ = self.df
+
+        for col in df_.columns:
+            if (col.lower()).find("fecha") != -1:
+                try:
+                    df_[col] = df_[col].apply(lambda date: date.replace("-", ""))
+                    df_[col] = pd.to_datetime(df_[col], format="%Y%m%d")
+                    print(f"Successfully transformed the '{col}' column into datetime64[ns].")
+                except:
+                    None
+            elif (col.lower()).find("date") != -1:
+                try:
+                    df_[col] = df_[col].apply(lambda date: date.replace("-", ""))
+                    df_[col] = pd.to_datetime(df_[col], format="%Y%m%d")
+                    print(f"Successfully transformed the '{col}' column into datetime64[ns].")
+                except:
+                    None
+        self.df = df_
 
 
 def create_directory(data, parent_path=""):
