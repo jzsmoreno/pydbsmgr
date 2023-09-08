@@ -79,6 +79,9 @@ class ColumnsDtypes:
         self._check_datetime()
         return self.df
 
+    def get_frame(self) -> DataFrame:
+        return self.df
+
     def _check_int_float(self, drop_rows: bool = False) -> None:
         """
         Check and correct the data types of columns in a `DataFrame`.
