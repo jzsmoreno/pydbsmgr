@@ -8,7 +8,16 @@ import psutil
 import pyarrow as pa
 import pyarrow.parquet as pq
 import yaml
+from numpy import datetime64
 from pandas.core.frame import DataFrame
+
+
+def coerce_datetime(x: str) -> datetime64:
+    try:
+        x = x.replace("-", "")
+        return pd.to_datetime(x, format="%Y%m%d")
+    except:
+        return np.datetime64("NaT")
 
 
 class ControllerFeatures:
@@ -175,11 +184,11 @@ class ColumnsDtypes:
                     None
             elif (col.lower()).find("date") != -1:
                 try:
-                    df_[col] = df_[col].apply(lambda date: date.replace("-", ""))
-                    df_[col] = pd.to_datetime(df_[col], format="%Y%m%d")
+                    df_[col] = df_[col].apply(coerce_datetime)
+                    df_[col] = pd.to_datetime(df_[col], format="%Y%m%d", errors="coerce")
                     print(f"Successfully transformed the '{col}' column into datetime64[ns].")
                 except:
-                    None
+                    print(f"The column '{col}' could not be converted")
         self.df = df_
 
 
