@@ -1,11 +1,46 @@
 import glob
 import os
+from typing import List
 
 import numpy as np
 import pandas as pd
 import psutil
+import pyarrow as pa
+import pyarrow.parquet as pq
 import yaml
 from pandas.core.frame import DataFrame
+
+
+class ControllerFeatures:
+    def __init__(self, _container_client):
+        self._container_client = _container_client
+
+    def write_parquet(
+        self,
+        directory_name: str,
+        dfs: List[DataFrame],
+        names: List[str],
+        overwrite: bool = True,
+        upload: bool = True,
+    ) -> None:
+        """Write dataframes as `parquet` format by converting them first into `bytes`"""
+        files = []
+        format_type = "parquet"
+        for data, blob_name in zip(dfs, names):
+            table = pa.Table.from_pandas(data)
+            buf = pa.BufferOutputStream()
+            pq.write_table(table, buf)
+            parquet_data = buf.getvalue().to_pybytes()
+            blob_path_name = directory_name + "/" + blob_name
+            if upload:
+                self._container_client.upload_blob(
+                    name=blob_path_name + "." + format_type, data=parquet_data, overwrite=overwrite
+                )
+            else:
+                files.append(parquet_data)
+
+        if not upload:
+            return files
 
 
 def column_coincidence(df1: DataFrame, df2: DataFrame) -> float:

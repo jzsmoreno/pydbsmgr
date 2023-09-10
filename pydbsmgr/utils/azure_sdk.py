@@ -12,6 +12,8 @@ from dotenv import load_dotenv
 from pandas import ExcelFile, read_csv, read_excel, read_parquet, read_table
 from pandas.core.frame import DataFrame
 
+from pydbsmgr.utils.tools import ControllerFeatures
+
 
 def get_connection_string() -> str:
     """Get connection string. Load env variables from .env"""
@@ -19,7 +21,7 @@ def get_connection_string() -> str:
     return os.getenv("CONNECTION_STRING")
 
 
-class StorageController:
+class StorageController(ControllerFeatures):
     """Retrive blobs from a container/directory"""
 
     def __init__(self, connection_string: str, container_name: str):
@@ -31,6 +33,7 @@ class StorageController:
             self.__connection_string
         )
         self._container_client = self._blob_service_client.get_container_client(self.container_name)
+        super().__init__(self._container_client)
 
     def get_BlobList(self, directory_name: str) -> List[str]:
         _BlobPrefix = self._get_BlobPrefix(directory_name)
