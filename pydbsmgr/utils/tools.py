@@ -137,6 +137,8 @@ class ColumnsDtypes:
                     return float(x)
                 except:
                     return np.nan
+            else:
+                return x
 
         def check_int(x):
             if isinstance(x, str):
@@ -144,6 +146,8 @@ class ColumnsDtypes:
                     return int(x)
                 except:
                     return np.nan
+            else:
+                return x
 
         df_ = (self.df).copy()
         dict_dtypes = dict(zip(["float", "int", "str"], ["float64", "Int64", "object"]))
@@ -155,11 +159,11 @@ class ColumnsDtypes:
                 if not dict_dtypes[val_dtype] == col_dtype:
                     df_[col] = df_[col].replace("nan", np.nan)
 
-                    if val_dtype == "float":
+                    if col_dtype == "float":
                         df_[col] = df_[col].apply(check_float)
                         df_[col] = df_[col].astype(dict_dtypes[val_dtype])
 
-                    if val_dtype == "int":
+                    if col_dtype == "int":
                         df_[col] = df_[col].apply(check_int)
                         if drop_rows:
                             df_ = df_.loc[df_[col].notnull()]
