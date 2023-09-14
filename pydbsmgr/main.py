@@ -22,6 +22,18 @@ warnings.filterwarnings("ignore")
 ########################################################################################
 
 
+def remove_numeric_char(input_string: str) -> str:
+    """Remove all numeric characters from a string.
+
+    Args:
+        input_string (`str`): character string to be cleaned of numeric characters
+
+    Returns:
+        `str`: clean character string
+    """
+    return re.sub(r"\d", "", input_string)
+
+
 def clean_names(dirty_string: str, pattern: str = r"[a-zA-Zñáéíóú_]+\b") -> str:
     """
     Receive a string and clean it of special characters
@@ -48,7 +60,9 @@ def clean_names(dirty_string: str, pattern: str = r"[a-zA-Zñáéíóú_]+\b") -
     return result
 
 
-def clean_transform(col_index: Index, mode: bool = True) -> List[str]:
+def clean_transform(
+    col_index: Index, mode: bool = True, remove_spaces: bool = True, remove_numeric: bool = True
+) -> List[str]:
     """
     Transforms a column index by cleaning the column names and if needed makes them capital.
 
@@ -65,11 +79,18 @@ def clean_transform(col_index: Index, mode: bool = True) -> List[str]:
         The transformed column names as a `list` of strings.
     """
     col_name_list = []
-    for col in col_index:
+    for i, col in enumerate(col_index):
         if mode:
             col_name_list.append(remove_char(str(clean(col)).title()))
         else:
             col_name_list.append(remove_char(clean(col)))
+        if remove_numeric:
+            col_name_list[i] = remove_numeric_char(col_name_list[i])
+            col_name_list[i] = col_name_list[i].strip()
+        if remove_spaces:
+            col_name_list[i] = col_name_list[i].replace(" ", "_")
+            col_name_list[i] = col_name_list[i].replace("-", "_")
+            col_name_list[i] = col_name_list[i].replace("/", "_")
     return col_name_list
 
 
@@ -87,7 +108,7 @@ def remove_char(input_string: str) -> str:
     input_string : str
         The string with specified characters removed.
     """
-    list_of_char = ["#", "$", "*", "?", "!"]
+    list_of_char = ["#", "$", "*", "?", "!", "(", ")"]
     for char in list_of_char:
         try:
             input_string = input_string.replace(char, "")
