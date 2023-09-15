@@ -23,30 +23,33 @@ class LightCleaner:
         table = (self.df).copy()
         cols = table.columns
         for column_index, datatype in enumerate(table.dtypes):
-            if datatype == "object" or datatype == "datetime64[ns]":
-                if ((cols[column_index]).lower()).find("fecha") != -1 or (
-                    (cols[column_index]).lower()
-                ).find("date") != -1:
-                    table[cols[column_index]] = table[cols[column_index]].apply(
-                        clean_and_convert_to
-                    )
+            try:
+                if datatype == "object" or datatype == "datetime64[ns]":
+                    if ((cols[column_index]).lower()).find("fecha") != -1 or (
+                        (cols[column_index]).lower()
+                    ).find("date") != -1:
+                        table[cols[column_index]] = table[cols[column_index]].apply(
+                            clean_and_convert_to
+                        )
+                    else:
+                        table[cols[column_index]] = table[cols[column_index]].apply(clean)
+                        table[cols[column_index]] = table[cols[column_index]].apply(remove_char)
+                        table[cols[column_index]] = table[cols[column_index]].apply(str_title)
+                        table[cols[column_index]] = table[cols[column_index]].apply(
+                            self._correct_str, datatype=datatype
+                        )
+                    table[cols[column_index]] = table[cols[column_index]].apply(correct_nan)
                 else:
-                    table[cols[column_index]] = table[cols[column_index]].apply(clean)
-                    table[cols[column_index]] = table[cols[column_index]].apply(remove_char)
-                    table[cols[column_index]] = table[cols[column_index]].apply(str_title)
-                    table[cols[column_index]] = table[cols[column_index]].apply(
-                        self._correct_str, datatype=datatype
-                    )
-                table[cols[column_index]] = table[cols[column_index]].apply(correct_nan)
-            else:
-                if datatype == "float64":
-                    table[cols[column_index]] = table[cols[column_index]].apply(
-                        self._correct_float, datatype=datatype
-                    )
-                elif datatype == "int64":
-                    table[cols[column_index]] = table[cols[column_index]].apply(
-                        self._correct_int, datatype=datatype
-                    )
+                    if datatype == "float64":
+                        table[cols[column_index]] = table[cols[column_index]].apply(
+                            self._correct_float, datatype=datatype
+                        )
+                    elif datatype == "int64":
+                        table[cols[column_index]] = table[cols[column_index]].apply(
+                            self._correct_int, datatype=datatype
+                        )
+            except:
+                print("Error in the column: ", cols[column_index])
         table = self._remove_duplicate_columns(table)
         # table = table.infer_objects()
         # table = table.convert_dtypes()
