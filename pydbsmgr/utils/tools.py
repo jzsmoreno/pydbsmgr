@@ -12,6 +12,37 @@ from numpy import datetime64
 from pandas.core.frame import DataFrame
 
 
+def replace_numbers_with_letters(input_string: str) -> str:
+    """Function that replaces numbers by letters
+
+    Args:
+        input_string (str): character to be cleared of numbers
+
+    Returns:
+        str: clean character of numbers
+    """
+    number_to_letter = {
+        "0": "A_",
+        "1": "B_",
+        "2": "C_",
+        "3": "D_",
+        "4": "E_",
+        "5": "F_",
+        "6": "G_",
+        "7": "H_",
+        "8": "I_",
+        "9": "J_",
+    }
+    result = ""
+
+    for char in input_string:
+        if char.isdigit():
+            result += number_to_letter[char]
+        else:
+            result += char
+    return result
+
+
 def coerce_datetime(x: str) -> datetime64:
     try:
         x = x.replace("-", "")

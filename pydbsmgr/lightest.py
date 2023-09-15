@@ -1,18 +1,6 @@
 from pydbsmgr.main import *
 
 
-def str_title(text: str) -> str:
-    """Auxiliary function to apply on characters
-
-    Args:
-        text (str): character to be converted
-
-    Returns:
-        str: converted character
-    """
-    return text.title()
-
-
 class LightCleaner:
     def __init__(self, df_: DataFrame):
         self.df = df_.copy()
@@ -23,33 +11,32 @@ class LightCleaner:
         table = (self.df).copy()
         cols = table.columns
         for column_index, datatype in enumerate(table.dtypes):
-            try:
-                if datatype == "object" or datatype == "datetime64[ns]":
-                    if ((cols[column_index]).lower()).find("fecha") != -1 or (
-                        (cols[column_index]).lower()
-                    ).find("date") != -1:
-                        table[cols[column_index]] = table[cols[column_index]].apply(
-                            clean_and_convert_to
-                        )
-                    else:
-                        table[cols[column_index]] = table[cols[column_index]].apply(clean)
-                        table[cols[column_index]] = table[cols[column_index]].apply(remove_char)
-                        table[cols[column_index]] = table[cols[column_index]].apply(str_title)
-                        table[cols[column_index]] = table[cols[column_index]].apply(
-                            self._correct_str, datatype=datatype
-                        )
-                    table[cols[column_index]] = table[cols[column_index]].apply(correct_nan)
+            if datatype == "object" or datatype == "datetime64[ns]":
+                if ((cols[column_index]).lower()).find("fecha") != -1 or (
+                    (cols[column_index]).lower()
+                ).find("date") != -1:
+                    table[cols[column_index]] = table[cols[column_index]].apply(
+                        clean_and_convert_to
+                    )
                 else:
-                    if datatype == "float64":
-                        table[cols[column_index]] = table[cols[column_index]].apply(
-                            self._correct_float, datatype=datatype
-                        )
-                    elif datatype == "int64":
-                        table[cols[column_index]] = table[cols[column_index]].apply(
-                            self._correct_int, datatype=datatype
-                        )
-            except:
-                print("Error in the column: ", cols[column_index])
+                    table[cols[column_index]] = table[cols[column_index]].apply(clean)
+                    table[cols[column_index]] = table[cols[column_index]].apply(remove_char)
+                    table[cols[column_index]] = table[cols[column_index]].apply(
+                        lambda text: text.title()
+                    )
+                    table[cols[column_index]] = table[cols[column_index]].apply(
+                        self._correct_str, datatype=datatype
+                    )
+                table[cols[column_index]] = table[cols[column_index]].apply(correct_nan)
+            else:
+                if datatype == "float64":
+                    table[cols[column_index]] = table[cols[column_index]].apply(
+                        self._correct_float, datatype=datatype
+                    )
+                elif datatype == "int64":
+                    table[cols[column_index]] = table[cols[column_index]].apply(
+                        self._correct_int, datatype=datatype
+                    )
         table = self._remove_duplicate_columns(table)
         # table = table.infer_objects()
         # table = table.convert_dtypes()
