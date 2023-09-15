@@ -113,7 +113,7 @@ def remove_char(input_string: str) -> str:
         try:
             input_string = input_string.replace(char, "")
         except:
-            return input_string
+            None
     return input_string
 
 

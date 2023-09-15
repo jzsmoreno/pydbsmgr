@@ -1,6 +1,18 @@
 from pydbsmgr.main import *
 
 
+def str_title(text: str) -> str:
+    """Auxiliary function to apply on characters
+
+    Args:
+        text (str): character to be converted
+
+    Returns:
+        str: converted character
+    """
+    return text.title()
+
+
 class LightCleaner:
     def __init__(self, df_: DataFrame):
         self.df = df_.copy()
@@ -21,9 +33,7 @@ class LightCleaner:
                 else:
                     table[cols[column_index]] = table[cols[column_index]].apply(clean)
                     table[cols[column_index]] = table[cols[column_index]].apply(remove_char)
-                    table[cols[column_index]] = table[cols[column_index]].apply(
-                        lambda text: text.title()
-                    )
+                    table[cols[column_index]] = table[cols[column_index]].apply(str_title)
                     table[cols[column_index]] = table[cols[column_index]].apply(
                         self._correct_str, datatype=datatype
                     )
