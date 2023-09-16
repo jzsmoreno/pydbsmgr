@@ -10,6 +10,7 @@ import pyarrow.parquet as pq
 import yaml
 from numpy import datetime64
 from pandas.core.frame import DataFrame
+from pyarrow import Table
 
 
 def replace_numbers_with_letters(input_string: str) -> str:
@@ -54,6 +55,24 @@ def coerce_datetime(x: str) -> datetime64:
 class ControllerFeatures:
     def __init__(self, _container_client):
         self._container_client = _container_client
+
+    def write_pyarrow(
+        self,
+        directory_name: str,
+        pytables: List[Table],
+        names: List[str],
+        overwrite: bool = True,
+    ) -> None:
+        """Write pyarrow table as `parquet` format"""
+        format_type = "parquet"
+        for table, blob_name in zip(pytables, names):
+            buf = pa.BufferOutputStream()
+            pq.write_table(table, buf)
+            parquet_data = buf.getvalue().to_pybytes()
+            blob_path_name = directory_name + "/" + blob_name
+            self._container_client.upload_blob(
+                name=blob_path_name + "." + format_type, data=parquet_data, overwrite=overwrite
+            )
 
     def write_parquet(
         self,
