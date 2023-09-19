@@ -271,7 +271,10 @@ def correct_nan(check_missing: str) -> str:
         The corrected string format or `np.nan`.
     """
     if str(check_missing).find("nan") != -1:
-        return np.nan
+        if len(str(check_missing)) == 3:
+            return np.nan
+        else:
+            return check_missing
     else:
         return check_missing
 
