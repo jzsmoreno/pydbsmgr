@@ -27,7 +27,6 @@ class LightCleaner:
                     table[cols[column_index]] = table[cols[column_index]].apply(
                         self._correct_str, datatype=datatype
                     )
-                table[cols[column_index]] = table[cols[column_index]].apply(correct_nan)
             else:
                 if datatype == "float64":
                     table[cols[column_index]] = table[cols[column_index]].apply(
