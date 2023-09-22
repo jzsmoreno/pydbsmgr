@@ -96,12 +96,12 @@ def remove_char(input_string: str) -> str:
     input_string : str
         The string with specified characters removed.
     """
-    list_of_char = ["#", "$", "*", "?", "!", "(", ")"]
+    list_of_char = ["#", "$", "*", "?", "!", "(", ")", "&"]
     for char in list_of_char:
         try:
             input_string = input_string.replace(char, "")
         except:
-            return input_string
+            None
     return input_string
 
 
@@ -258,7 +258,10 @@ def correct_nan(check_missing: str) -> str:
         The corrected string format or `np.nan`.
     """
     if str(check_missing).find("nan") != -1:
-        return np.nan
+        if len(str(check_missing)) == 3:
+            return np.nan
+        else:
+            return check_missing
     else:
         return check_missing
 
