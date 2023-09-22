@@ -1,6 +1,7 @@
 import pickle
 import re
 
+import numpy as np
 import pandas as pd
 import pyodbc
 from pandas.core.frame import DataFrame
@@ -45,7 +46,20 @@ class DataFrameToSQL:
 
         """Insert data"""
         self._cur.fast_executemany = True
-        self._cur.executemany(self._insert_table_query(table_name, df), df.values.tolist())
+        self._cur.executemany(
+            self._insert_table_query(table_name, df),
+            [
+                [
+                    None
+                    if str(value) == "<NA>"
+                    or str(value) == ""
+                    or (isinstance(value, float) and np.isnan(value))
+                    else value
+                    for value in row
+                ]
+                for row in df.values.tolist()
+            ],
+        )
         self._con.close()
 
         msg = "Table {%s}, successfully imported!" % table_name
