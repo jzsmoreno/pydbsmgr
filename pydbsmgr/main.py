@@ -108,7 +108,7 @@ def remove_char(input_string: str) -> str:
     input_string : str
         The string with specified characters removed.
     """
-    list_of_char = ["#", "$", "*", "?", "!", "(", ")", "&"]
+    list_of_char = ["#", "$", "*", "?", "!", "(", ")", "&", "%"]
     for char in list_of_char:
         try:
             input_string = input_string.replace(char, "")
