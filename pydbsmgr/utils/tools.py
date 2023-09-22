@@ -10,38 +10,25 @@ import pyarrow.parquet as pq
 import yaml
 from numpy import datetime64
 from pandas.core.frame import DataFrame
+from pandas.core.indexes.base import Index
 from pyarrow import Table
 
 
-def replace_numbers_with_letters(input_string: str) -> str:
-    """Function that replaces numbers by letters
+def columns_check(df: DataFrame) -> DataFrame:
+    """Performs the relevant checks on the columns of the `DataFrame`"""
 
-    Args:
-        input_string (str): character to be cleared of numbers
+    df.columns = df.columns.str.replace(".", "")
+    df.columns = df.columns.str.replace(",", "")
+    df.columns = df.columns.str.replace("__", "_")
+    new_cols = []
+    for col in df.columns:
+        res = any(chr.isdigit() for chr in col)
+        if res:
+            col = "[" + col + "]"
+        new_cols.append(col)
 
-    Returns:
-        str: clean character of numbers
-    """
-    number_to_letter = {
-        "0": "A_",
-        "1": "B_",
-        "2": "C_",
-        "3": "D_",
-        "4": "E_",
-        "5": "F_",
-        "6": "G_",
-        "7": "H_",
-        "8": "I_",
-        "9": "J_",
-    }
-    result = ""
-
-    for char in input_string:
-        if char.isdigit():
-            result += number_to_letter[char]
-        else:
-            result += char
-    return result
+    df.columns = new_cols
+    return df
 
 
 def coerce_datetime(x: str) -> datetime64:
