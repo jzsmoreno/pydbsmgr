@@ -1,5 +1,6 @@
 import glob
 import os
+import re
 from typing import List
 
 import numpy as np
@@ -25,6 +26,8 @@ def columns_check(df: DataFrame) -> DataFrame:
         res = any(chr.isdigit() for chr in col)
         if res:
             col = "[" + col + "]"
+        else:
+            col = re.sub("[^a-zA-Z0-9]", "_", col)
         new_cols.append(col)
 
     df.columns = new_cols

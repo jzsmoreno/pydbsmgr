@@ -12,3 +12,4 @@ openpyxl==3.1.2
 pyarrow
 fastparquet
 loguru
+psutil
