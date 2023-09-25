@@ -29,6 +29,7 @@ def columns_check(df: DataFrame) -> DataFrame:
         "from",
         "where",
         "group",
+        "view",
     ]
     df.columns = df.columns.str.replace(".", "")
     df.columns = df.columns.str.replace(",", "")
