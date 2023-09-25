@@ -17,7 +17,19 @@ from pyarrow import Table
 
 def columns_check(df: DataFrame) -> DataFrame:
     """Performs the relevant checks on the columns of the `DataFrame`"""
-
+    # SQL reserved words
+    reserved_words = [
+        "update",
+        "insert",
+        "delete",
+        "create",
+        "drop",
+        "truncate",
+        "into",
+        "from",
+        "where",
+        "group",
+    ]
     df.columns = df.columns.str.replace(".", "")
     df.columns = df.columns.str.replace(",", "")
     df.columns = df.columns.str.replace("__", "_")
@@ -28,6 +40,8 @@ def columns_check(df: DataFrame) -> DataFrame:
             col = "[" + col + "]"
         else:
             col = re.sub("[^a-zA-Z0-9]", "_", col)
+            if col in reserved_words:
+                col = "[" + col + "]"
         new_cols.append(col)
 
     df.columns = new_cols
