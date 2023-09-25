@@ -15,38 +15,57 @@ from pandas.core.indexes.base import Index
 from pyarrow import Table
 
 
-def columns_check(df: DataFrame) -> DataFrame:
+class ColumnsCheck:
     """Performs the relevant checks on the columns of the `DataFrame`"""
-    # SQL reserved words
-    reserved_words = [
-        "update",
-        "insert",
-        "delete",
-        "create",
-        "drop",
-        "truncate",
-        "into",
-        "from",
-        "where",
-        "group",
-        "view",
-    ]
-    df.columns = df.columns.str.replace(".", "")
-    df.columns = df.columns.str.replace(",", "")
-    df.columns = df.columns.str.replace("__", "_")
-    new_cols = []
-    for col in df.columns:
-        res = any(chr.isdigit() for chr in col)
-        if res:
-            col = "[" + col + "]"
-        else:
-            col = re.sub("[^a-zA-Z0-9]", "_", col)
+
+    def __init__(self, df: DataFrame):
+        self.df = df
+
+    def get_frame(self) -> DataFrame:
+        self.df = self._process_columns()
+        self.df = self._check_reserved_words()
+        return self.df
+
+    def _process_columns(self) -> DataFrame:
+        df = (self.df).copy()
+        df.columns = df.columns.str.replace(".", "")
+        df.columns = df.columns.str.replace(",", "")
+        df.columns = df.columns.str.replace("__", "_")
+        new_cols = []
+        for col in df.columns:
+            res = any(chr.isdigit() for chr in col)
+            if res:
+                col = "[" + col + "]"
+            else:
+                col = re.sub("[^a-zA-Z0-9]", "_", col)
+            new_cols.append(col)
+
+        df.columns = new_cols
+        return df
+
+    def _check_reserved_words(self) -> DataFrame:
+        df = (self.df).copy()
+        new_cols = []
+        for col in df.columns:
+            # SQL reserved words
+            reserved_words = [
+                "update",
+                "insert",
+                "delete",
+                "create",
+                "drop",
+                "truncate",
+                "into",
+                "from",
+                "where",
+                "group",
+                "view",
+            ]
             if col in reserved_words:
                 col = "[" + col + "]"
-        new_cols.append(col)
-
-    df.columns = new_cols
-    return df
+            new_cols.append(col)
+        df.columns = new_cols
+        return df
 
 
 def coerce_datetime(x: str) -> datetime64:
