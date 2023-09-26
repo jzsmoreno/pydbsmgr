@@ -37,7 +37,7 @@ class ColumnsCheck:
             if res:
                 col = "[" + col + "]"
             else:
-                col = re.sub("[^a-zA-Z0-9]", "_", col)
+                col = re.sub("[^a-zA-Z0-9ñáéíóú_]", "_", col)
             new_cols.append(col)
 
         df.columns = new_cols
