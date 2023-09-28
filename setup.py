@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="pydbsmgr",
-    version="0.4.7",
+    version="0.4.8",
     author="J. A. Moreno-Guerra",
     author_email="jzs.gm27@gmail.com",
     description="Testing installation of Package",

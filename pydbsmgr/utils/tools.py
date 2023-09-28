@@ -90,13 +90,14 @@ class ControllerFeatures:
         """Write pyarrow table as `parquet` format"""
         format_type = "parquet"
         for table, blob_name in zip(pytables, names):
-            buf = pa.BufferOutputStream()
-            pq.write_table(table, buf)
-            parquet_data = buf.getvalue().to_pybytes()
-            blob_path_name = directory_name + "/" + blob_name
-            self._container_client.upload_blob(
-                name=blob_path_name + "." + format_type, data=parquet_data, overwrite=overwrite
-            )
+            if table != None:
+                buf = pa.BufferOutputStream()
+                pq.write_table(table, buf)
+                parquet_data = buf.getvalue().to_pybytes()
+                blob_path_name = directory_name + "/" + blob_name
+                self._container_client.upload_blob(
+                    name=blob_path_name + "." + format_type, data=parquet_data, overwrite=overwrite
+                )
 
     def write_parquet(
         self,
@@ -110,17 +111,18 @@ class ControllerFeatures:
         files = []
         format_type = "parquet"
         for data, blob_name in zip(dfs, names):
-            table = pa.Table.from_pandas(data)
-            buf = pa.BufferOutputStream()
-            pq.write_table(table, buf)
-            parquet_data = buf.getvalue().to_pybytes()
-            blob_path_name = directory_name + "/" + blob_name
-            if upload:
-                self._container_client.upload_blob(
-                    name=blob_path_name + "." + format_type, data=parquet_data, overwrite=overwrite
-                )
-            else:
-                files.append(parquet_data)
+            if data != None:
+                table = pa.Table.from_pandas(data)
+                buf = pa.BufferOutputStream()
+                pq.write_table(table, buf)
+                parquet_data = buf.getvalue().to_pybytes()
+                blob_path_name = directory_name + "/" + blob_name
+                if upload:
+                    self._container_client.upload_blob(
+                        name=blob_path_name + "." + format_type, data=parquet_data, overwrite=overwrite
+                    )
+                else:
+                    files.append(parquet_data)
 
         if not upload:
             return files
