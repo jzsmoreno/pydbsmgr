@@ -12,8 +12,8 @@ from sqlalchemy.engine import URL
 class DataFrameToSQL:
     """Allows you to create a table from a dataframe"""
 
-    sql_types = ["FLOAT", "BIGINT", "INT", "DATETIME", "VARCHAR(MAX)", "BIGINT", "INT"]
-    pandas_types = ["float64", "int64", "int32", "datetime64[ns]", "object", "Int64", "Int32"]
+    sql_types = ["FLOAT", "BIGINT", "INT", "DATETIME", "VARCHAR(MAX)", "BIGINT", "INT", "BIT"]
+    pandas_types = ["float64", "int64", "int32", "datetime64[ns]", "object", "Int64", "Int32", "bool"]
     datatype_dict = dict(zip(pandas_types, sql_types))
 
     def __init__(self, connection_string: str) -> None:
