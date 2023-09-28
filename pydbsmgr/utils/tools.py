@@ -89,6 +89,7 @@ class ControllerFeatures:
     ) -> None:
         """Write pyarrow table as `parquet` format"""
         format_type = "parquet"
+        files_not_loaded = []
         for table, blob_name in zip(pytables, names):
             if table != None:
                 buf = pa.BufferOutputStream()
@@ -98,6 +99,10 @@ class ControllerFeatures:
                 self._container_client.upload_blob(
                     name=blob_path_name + "." + format_type, data=parquet_data, overwrite=overwrite
                 )
+            else:
+                files_not_loaded.append(blob_name)
+        if len(files_not_loaded) > 0:
+            return files_not_loaded
 
     def write_parquet(
         self,
@@ -110,6 +115,7 @@ class ControllerFeatures:
         """Write dataframes as `parquet` format by converting them first into `bytes`"""
         files = []
         format_type = "parquet"
+        files_not_loaded = []
         for data, blob_name in zip(dfs, names):
             if data != None:
                 table = pa.Table.from_pandas(data)
@@ -119,10 +125,16 @@ class ControllerFeatures:
                 blob_path_name = directory_name + "/" + blob_name
                 if upload:
                     self._container_client.upload_blob(
-                        name=blob_path_name + "." + format_type, data=parquet_data, overwrite=overwrite
+                        name=blob_path_name + "." + format_type,
+                        data=parquet_data,
+                        overwrite=overwrite,
                     )
                 else:
                     files.append(parquet_data)
+            else:
+                files_not_loaded.append(blob_name)
+        if len(files_not_loaded) > 0:
+            return files_not_loaded
 
         if not upload:
             return files
