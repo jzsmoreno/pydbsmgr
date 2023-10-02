@@ -28,6 +28,7 @@ class ColumnsCheck:
 
     def _process_columns(self) -> DataFrame:
         df = (self.df).copy()
+        df.columns = df.columns.str.lower()
         df.columns = df.columns.str.replace(".", "")
         df.columns = df.columns.str.replace(",", "")
         df.columns = df.columns.str.replace("__", "_")
