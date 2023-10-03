@@ -21,9 +21,20 @@ class LightCleaner:
                 else:
                     table[cols[column_index]] = table[cols[column_index]].apply(clean)
                     table[cols[column_index]] = table[cols[column_index]].apply(remove_char)
-                    table[cols[column_index]] = table[cols[column_index]].apply(
-                        lambda text: text.title()
-                    )
+                    try:
+                        table[cols[column_index]] = table[cols[column_index]].apply(
+                            lambda text: text.title()
+                        )
+                    except AttributeError as e:
+                        warning_type = "UserWarning"
+                        msg = (
+                            "It was not possible to perform the cleaning, the column {%s} is duplicated. "
+                            % cols[column_index]
+                        )
+                        msg += "Error: {%s}" % e
+                        print(f"{warning_type}: {msg}")
+                        sys.exit("Perform correction manually")
+
                     table[cols[column_index]] = table[cols[column_index]].apply(
                         self._correct_str, datatype=datatype
                     )
