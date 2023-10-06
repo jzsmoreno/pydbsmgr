@@ -34,7 +34,7 @@ class LightCleaner:
                         msg += "Error: {%s}" % e
                         print(f"{warning_type}: {msg}")
                         sys.exit("Perform correction manually")
-
+                    table[cols[column_index]] = table[cols[column_index]].apply(correct_nan)
                     table[cols[column_index]] = table[cols[column_index]].apply(
                         self._correct_str, datatype=datatype
                     )

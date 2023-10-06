@@ -294,4 +294,5 @@ def test_clean_and_convert_to():
 
 
 def test_correct_nan():
-    assert type(correct_nan("nan")) == type(np.nan)
+    assert type(correct_nan("nan")) == ""
+    assert type(correct_nan("Nan")) == ""
