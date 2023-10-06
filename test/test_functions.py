@@ -255,11 +255,11 @@ def correct_nan(check_missing: str) -> str:
     Returns
     -------
     check_missing : str
-        The corrected string format or `np.nan`.
+        The corrected string format or `empty str`.
     """
-    if str(check_missing).find("nan") != -1:
+    if str(check_missing).find("nan") != -1 or str(check_missing).find("Nan") != -1:
         if len(str(check_missing)) == 3:
-            return np.nan
+            return ""
         else:
             return check_missing
     else:
@@ -294,5 +294,5 @@ def test_clean_and_convert_to():
 
 
 def test_correct_nan():
-    assert type(correct_nan("nan")) == ""
-    assert type(correct_nan("Nan")) == ""
+    assert correct_nan("nan") == ""
+    assert correct_nan("Nan") == ""
