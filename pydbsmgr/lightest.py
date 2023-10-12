@@ -1,3 +1,5 @@
+import concurrent.futures
+
 from pydbsmgr.main import *
 
 
@@ -19,11 +21,16 @@ class LightCleaner:
                         clean_and_convert_to
                     )
                 else:
-                    table[cols[column_index]] = table[cols[column_index]].apply(clean)
-                    table[cols[column_index]] = table[cols[column_index]].apply(remove_char)
+                    with concurrent.futures.ThreadPoolExecutor() as executor:
+                        table[cols[column_index]] = list(
+                            executor.map(clean, table[cols[column_index]])
+                        )
+                        table[cols[column_index]] = list(
+                            executor.map(remove_char, table[cols[column_index]])
+                        )
                     try:
                         table[cols[column_index]] = table[cols[column_index]].apply(
-                            lambda text: text.title()
+                            lambda text: text.title() if text is not None else text
                         )
                     except AttributeError as e:
                         warning_type = "UserWarning"
@@ -34,7 +41,7 @@ class LightCleaner:
                         msg += "Error: {%s}" % e
                         print(f"{warning_type}: {msg}")
                         sys.exit("Perform correction manually")
-                    table[cols[column_index]] = table[cols[column_index]].apply(correct_nan)
+
                     table[cols[column_index]] = table[cols[column_index]].apply(
                         self._correct_str, datatype=datatype
                     )

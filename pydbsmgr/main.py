@@ -114,6 +114,7 @@ def remove_char(input_string: str) -> str:
             input_string = input_string.replace(char, "")
         except:
             None
+    input_string = correct_nan(input_string)
     return input_string
 
 
@@ -258,7 +259,7 @@ def clean_and_convert_to(x: str) -> str:
 
 def correct_nan(check_missing: str) -> str:
     """
-    Corrects the format of missing values in a `str` to the correct `np.nan`.
+    Corrects the format of missing values in a `str` to the correct `empty str`.
 
     Parameters
     ----------
@@ -270,8 +271,8 @@ def correct_nan(check_missing: str) -> str:
     check_missing : str
         The corrected string format or `empty str`.
     """
-    if str(check_missing).find("nan") != -1 or str(check_missing).find("Nan") != -1:
-        if len(str(check_missing)) == 3:
+    if len(str(check_missing)) == 3:
+        if str(check_missing).find("nan") != -1 or str(check_missing).find("Nan") != -1:
             return ""
         else:
             return check_missing
