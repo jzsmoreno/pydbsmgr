@@ -33,19 +33,22 @@ class LightCleaner:
                         table[cols[column_index]] = list(
                             executor.map(remove_char, table[cols[column_index]])
                         )
-                    try:
-                        table[cols[column_index]] = table[cols[column_index]].apply(
-                            lambda text: text.title() if text is not None else text
-                        )
-                    except AttributeError as e:
-                        warning_type = "UserWarning"
-                        msg = (
-                            "It was not possible to perform the cleaning, the column {%s} is duplicated. "
-                            % cols[column_index]
-                        )
-                        msg += "Error: {%s}" % e
-                        print(f"{warning_type}: {msg}")
-                        sys.exit("Perform correction manually")
+                        try:
+                            table[cols[column_index]] = list(
+                                executor.map(
+                                    lambda text: text.title() if text is not None else text,
+                                    table[cols[column_index]],
+                                )
+                            )
+                        except AttributeError as e:
+                            warning_type = "UserWarning"
+                            msg = (
+                                "It was not possible to perform the cleaning, the column {%s} is duplicated. "
+                                % cols[column_index]
+                            )
+                            msg += "Error: {%s}" % e
+                            print(f"{warning_type}: {msg}")
+                            sys.exit("Perform correction manually")
 
         table = self._remove_duplicate_columns(table)
         self.df = table.copy()
