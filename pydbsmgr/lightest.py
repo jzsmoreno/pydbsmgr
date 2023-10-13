@@ -4,6 +4,8 @@ from pydbsmgr.main import *
 
 
 class LightCleaner:
+    """Performs a light cleaning on the table"""
+
     def __init__(self, df_: DataFrame):
         self.df = df_.copy()
         self.dict_dtypes = dict(zip(["float", "int", "str"], ["float64", "int64", "object"]))
@@ -19,9 +21,10 @@ class LightCleaner:
                     or ((cols[column_index]).lower()).find("date") != -1
                     or ((cols[column_index]).lower()).find("fec") != -1
                 ):
-                    table[cols[column_index]] = table[cols[column_index]].apply(
-                        clean_and_convert_to
-                    )
+                    with concurrent.futures.ThreadPoolExecutor() as executor:
+                        table[cols[column_index]] = list(
+                            executor.map(clean_and_convert_to, table[cols[column_index]])
+                        )
                 else:
                     with concurrent.futures.ThreadPoolExecutor() as executor:
                         table[cols[column_index]] = list(

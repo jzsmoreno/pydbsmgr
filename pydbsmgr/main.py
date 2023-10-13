@@ -178,12 +178,12 @@ def clean_and_convert_to(x: str) -> str:
 
     Parameters
     ----------
-    x : str
+    x : `str`
         The input string to be cleaned and converted.
 
     Returns
     -------
-    x : str
+    x : `str`
         The cleaned and converted string.
     """
 
@@ -193,13 +193,13 @@ def clean_and_convert_to(x: str) -> str:
             try:
                 return float(x)
             except:
-                print(f"Could not convert to float, converted to `np.nan`.")
+                # Could not convert to float, converted to `np.nan`.
                 return np.nan
         else:
             try:
                 return int(x)
             except:
-                print(f"Could not convert to `int`, converted to `np.nan`.")
+                # Could not convert to `int`, converted to `np.nan`.
                 return np.nan
     else:
         # Consider cases in which a `float` number is passed as a `str` and is erroneous
@@ -207,9 +207,9 @@ def clean_and_convert_to(x: str) -> str:
             try:
                 return float(x)
             except:
-                print(f"Could not convert {x} to float, converting to `str`...")
+                # Could not convert {x} to float, converting to `str`...
                 x = str(x)
-                print(f"Successfully converted {x} to `str`.")
+                # Successfully converted {x} to `str`.
         # Cases in which we have an identifier with numbers and letters
         else:
             result = re.findall(r"^[A-Za-z0-9]+$", str(x))
@@ -232,7 +232,7 @@ def clean_and_convert_to(x: str) -> str:
                 if str(x_).find(":") != -1:
                     x = convert_date(x_[:8])
                 else:
-                    print("No date found.")
+                    # No date found.
                     x = clean(x)
                     x = x.title()
         else:
@@ -263,12 +263,12 @@ def correct_nan(check_missing: str) -> str:
 
     Parameters
     ----------
-    check_missing : str
+    check_missing : `str`
         The string to be checked for incorrect missing value format.
 
     Returns
     -------
-    check_missing : str
+    check_missing : `str`
         The corrected string format or `empty str`.
     """
     if len(str(check_missing)) == 3:
@@ -286,14 +286,14 @@ def check_dtypes(dataframe: DataFrame, datatypes: Series) -> DataFrame:
 
     Parameters
     ----------
-    dataframe : DataFrame
+    dataframe : `DataFrame`
         The `DataFrame` to check and update the data types.
-    datatypes : Series
+    datatypes : `Series`
         The `Series` containing the desired data types for each column in the `DataFrame`.
 
     Returns
     -------
-    dataframe : DataFrame
+    dataframe : `DataFrame`
         The `DataFrame` with updated data types.
     """
     cols = dataframe.columns
@@ -329,11 +329,11 @@ def create_yaml_from_df(
 
     Parameters
     ----------
-    df_ : DataFrame
+    df_ : `DataFrame`
         The DataFrame.
-    yaml_name : str
+    yaml_name : `str`
         The name of the `yaml` configuration file to be created. By default it is set to `./output.yaml`
-    database_name : str
+    database_name : `str`
         The header of the `.yaml` file. By default it is set to `database`
 
     Returns
@@ -365,11 +365,11 @@ def create_yaml_tree(yaml_name: str, df_info: DataFrame, dabase_name: str = "dat
 
     Parameters
     ----------
-    yaml_name : str
+    yaml_name : `str`
         The name of the `yaml` configuration file to be created.
-    df_info : DataFrame
+    df_info : `DataFrame`
         The DataFrame with the column information for data type validation.
-    database_name : str
+    database_name : `str`
         The header of the `.yaml` file. By default it is set to `database`
 
     Returns
@@ -407,12 +407,12 @@ def intersection_cols(dfs_: List[DataFrame]) -> DataFrame:
 
     Parameters
     ----------
-    dfs_ : List[DataFrame]
+    dfs_ : List[`DataFrame`]
         The `list` of dataframes with columns to be resolves.
 
     Returns
     -------
-    dfs_ : List[DataFrame]
+    dfs_ : List[`DataFrame`]
         The `list` of dataframes with the corrections in their columns (intersection).
     """
     min_cols = []
@@ -446,18 +446,18 @@ def check_values(
 
     Parameters
     ----------
-    df_ : DataFrame
+    df_ : `DataFrame`
         The `DataFrame` to be validated.
-    df_name : str
+    df_name : `str`
         The name of the `DataFrame`.
-    mode : bool
+    mode : `bool`
         Indicates whether to generate a visualization and report in `html`. By default it is set to `False`.
-    cols_upper_case : bool
+    cols_upper_case : `bool`
         Indicates whether to convert column names to uppercase. By default it is set to `False`.
 
     Returns
     -------
-    info, df : DataFrame, DataFrame
+    info, df : `DataFrame`, `DataFrame`
         A tuple containing the information `DataFrame` and the validated `DataFrame`.
     """
     df = df_.copy()
@@ -551,26 +551,26 @@ def check_for_list(
 
     Parameters
     ----------
-    dfs_ : List[DataFrame]
+    dfs_ : List[`DataFrame`]
         The `list` of dataframes to be validated.
     dfs_names : List[str]
         The `list` containing the dataframe names.
-    mode : bool
+    mode : `bool`
         Indicates whether to generate a visualization and report in `html`. By default it is set to `False`.
-    yaml_name : str
+    yaml_name : `str`
         Indicates the name of the `.yaml` file that will serve as a template for the creation of the SQL table. By default it is set to `./output.yaml`
-    report_name : str
+    report_name : `str`
         Name of the quality assessment report. By default it is set to `./report-health-checker.html`
-    encoding : str
+    encoding : `str`
         The encoding of dataframes. By default it is set to `latin1`
-    concat_vertically : bool
+    concat_vertically : `bool`
         Variable indicating whether the list of dataframes should be vertically concatenated into a single one. By default it is set to `False`
-    drop_empty_cols : bool
+    drop_empty_cols : `bool`
         Variable indicating whether columns with all their values empty should be removed. By default it is set to `True`
 
     Returns
     -------
-    df_concatenated, df_sheet_files_info : DataFrame, DataFrame
+    df_concatenated, df_sheet_files_info : `DataFrame`, `DataFrame`
         A tuple containing the validated `DataFrames` concatenated or not, depending on the `concat_vertically` variable and the `DataFrame` information.
     """
     dataframes = []
