@@ -43,6 +43,6 @@ def test_correct_nan(_correct_nan):
 
 
 def test_columns_dtypes(columns_dtypes_with_data):
-    df = columns_dtypes_with_data.correct()
+    df = columns_dtypes_with_data.correct(sample_frac=0.33)
     data_types = df.dtypes
     assert data_types[1] == "datetime64[ns]"
