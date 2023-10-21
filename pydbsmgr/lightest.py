@@ -16,39 +16,39 @@ class LightCleaner:
         cols = table.columns
         for column_index, datatype in enumerate(table.dtypes):
             if datatype == "object" or datatype == "datetime64[ns]":
-                if (
-                    ((cols[column_index]).lower()).find("fecha") != -1
-                    or ((cols[column_index]).lower()).find("date") != -1
-                    or ((cols[column_index]).lower()).find("fec") != -1
-                ):
-                    with concurrent.futures.ThreadPoolExecutor() as executor:
-                        table[cols[column_index]] = list(
-                            executor.map(clean_and_convert_to, table[cols[column_index]])
-                        )
-                else:
-                    with concurrent.futures.ThreadPoolExecutor() as executor:
-                        table[cols[column_index]] = list(
-                            executor.map(clean, table[cols[column_index]])
-                        )
-                        table[cols[column_index]] = list(
-                            executor.map(remove_char, table[cols[column_index]])
-                        )
-                        try:
+                x = (table[cols[column_index]].values)[0]
+                if isinstance(x, str):
+                    if (x.find("/") != -1 or x.find("-")) != -1 and not (
+                        x.find("//") or x.find("\\")
+                    ) != -1:
+                        with concurrent.futures.ThreadPoolExecutor() as executor:
                             table[cols[column_index]] = list(
-                                executor.map(
-                                    lambda text: text.title() if text is not None else text,
-                                    table[cols[column_index]],
+                                executor.map(clean_and_convert_to, table[cols[column_index]])
+                            )
+                    else:
+                        with concurrent.futures.ThreadPoolExecutor() as executor:
+                            table[cols[column_index]] = list(
+                                executor.map(clean, table[cols[column_index]])
+                            )
+                            table[cols[column_index]] = list(
+                                executor.map(remove_char, table[cols[column_index]])
+                            )
+                            try:
+                                table[cols[column_index]] = list(
+                                    executor.map(
+                                        lambda text: text.title() if text is not None else text,
+                                        table[cols[column_index]],
+                                    )
                                 )
-                            )
-                        except AttributeError as e:
-                            warning_type = "UserWarning"
-                            msg = (
-                                "It was not possible to perform the cleaning, the column {%s} is duplicated. "
-                                % cols[column_index]
-                            )
-                            msg += "Error: {%s}" % e
-                            print(f"{warning_type}: {msg}")
-                            sys.exit("Perform correction manually")
+                            except AttributeError as e:
+                                warning_type = "UserWarning"
+                                msg = (
+                                    "It was not possible to perform the cleaning, the column {%s} is duplicated. "
+                                    % cols[column_index]
+                                )
+                                msg += "Error: {%s}" % e
+                                print(f"{warning_type}: {msg}")
+                                sys.exit("Perform correction manually")
 
         table = self._remove_duplicate_columns(table)
         self.df = table.copy()

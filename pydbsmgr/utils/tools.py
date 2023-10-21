@@ -245,23 +245,27 @@ class ColumnsDtypes:
         if drop_values:
             if len(df_) < 1e5:
                 for col in df_.columns:
-                    value = df_[col].iloc[0]
+                    value = str(df_[col].iloc[0])
+                    val_dtype = None
                     if is_number_regex(value):
                         if type(check_float(value)).__name__ == "float":
                             df_[col] = df_[col].apply(check_float)
                             df_[col] = df_[col].astype("float64")
                             val_dtype = "float64"
+                            print("Checking {%s} for column {%s}" % (val_dtype, col))
 
-                        if type(check_int(value)).__name__ == "int":
+                        if type(check_int(value)).__name__ == "int" and val_dtype == None:
                             df_[col] = df_[col].apply(check_int)
                             if drop_rows:
                                 df_ = df_.loc[df_[col].notnull()]
                             try:
                                 df_[col] = df_[col].astype("int64")
                                 val_dtype = "int64"
+                                print("Checking {%s} for column {%s}" % (val_dtype, col))
                             except IntCastingNaNError as e:
                                 df_[col] = df_[col].astype("object")
                                 val_dtype = "object"
+                                print("Checking {%s} for column {%s}" % (val_dtype, col))
 
                         print(f"Successfully transformed the '{col}' column into {val_dtype}.")
         self.df = df_
@@ -271,19 +275,31 @@ class ColumnsDtypes:
         Check and convert date-time string columns to datetime objects.
         """
         df_ = self.df
-
-        for col in df_.columns:
-            if (col.lower()).find("fecha") != -1 or (col.lower()).find("date") != -1:
-                try:
-                    with concurrent.futures.ThreadPoolExecutor() as executor:
-                        df_[col] = list(executor.map(lambda date: date.replace("-", ""), df_[col]))
-                    df_[col] = pd.to_datetime(df_[col], format="%Y%m%d")
-                    print(f"Successfully transformed the '{col}' column into datetime64[ns].")
-                except:
-                    with concurrent.futures.ThreadPoolExecutor() as executor:
-                        df_[col] = list(executor.map(coerce_datetime, df_[col]))
-                    df_[col] = pd.to_datetime(df_[col], format="%Y%m%d", errors="coerce")
-                    print(f"Successfully transformed the '{col}' column into datetime64[ns].")
+        cols = df_.columns
+        for column_index, datatype in enumerate(df_.dtypes):
+            col = cols[column_index]
+            if datatype == "object":
+                x = (df_[col].values)[0]
+                if isinstance(x, str):
+                    if (x.find("/") != -1 or x.find("-")) != -1 and not (
+                        x.find("//") or x.find("\\")
+                    ) != -1:
+                        try:
+                            with concurrent.futures.ThreadPoolExecutor() as executor:
+                                df_[col] = list(
+                                    executor.map(lambda date: date.replace("-", ""), df_[col])
+                                )
+                            df_[col] = pd.to_datetime(df_[col], format="%Y%m%d")
+                            print(
+                                f"Successfully transformed the '{col}' column into datetime64[ns]."
+                            )
+                        except:
+                            with concurrent.futures.ThreadPoolExecutor() as executor:
+                                df_[col] = list(executor.map(coerce_datetime, df_[col]))
+                            df_[col] = pd.to_datetime(df_[col], format="%Y%m%d", errors="coerce")
+                            print(
+                                f"Successfully transformed the '{col}' column into datetime64[ns]."
+                            )
         self.df = df_
 
 
