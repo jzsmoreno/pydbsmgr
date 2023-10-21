@@ -15,7 +15,7 @@ from pandas.core.frame import DataFrame
 from pandas.errors import IntCastingNaNError
 from pyarrow import Table
 
-from pydbsmgr.main import is_number_regex
+from pydbsmgr.main import is_number_regex, check_if_contains_dates
 
 
 class ColumnsCheck:
@@ -280,10 +280,18 @@ class ColumnsDtypes:
             col = cols[column_index]
             if datatype == "object":
                 x = (df_[col].values)[0]
+                datetype_column = True
                 if isinstance(x, str):
-                    if (x.find("/") != -1 or x.find("-")) != -1 and not (
-                        x.find("//") or x.find("\\")
-                    ) != -1:
+                    if (
+                        x == ""
+                        or x.find("/") != -1
+                        or x.find("-") != -1
+                        or x == np.datetime64("NaT")
+                    ):
+                        datetype_column = (
+                            (df_[col].apply(check_if_contains_dates)).isin([True]).any()
+                        )
+                    if not (x.find("//") or x.find("\\")) != -1 and datetype_column:
                         try:
                             with concurrent.futures.ThreadPoolExecutor() as executor:
                                 df_[col] = list(

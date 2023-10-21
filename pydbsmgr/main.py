@@ -22,6 +22,17 @@ warnings.filterwarnings("ignore")
 ########################################################################################
 
 
+def check_if_contains_dates(input_string: str) -> bool:
+    """Check if a string contains date."""
+    if input_string == "":
+        return False
+    else:
+        if re.search(r"\d{4}(-|/)\d{1,2}(-|/)\d{1,2}", str(input_string)):
+            return True
+        else:
+            return False
+
+
 def remove_numeric_char(input_string: str) -> str:
     """Remove all numeric characters from a string.
 

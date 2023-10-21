@@ -17,10 +17,20 @@ class LightCleaner:
         for column_index, datatype in enumerate(table.dtypes):
             if datatype == "object" or datatype == "datetime64[ns]":
                 x = (table[cols[column_index]].values)[0]
+                datetype_column = True
                 if isinstance(x, str):
-                    if (x.find("/") != -1 or x.find("-")) != -1 and not (
-                        x.find("//") or x.find("\\")
-                    ) != -1:
+                    if (
+                        x == ""
+                        or x.find("/") != -1
+                        or x.find("-") != -1
+                        or x == np.datetime64("NaT")
+                    ):
+                        datetype_column = (
+                            (table[cols[column_index]].apply(check_if_contains_dates))
+                            .isin([True])
+                            .any()
+                        )
+                    if not (x.find("//") or x.find("\\")) != -1 and datetype_column:
                         with concurrent.futures.ThreadPoolExecutor() as executor:
                             table[cols[column_index]] = list(
                                 executor.map(clean_and_convert_to, table[cols[column_index]])
