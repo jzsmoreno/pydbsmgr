@@ -251,13 +251,15 @@ class ColumnsDtypes:
                     val_dtype = None
                     if is_number_regex(value):
                         if type(check_float(value)).__name__ == "float":
-                            df_[col] = df_[col].apply(check_float)
+                            with concurrent.futures.ThreadPoolExecutor() as executor:
+                                df_[col] = list(executor.map(check_float, df_[col]))
                             df_[col] = df_[col].astype("float64")
                             val_dtype = "float64"
                             print("Checking {%s} for column {%s}" % (val_dtype, col))
 
                         if type(check_int(value)).__name__ == "int" and val_dtype == None:
-                            df_[col] = df_[col].apply(check_int)
+                            with concurrent.futures.ThreadPoolExecutor() as executor:
+                                df_[col] = list(executor.map(check_int, df_[col]))
                             if drop_rows:
                                 df_ = df_.loc[df_[col].notnull()]
                             try:
@@ -283,7 +285,7 @@ class ColumnsDtypes:
             col = cols[column_index]
             if datatype == "object":
                 x = (df_sample[col].values)[0]
-                datetype_column = True
+                datetype_column = False
                 if isinstance(x, str):
                     if (
                         x == ""

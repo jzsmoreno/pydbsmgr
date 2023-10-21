@@ -16,9 +16,9 @@ class LightCleaner:
         cols = table.columns
         table_sample = table.sample(frac=sample_frac)
         for column_index, datatype in enumerate(table.dtypes):
-            if datatype == "object" or datatype == "datetime64[ns]":
+            if datatype == "object":
                 x = (table_sample[cols[column_index]].values)[0]
-                datetype_column = True
+                datetype_column = False
                 if isinstance(x, str):
                     if (
                         x == ""
