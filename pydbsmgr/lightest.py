@@ -10,13 +10,14 @@ class LightCleaner:
         self.df = df_.copy()
         self.dict_dtypes = dict(zip(["float", "int", "str"], ["float64", "int64", "object"]))
 
-    def clean_frame(self) -> DataFrame:
+    def clean_frame(self, sample_frac: float = 0.1) -> DataFrame:
         """`DataFrame` cleaning main function"""
         table = (self.df).copy()
         cols = table.columns
+        table_sample = table.sample(frac=sample_frac)
         for column_index, datatype in enumerate(table.dtypes):
             if datatype == "object" or datatype == "datetime64[ns]":
-                x = (table[cols[column_index]].values)[0]
+                x = (table_sample[cols[column_index]].values)[0]
                 datetype_column = True
                 if isinstance(x, str):
                     if (
@@ -26,7 +27,7 @@ class LightCleaner:
                         or x == np.datetime64("NaT")
                     ):
                         datetype_column = (
-                            (table[cols[column_index]].apply(check_if_contains_dates))
+                            (table_sample[cols[column_index]].apply(check_if_contains_dates))
                             .isin([True])
                             .any()
                         )

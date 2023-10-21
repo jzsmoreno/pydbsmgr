@@ -210,9 +210,11 @@ class ColumnsDtypes:
     def __init__(self, df_: DataFrame):
         self.df = df_.copy()
 
-    def correct(self, drop_values: bool = False, drop_rows: bool = False) -> DataFrame:
+    def correct(
+        self, drop_values: bool = False, drop_rows: bool = False, sample_frac: float = 0.1
+    ) -> DataFrame:
         self._check_int_float(drop_values, drop_rows)
-        self._check_datetime()
+        self._check_datetime(sample_frac)
         return self.df
 
     def get_frame(self) -> DataFrame:
@@ -270,16 +272,17 @@ class ColumnsDtypes:
                         print(f"Successfully transformed the '{col}' column into {val_dtype}.")
         self.df = df_
 
-    def _check_datetime(self) -> None:
+    def _check_datetime(self, sample_frac: float) -> None:
         """
         Check and convert date-time string columns to datetime objects.
         """
         df_ = self.df
         cols = df_.columns
+        df_sample = df_.sample(frac=sample_frac)
         for column_index, datatype in enumerate(df_.dtypes):
             col = cols[column_index]
             if datatype == "object":
-                x = (df_[col].values)[0]
+                x = (df_sample[col].values)[0]
                 datetype_column = True
                 if isinstance(x, str):
                     if (
@@ -289,7 +292,7 @@ class ColumnsDtypes:
                         or x == np.datetime64("NaT")
                     ):
                         datetype_column = (
-                            (df_[col].apply(check_if_contains_dates)).isin([True]).any()
+                            (df_sample[col].apply(check_if_contains_dates)).isin([True]).any()
                         )
                     if not (x.find("//") or x.find("\\")) != -1 and datetype_column:
                         try:
