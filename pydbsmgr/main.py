@@ -30,7 +30,10 @@ def check_if_contains_dates(input_string: str) -> bool:
         if re.search(r"\d{4}(-|/)\d{1,2}(-|/)\d{1,2}", str(input_string)):
             return True
         else:
-            return False
+            if re.search(r"\d{1,2}(-|/)\d{1,2}(-|/)\d{4}", str(input_string)):
+                return True
+            else:
+                return False
 
 
 def remove_numeric_char(input_string: str) -> str:
