@@ -12,17 +12,8 @@ from sqlalchemy.engine import URL
 class DataFrameToSQL:
     """Allows you to create a table from a dataframe"""
 
-    sql_types = ["FLOAT", "BIGINT", "INT", "DATETIME", "VARCHAR(MAX)", "BIGINT", "INT", "BIT"]
-    pandas_types = [
-        "float64",
-        "int64",
-        "int32",
-        "datetime64[ns]",
-        "object",
-        "Int64",
-        "Int32",
-        "bool",
-    ]
+    sql_types = ["FLOAT", "INT", "BIGINT", "DATE", "VARCHAR(MAX)", "BIT"]
+    pandas_types = ["float64", "int32", "int64", "datetime64[ns]", "object", "bool"]
     datatype_dict = dict(zip(pandas_types, sql_types))
 
     def __init__(self, connection_string: str) -> None:
@@ -31,22 +22,27 @@ class DataFrameToSQL:
         self._con = pyodbc.connect(self._connection_string, autocommit=True)
         self._cur = self._con.cursor()
 
-    def import_table(self, df: DataFrame, table_name: str, overwrite: bool = True) -> None:
+    def import_table(self, df: DataFrame, table_name: str, overwrite: bool = True, char_length: int = 15) -> None:
         """Process for importing the dataframe into the database"""
 
         """Check if the current connection is active. If it is not, create a new connection"""
+
+        df = df.replace(" ", None)
+        df = df.replace("<NA>", None)
+        df = df.replace(np.datetime64("NaT"), None)
+
         if self._con.closed:
             self._con = pyodbc.connect(self._connection_string, autocommit=True)
             self._cur = self._con.cursor()
 
         try:
             """Create table"""
-            self._cur.execute(self._create_table_query(table_name, df))
+            self._cur.execute(self._create_table_query(table_name, df, char_length))
         except pyodbc.Error as e:
             if overwrite:
                 """If the table exists, it will be deleted and recreated"""
                 self._cur.execute("DROP TABLE %s" % (table_name))
-                self._cur.execute(self._create_table_query(table_name, df))
+                self._cur.execute(self._create_table_query(table_name, df, char_length))
             else:
                 warning_type = "UserWarning"
                 msg = "It was not possible to create the table {%s}" % table_name
@@ -60,9 +56,7 @@ class DataFrameToSQL:
             [
                 [
                     None
-                    if str(value) == "<NA>"
-                    or str(value) == ""
-                    or (isinstance(value, float) and np.isnan(value))
+                    if (isinstance(value, float) and np.isnan(value))
                     else value
                     for value in row
                 ]
@@ -78,6 +72,11 @@ class DataFrameToSQL:
         """Access to update data from a dataframe to a database"""
 
         """Check if the current connection is active. If it is not, create a new connection"""
+
+        df = df.replace(" ", None)
+        df = df.replace("<NA>", None)
+        df = df.replace(np.datetime64("NaT"), None)
+
         if self._con.closed:
             self._con = pyodbc.connect(self._connection_string, autocommit=True)
             self._cur = self._con.cursor()
@@ -97,12 +96,18 @@ class DataFrameToSQL:
         msg = "Table {%s}, successfully uploaded!" % table_name
         print(f"{msg}")
 
-    def _create_table_query(self, table_name: str, df: DataFrame) -> str:
+    def _create_table_query(self, table_name: str, df: DataFrame, char_length: int) -> str:
         """Build the query that will be used to create the table"""
         query = "CREATE TABLE " + table_name + "("
         for j, column in enumerate(df.columns):
             matches = re.findall(r"([^']*)", str(df.iloc[:, j].dtype))
             dtype = self.datatype_dict[matches[0]]
+            if dtype == "VARCHAR(MAX)":
+                element = max(list(df[column].astype(str)), key=len)
+                max_string_length = int(len(element) * char_length)
+                if max_string_length == 0:
+                    max_string_length = 256
+                dtype = dtype.replace("MAX", str(max_string_length))
             query += column + " " + dtype + ", "
 
         query = query[:-2]
