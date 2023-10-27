@@ -22,9 +22,7 @@ class DataFrameToSQL:
         self._con = pyodbc.connect(self._connection_string, autocommit=True)
         self._cur = self._con.cursor()
 
-    def import_table(
-        self, df: DataFrame, table_name: str, overwrite: bool = True, char_length: int = 15
-    ) -> None:
+    def import_table(self, df: DataFrame, table_name: str, overwrite: bool = True) -> None:
         """Process for importing the dataframe into the database"""
 
         """Check if the current connection is active. If it is not, create a new connection"""
@@ -39,12 +37,12 @@ class DataFrameToSQL:
 
         try:
             """Create table"""
-            self._cur.execute(self._create_table_query(table_name, df, char_length))
+            self._cur.execute(self._create_table_query(table_name, df))
         except pyodbc.Error as e:
             if overwrite:
                 """If the table exists, it will be deleted and recreated"""
                 self._cur.execute("DROP TABLE %s" % (table_name))
-                self._cur.execute(self._create_table_query(table_name, df, char_length))
+                self._cur.execute(self._create_table_query(table_name, df))
             else:
                 warning_type = "UserWarning"
                 msg = "It was not possible to create the table {%s}" % table_name
@@ -93,7 +91,7 @@ class DataFrameToSQL:
         msg = "Table {%s}, successfully uploaded!" % table_name
         print(f"{msg}")
 
-    def _create_table_query(self, table_name: str, df: DataFrame, char_length: int) -> str:
+    def _create_table_query(self, table_name: str, df: DataFrame) -> str:
         """Build the query that will be used to create the table"""
         query = "CREATE TABLE " + table_name + "("
         for j, column in enumerate(df.columns):
@@ -101,7 +99,7 @@ class DataFrameToSQL:
             dtype = self.datatype_dict[matches[0]]
             if dtype == "VARCHAR(MAX)":
                 element = max(list(df[column].astype(str)), key=len)
-                max_string_length = int(len(element) * char_length)
+                max_string_length = int(len(element))
                 if max_string_length == 0:
                     max_string_length = 256
                 dtype = dtype.replace("MAX", str(max_string_length))
