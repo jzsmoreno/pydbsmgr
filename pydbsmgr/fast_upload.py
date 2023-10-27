@@ -22,7 +22,9 @@ class DataFrameToSQL:
         self._con = pyodbc.connect(self._connection_string, autocommit=True)
         self._cur = self._con.cursor()
 
-    def import_table(self, df: DataFrame, table_name: str, overwrite: bool = True, char_length: int = 15) -> None:
+    def import_table(
+        self, df: DataFrame, table_name: str, overwrite: bool = True, char_length: int = 15
+    ) -> None:
         """Process for importing the dataframe into the database"""
 
         """Check if the current connection is active. If it is not, create a new connection"""
@@ -54,12 +56,7 @@ class DataFrameToSQL:
         self._cur.executemany(
             self._insert_table_query(table_name, df),
             [
-                [
-                    None
-                    if (isinstance(value, float) and np.isnan(value))
-                    else value
-                    for value in row
-                ]
+                [None if (isinstance(value, float) and np.isnan(value)) else value for value in row]
                 for row in df.values.tolist()
             ],
         )
