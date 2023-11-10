@@ -184,12 +184,14 @@ class StorageController(ControllerFeatures):
             if len(blob["name"].split("/")) > 1:
                 print("\tBlob name : {}".format(blob["name"]))
 
-    def get_all_blob(self) -> List[str]:
+    def get_all_blob(self, filter_criteria: str = None) -> List[str]:
         """Get all blob names from a container"""
         blob_names = []
         for blob in self._container_client.list_blobs():
             if len(blob["name"].split("/")) > 1:
                 blob_names.append(blob["name"])
+        if filter_criteria != None:
+            blob_names = self._list_filter(blob_names, filter_criteria)
         return blob_names
 
     def show_blobs(self, directory_name) -> None:
@@ -206,6 +208,22 @@ class StorageController(ControllerFeatures):
 
     def set_BlobPrefix(self, file_list: list) -> None:
         self.file_list = self._list_to_BlobPrefix(file_list)
+
+    def _list_filter(self, elements: list, character: str) -> List[str]:
+        """Function that filters a list from a criteria
+
+        Args:
+            elements (list): list of values to be filtered
+            character (str): filter criteria
+
+        Returns:
+            List[str]: list of filtered elements
+        """
+        filter_elements = []
+        for element in elements:
+            if element.find(character) != -1:
+                filter_elements.append(element)
+        return filter_elements
 
     def _print_BlobItem(self) -> None:
         for file in self.file_list:
