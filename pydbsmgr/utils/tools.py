@@ -313,7 +313,7 @@ class ColumnsDtypes:
                             print(
                                 f"Successfully transformed the '{col}' column into datetime64[ns]."
                             )
-            elif datatype == "datetime64[us]":
+            elif datatype == "datetime64[us]" or datatype == "datetime64[ns]":
                 df_[col] = df_[col].astype("datetime64[ns]")
                 df_[col] = df_[col].dt.normalize()
                 print(f"Successfully transformed the '{col}' column into datetime64[ns].")
