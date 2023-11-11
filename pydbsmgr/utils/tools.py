@@ -302,7 +302,7 @@ class ColumnsDtypes:
                                 df_[col] = list(
                                     executor.map(lambda date: date.replace("-", ""), df_[col])
                                 )
-                            df_[col] = pd.to_datetime(df_[col], format="%Y%m%d").dt.date
+                            df_[col] = pd.to_datetime(df_[col], format="%Y%m%d").dt.normalize()
                             print(
                                 f"Successfully transformed the '{col}' column into datetime64[ns]."
                             )
