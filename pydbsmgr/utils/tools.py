@@ -284,38 +284,22 @@ class ColumnsDtypes:
         for column_index, datatype in enumerate(df_.dtypes):
             col = cols[column_index]
             if datatype == "object":
-                x = (df_sample[col].values)[0]
-                datetype_column = False
-                if isinstance(x, str):
-                    if (
-                        x == ""
-                        or x.find("/") != -1
-                        or x.find("-") != -1
-                        or x == np.datetime64("NaT")
-                    ):
-                        datetype_column = (
-                            (df_sample[col].apply(check_if_contains_dates)).isin([True]).any()
-                        )
-                    if not (x.find("//") or x.find("\\")) != -1 and datetype_column:
-                        try:
-                            with concurrent.futures.ThreadPoolExecutor() as executor:
-                                df_[col] = list(
-                                    executor.map(lambda date: date.replace("-", ""), df_[col])
-                                )
-                            df_[col] = pd.to_datetime(df_[col], format="%Y%m%d").dt.normalize()
-                            print(
-                                f"Successfully transformed the '{col}' column into datetime64[ns]."
+                datetype_column = (df_sample[col].apply(check_if_contains_dates)).isin([True]).any()
+                if datetype_column:
+                    try:
+                        with concurrent.futures.ThreadPoolExecutor() as executor:
+                            df_[col] = list(
+                                executor.map(lambda date: date.replace("-", ""), df_[col])
                             )
-                        except:
-                            with concurrent.futures.ThreadPoolExecutor() as executor:
-                                df_[col] = list(executor.map(coerce_datetime, df_[col]))
-                            df_[col] = pd.to_datetime(df_[col], format="%Y%m%d", errors="coerce")
-                            print(
-                                f"Successfully transformed the '{col}' column into datetime64[ns]."
-                            )
-            elif datatype == "datetime64[us]" or datatype == "datetime64[ns]":
+                        df_[col] = pd.to_datetime(df_[col], format="%Y%m%d")
+                        print(f"Successfully transformed the '{col}' column into datetime64[ns].")
+                    except:
+                        with concurrent.futures.ThreadPoolExecutor() as executor:
+                            df_[col] = list(executor.map(coerce_datetime, df_[col]))
+                        df_[col] = pd.to_datetime(df_[col], format="%Y%m%d", errors="coerce")
+                        print(f"Successfully transformed the '{col}' column into datetime64[ns].")
+            elif datatype == "datetime64[us]":
                 df_[col] = df_[col].astype("datetime64[ns]")
-                df_[col] = df_[col].dt.normalize()
                 print(f"Successfully transformed the '{col}' column into datetime64[ns].")
 
         self.df = df_

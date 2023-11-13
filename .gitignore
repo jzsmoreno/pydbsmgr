@@ -153,7 +153,7 @@ dmypy.json
 cython_debug/
 
 # Ignore test_<files>.py for testing 
-/test_utilities.py
+/_utilities.py
 /test_logs.txt
 /test_logsbook.csv
 *.html
