@@ -3,6 +3,36 @@ import concurrent.futures
 from pydbsmgr.main import *
 
 
+def process_dates(x: str) -> str:
+    """Auxiliary function in date type string processing
+
+    Parameters
+    ----------
+        x : `str`
+            character of type date.
+
+    Returns
+    ----------
+        x : `str`
+            character after processing with format `YYYY-MM-DD`.
+    """
+    # performing data type conversion
+    x = str(x)
+    x = x.replace("/", "")
+    x = x.replace("-", "")
+    if len(x) == 8:
+        x = convert_date(x)
+    else:
+        if str(x).find(":") != -1:
+            x = convert_date(x[:8])
+    if len(x) == 8:
+        try:
+            x = str(pd.to_datetime(x, format="%Y%d%m", errors="ignore"))[:10]
+        except:
+            None
+    return x
+
+
 class LightCleaner:
     """Performs a light cleaning on the table"""
 
@@ -10,7 +40,7 @@ class LightCleaner:
         self.df = df_.copy()
         self.dict_dtypes = dict(zip(["float", "int", "str"], ["float64", "int64", "object"]))
 
-    def clean_frame(self, sample_frac: float = 0.1) -> DataFrame:
+    def clean_frame(self, sample_frac: float = 0.1, fast_execution: bool = True) -> DataFrame:
         """`DataFrame` cleaning main function"""
         table = (self.df).copy()
         cols = table.columns
@@ -34,32 +64,33 @@ class LightCleaner:
                     if not (x.find("//") or x.find("\\")) != -1 and datetype_column:
                         with concurrent.futures.ThreadPoolExecutor() as executor:
                             table[cols[column_index]] = list(
-                                executor.map(clean_and_convert_to, table[cols[column_index]])
+                                executor.map(process_dates, table[cols[column_index]])
                             )
                     else:
-                        with concurrent.futures.ThreadPoolExecutor() as executor:
-                            table[cols[column_index]] = list(
-                                executor.map(clean, table[cols[column_index]])
-                            )
-                            table[cols[column_index]] = list(
-                                executor.map(remove_char, table[cols[column_index]])
-                            )
-                            try:
+                        if fast_execution == False:
+                            with concurrent.futures.ThreadPoolExecutor() as executor:
                                 table[cols[column_index]] = list(
-                                    executor.map(
-                                        lambda text: text.title() if text is not None else text,
-                                        table[cols[column_index]],
+                                    executor.map(clean, table[cols[column_index]])
+                                )
+                                table[cols[column_index]] = list(
+                                    executor.map(remove_char, table[cols[column_index]])
+                                )
+                                try:
+                                    table[cols[column_index]] = list(
+                                        executor.map(
+                                            lambda text: text.title() if text is not None else text,
+                                            table[cols[column_index]],
+                                        )
                                     )
-                                )
-                            except AttributeError as e:
-                                warning_type = "UserWarning"
-                                msg = (
-                                    "It was not possible to perform the cleaning, the column {%s} is duplicated. "
-                                    % cols[column_index]
-                                )
-                                msg += "Error: {%s}" % e
-                                print(f"{warning_type}: {msg}")
-                                sys.exit("Perform correction manually")
+                                except AttributeError as e:
+                                    warning_type = "UserWarning"
+                                    msg = (
+                                        "It was not possible to perform the cleaning, the column {%s} is duplicated. "
+                                        % cols[column_index]
+                                    )
+                                    msg += "Error: {%s}" % e
+                                    print(f"{warning_type}: {msg}")
+                                    sys.exit("Perform correction manually")
 
         table = self._remove_duplicate_columns(table)
         self.df = table.copy()
