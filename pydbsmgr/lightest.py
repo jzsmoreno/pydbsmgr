@@ -65,7 +65,7 @@ class LightCleaner:
                         )
                     table[cols[column_index]] = pd.to_datetime(
                         table[cols[column_index]], format="%Y%m%d", errors="coerce"
-                    )
+                    ).dt.normalize()
                 else:
                     if fast_execution == False:
                         with concurrent.futures.ThreadPoolExecutor() as executor:
