@@ -13,30 +13,6 @@ from pydbsmgr.utils.tools import ColumnsCheck
 class DataFrameToSQL(ColumnsCheck):
     """Allows you to create a table from a dataframe"""
 
-    sql_types = [
-        "FLOAT",
-        "INT",
-        "BIGINT",
-        "DATE",
-        "VARCHAR(MAX)",
-        "BIT",
-        "VARCHAR(MAX)",
-        "INT",
-        "BIGINT",
-    ]
-    pandas_types = [
-        "float64",
-        "int32",
-        "int64",
-        "datetime64[ns]",
-        "object",
-        "bool",
-        "category",
-        "Int32",
-        "Int64",
-    ]
-    datatype_dict = dict(zip(pandas_types, sql_types))
-
     def __init__(self, connection_string: str) -> None:
         """Set the connection with the database"""
         self._connection_string = connection_string
@@ -134,7 +110,7 @@ class DataFrameToSQL(ColumnsCheck):
         query = "CREATE TABLE " + table_name + "("
         for j, column in enumerate(df.columns):
             matches = re.findall(r"([^']*)", str(df.iloc[:, j].dtype))
-            dtype = self.datatype_dict[matches[0]]
+            dtype = self._infer_schema_query(matches[0])
             if dtype == "VARCHAR(MAX)":
                 element = max(list(df[column].astype(str)), key=len)
                 max_string_length = len(element)
@@ -152,6 +128,27 @@ class DataFrameToSQL(ColumnsCheck):
         query = "INSERT INTO %s({0}) values ({1})" % (table_name)
         query = query.format(",".join(df.columns), ",".join("?" * len(df.columns)))
         return query
+
+    def _infer_schema_query(self, datatype: str) -> str:
+        """Infer schema from a given datatype string"""
+        datatype = datatype.lower()
+        if datatype.find("float") != -1:
+            return "FLOAT"
+        elif datatype.find("int") != -1:
+            if datatype.find("64") != -1:
+                return "BIGINT"
+            else:
+                return "INT"
+        elif datatype.find("datetime") != -1:
+            return "DATE"
+        elif datatype.find("object") != -1:
+            return "VARCHAR(MAX)"
+        elif datatype.find("category") != -1:
+            return "VARCHAR(MAX)"
+        elif datatype.find("bool") != -1:
+            return "BIT"
+        else:
+            raise ValueError("Data type could not be inferred!")
 
 
 ########################################################################################
