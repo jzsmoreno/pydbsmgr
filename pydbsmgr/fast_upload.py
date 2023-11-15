@@ -7,9 +7,10 @@ import pyodbc
 from pandas.core.frame import DataFrame
 from sqlalchemy import create_engine
 from sqlalchemy.engine import URL
+from pydbsmgr.utils.tools import ColumnsCheck
 
 
-class DataFrameToSQL:
+class DataFrameToSQL(ColumnsCheck):
     """Allows you to create a table from a dataframe"""
 
     sql_types = [
@@ -54,6 +55,8 @@ class DataFrameToSQL:
 
         """Check if the current connection is active. If it is not, create a new connection"""
 
+        super().__init__(df)
+        df = self.get_frame()
         df = df.replace(" ", None)
         df = df.replace("<NA>", None)
         df = df.replace(np.datetime64("NaT"), None)
@@ -99,6 +102,8 @@ class DataFrameToSQL:
 
         """Check if the current connection is active. If it is not, create a new connection"""
 
+        super().__init__(df)
+        df = self.get_frame()
         df = df.replace(" ", None)
         df = df.replace("<NA>", None)
         df = df.replace(np.datetime64("NaT"), None)
