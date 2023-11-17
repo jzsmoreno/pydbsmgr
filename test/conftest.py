@@ -4,7 +4,12 @@ import pandas as pd
 import pytest
 
 from pydbsmgr.main import *
-from pydbsmgr.utils.tools import ColumnsDtypes
+from pydbsmgr.utils.tools import ColumnsDtypes, get_extraction_date
+
+
+@pytest.fixture()
+def _get_extraction_date() -> Callable:
+    return get_extraction_date
 
 
 @pytest.fixture()

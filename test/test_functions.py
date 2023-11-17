@@ -46,3 +46,8 @@ def test_columns_dtypes(columns_dtypes_with_data):
     df = columns_dtypes_with_data.correct(sample_frac=0.33)
     data_types = df.dtypes
     assert data_types[1] == "datetime64[ns]"
+
+
+def test_get_extraction_date(_get_extraction_date):
+    assert _get_extraction_date("filename_2023-11-17") == "2023-11-17"
+    assert _get_extraction_date(["filename_2023-11-17"]) == ["2023-11-17"]

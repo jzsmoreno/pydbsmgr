@@ -204,6 +204,36 @@ def erase_files(format: str = "log") -> None:
             os.remove(filename)
 
 
+def get_extraction_date(
+    filename: str | List[str], REGEX_PATTERN: str = r"\d{4}-\d{2}-\d{2}"
+) -> str:
+    """Allows to extract the date of extraction according to the directory within the storage account.
+
+    Args:
+        filename (`str` | List[`str`]): file path inside the storage account
+        REGEX_PATTERN (`str`, optional): regular expression pattern to extract the date. Defaults to `r"\d{4}-\d{2}-\d{2}"`.
+
+    Returns:
+        str: the date that was extracted if found in the file path.
+    """
+
+    def sub_extraction_date(filename: str, REGEX_PATTERN: str) -> str:
+        extraction_date = re.findall(REGEX_PATTERN, filename)
+        if len(extraction_date) > 0:
+            _date = extraction_date[0]
+        else:
+            _date = ""
+        return _date
+
+    if type(filename) == str:
+        return sub_extraction_date(filename, REGEX_PATTERN)
+    elif isinstance(filename, list):
+        dates = []
+        for name in filename:
+            dates.append(sub_extraction_date(name, REGEX_PATTERN))
+        return dates
+
+
 class ColumnsDtypes:
     """Convert all columns to specified dtype."""
 
