@@ -4,6 +4,7 @@ import pandas as pd
 import pyodbc
 
 from pydbsmgr.fast_upload import DataFrame, DataFrameToSQL
+from pydbsmgr.utils.azure_sdk import StorageController
 
 
 class FileToSQL(DataFrameToSQL):
@@ -41,38 +42,45 @@ class FileToSQL(DataFrameToSQL):
         """
 
         self.file_type = None
+        df_to_load: DataFrame = pd.DataFrame()
         if type(df) == str:
             self.path = df
             # read csv file
             if df.find("csv") != -1:
                 try:
-                    df = pd.read_csv(df)
+                    df_to_load = pd.read_csv(df)
                 except:
                     raise ValueError("Unable to parse CSV")
             # read xlsx file
             else:
                 try:
-                    df = pd.read_excel(df)
+                    df_to_load = pd.read_excel(df)
                     self.file_type = "xlsx"
                 except:
                     raise ValueError("Unable to parse Excel")
-        txt = "{:,}".format(len(df))
-        print(f"Will be loaded {txt} rows.")
+        if type(df) == DataFrame:
+            df_to_load = df
+        # txt = "{:,}".format(len(df))
+        print(f"Will be loaded {len(df_to_load)} rows.")
         if overwrite:
-            self._create(df, table_name, overwrite, char_length, override_length)
-            self._append_to_table(df.iloc[1:, :], table_name)
+            self._create(
+                df_to_load, table_name, overwrite, char_length, override_length
+            )
+            self._append_to_table(df_to_load.iloc[2:, :], table_name)
         else:
-            self._append_to_table(df.iloc[1:, :], table_name)
+            self._append_to_table(df_to_load.iloc[2:, :], table_name)
 
     def _create(
         self,
         df: DataFrame,
         table_name: str,
         overwrite: bool,
-        char_length: str,
-        override_length: str,
+        char_length: int,
+        override_length: bool,
     ):
-        self.import_table((df.iloc[0:1, :]), table_name, overwrite, char_length, override_length)
+        self.import_table(
+            (df.iloc[0:1, :]), table_name, overwrite, char_length, override_length
+        )
 
     def _append_to_table(self, df: DataFrame, db_table_nm: str) -> None:
         # csv_buffer = StringIO()
@@ -102,6 +110,42 @@ class FileToSQL(DataFrameToSQL):
         if self.file_type == "xlsx":
             # Delete csv_file_nm.csv file
             os.remove(csv_file_nm)
+
+    def write_csv_from_parquet(
+        self,
+        connection_string: str,
+        container_name: str = "processed",
+        directory: str = "Rotacion/",
+    ) -> bool:
+        """Write a csv file from parquet files in a container
+        Parameters:
+        ----------
+            connection_string (`str`): Connection string to the storage account
+            container_name (`str`): Name of the container in which the data is being inserted
+            directory (`str`): Directory in which the parquet files are located
+        Returns:
+        ----------
+            `bool`: True if the file was created successfully or False if not
+        """
+        # Get all the files in the container
+        print("GETTING PARQUET FILES FROM THE CONTAINER")
+        storage_controller = StorageController(connection_string, container_name)
+        file_names = storage_controller.get_all_blob(filter_criteria=directory)
+
+        storage_controller.set_BlobPrefix(file_names)
+
+        df_list, name_list = storage_controller.get_parquet("/", "\w+.parquet", True)
+
+        # Write the csv files
+        print("WRITING CSV FILES")
+        storage_controller.upload_excel_csv(
+            directory_name=directory,
+            dfs=df_list,
+            blob_names=name_list,
+        )
+
+        print("FINISHED WRITING CSV FILES")
+        return True
 
 
 ########################################################################################
