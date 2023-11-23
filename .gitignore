@@ -171,3 +171,4 @@ data/
 
 # Debug files 
 catching_bugs.py
+debug.py
