@@ -6,6 +6,8 @@ import pyodbc
 from pydbsmgr.fast_upload import DataFrame, DataFrameToSQL
 from pydbsmgr.utils.azure_sdk import StorageController
 
+from pydbsmgr.utils.tools import generate_secure_password
+
 
 class FileToSQL(DataFrameToSQL):
     """Allows you to create a table from a file or dataframe"""
@@ -19,7 +21,7 @@ class FileToSQL(DataFrameToSQL):
 
     def insert_data(
         self,
-        df: DataFrame | str,
+        df: DataFrame,
         table_name: str,
         overwrite: bool = True,
         char_length: int = 512,
@@ -63,9 +65,7 @@ class FileToSQL(DataFrameToSQL):
         # txt = "{:,}".format(len(df))
         print(f"Will be loaded {len(df_to_load)} rows.")
         if overwrite:
-            self._create(
-                df_to_load, table_name, overwrite, char_length, override_length
-            )
+            self._create(df_to_load, table_name, overwrite, char_length, override_length)
             self._append_to_table(df_to_load.iloc[2:, :], table_name)
         else:
             self._append_to_table(df_to_load.iloc[2:, :], table_name)
@@ -78,9 +78,7 @@ class FileToSQL(DataFrameToSQL):
         char_length: int,
         override_length: bool,
     ):
-        self.import_table(
-            (df.iloc[0:1, :]), table_name, overwrite, char_length, override_length
-        )
+        self.import_table((df.iloc[0:1, :]), table_name, overwrite, char_length, override_length)
 
     def _append_to_table(self, df: DataFrame, db_table_nm: str) -> None:
         # csv_buffer = StringIO()
@@ -111,12 +109,169 @@ class FileToSQL(DataFrameToSQL):
             # Delete csv_file_nm.csv file
             os.remove(csv_file_nm)
 
+    def bulk_insert_from_csv(
+        self,
+        file_name: str,
+        db_table_name: str,
+        sas_str: str,
+        storage_connection_string: str,
+        storage_account: str,
+        container_name: str,
+        credential_name: str = "UploadCSV_Credential",
+        data_source_name: str = "UploadCSV_DS",
+        char_length: int = 512,
+        overwrite: bool = True,
+    ) -> bool:
+        """Insert data from csv files in Azure Blob Storage into SQL Server with Bulk command
+
+        Parameters:
+        ----------
+            file_name (`str`): Name of the csv file in Azure Blob Storage
+            db_table_name (`str`): Name of the table in which the data is being inserted
+            sas_str (`str`): SAS token for the storage account
+            blob_storage_name (`str`): Name of the storage account
+            credential_name (`str`): Name of the SQL credentials
+            data_source_name (`str`): Name of the external data source
+            overwrite (`bool`): If `True` it will delete and recreate the table before inserting new data
+        Returns:
+        ----------
+            `bool`: True if the data was inserted successfully
+        """
+        # Checking file type
+        df: DataFrame = pd.DataFrame()
+        is_parquet = file_name.endswith("parquet")
+        try:
+            df_list = self.write_csv_from_parquet(
+                storage_connection_string=storage_connection_string,
+                container_name=container_name,
+                directory="/".join(file_name.split("/")[:-1]),
+                filter_condition=file_name.split("/")[-1].replace(".csv", ".parquet"),
+                write_to_csv=is_parquet,
+            )
+        except Exception as e:
+            print("==============================================")
+            warning_type = "UserWarning"
+            msg = "Parquet asociated with the csv file not found."
+            msg += f"Error: {e}"
+            print(f"{warning_type}: {msg}")
+            print("==============================================")
+
+            df_list, _ = self.storage_controller.get_excel_csv(
+                directory_name="/".join(file_name.split("/")[:-1]), regex="\w+.csv"
+            )
+
+        df = df_list[0]
+        # Create master key
+        try:
+            sspassword = generate_secure_password()
+            self._cur.execute(f"CREATE MASTER KEY ENCRYPTION BY PASSWORD = '{sspassword}'")
+        except pyodbc.ProgrammingError as e:
+            print("==============================================")
+            warning_type = "UserWarning"
+            msg = f"Master key already exists. If you want to create a new one, please drop the existing one first."
+            msg += f"Error: {e}"
+            print(f"{warning_type}: {msg}")
+            print("==============================================")
+
+        # Create credentials query
+        try:
+            credentials_query = f"""CREATE DATABASE SCOPED CREDENTIAL {credential_name}
+            WITH IDENTITY = 'SHARED ACCESS SIGNATURE',
+            SECRET = '{sas_str}';"""
+            self._cur.execute(credentials_query)
+        except pyodbc.ProgrammingError as e:
+            print("==============================================")
+            warning_type = "UserWarning"
+            msg = f"Credentials already exists. If you want to create a new one, please drop the existing one first."
+            msg += f"Error: {e}"
+            print(f"{warning_type}: {msg}")
+            print("==============================================")
+
+        # Create external data source query
+        external_data_source_query = f"""CREATE EXTERNAL DATA SOURCE {data_source_name}
+        WITH (
+            TYPE = BLOB_STORAGE,
+            LOCATION = 'https://{storage_account}.blob.core.windows.net',
+            CREDENTIAL = {credential_name}
+        );"""
+
+        # Create bulk insert query
+        bulk_insert_query = f"""BULK INSERT {db_table_name}
+        FROM '{container_name}/{file_name}'
+        WITH (
+            DATA_SOURCE = '{data_source_name}',
+            FIELDTERMINATOR = ',',
+            DATAFILETYPE = 'char',
+            FIRSTROW = 3
+        );"""
+
+        # # Execute queries
+        # self._con = pyodbc.connect(self._connection_string, autocommit=True)
+        # self._cur = self._con.cursor()
+        try:
+            self._cur.execute(external_data_source_query)
+        except pyodbc.ProgrammingError as e:
+            print("==============================================")
+            warning_type = "UserWarning"
+            msg = f"External data source already exists. If you want to create a new one, please drop the existing one first."
+            msg += f"Error: {e}"
+            print(f"{warning_type}: {msg}")
+            print("==============================================")
+        # Create table
+        if overwrite:
+            print("CREATING TABLE FOR BULK INSERT")
+            self._create(df, db_table_name, overwrite, char_length, True)
+            # Create connection and cursor again
+            self._con = pyodbc.connect(self._connection_string, autocommit=True)
+            self._cur = self._con.cursor()
+        print("INSERTING DATA, PLEASE WAIT")
+        self._cur.execute(bulk_insert_query)
+        # Drop dropable objects
+        self.drop_dropables(data_source_name, credential_name=credential_name, masterkey=True)
+        self._con.close()
+        print("Successfully 'Bulk Inserted'")
+
+        return True
+
+    def drop_dropables(
+        self, data_source_name: str, credential_name: str, masterkey: bool = False
+    ) -> bool:
+        """Drop dropable objects
+
+        Parameters:
+        ----------
+            data_source_name (`str`): Name of the data source
+            masterkey (`bool`): If `True` it will drop the master key
+        Returns:
+        ----------
+            `Bool`: True if the data was inserted successfully
+        """
+        print("DROPPING EXTERNAL DATA SOURCE")
+        self._cur.execute(f"DROP EXTERNAL DATA SOURCE {data_source_name}")
+        print("DROPPING CREDENTIALS")
+        self._cur.execute(f"DROP DATABASE SCOPED CREDENTIAL {credential_name}")
+        if masterkey:
+            print("DROPPING MASTER KEY")
+            try:
+                self._cur.execute(f"DROP MASTER KEY")
+            except pyodbc.ProgrammingError as e:
+                print("==============================================")
+                warning_type = "UserWarning"
+                msg = f"Master key does not exist."
+                msg += f"Error: {e}"
+                print(f"{warning_type}: {msg}")
+                print("==============================================")
+
+        return True
+
     def write_csv_from_parquet(
         self,
-        connection_string: str,
-        container_name: str = "processed",
-        directory: str = "Rotacion/",
-    ) -> bool:
+        storage_connection_string: str,
+        container_name: str = "/",
+        directory: str = "/",
+        filter_condition: str = "",
+        write_to_csv: bool = True,
+    ) -> list[DataFrame]:
         """Write a csv file from parquet files in a container
         Parameters:
         ----------
@@ -125,27 +280,31 @@ class FileToSQL(DataFrameToSQL):
             directory (`str`): Directory in which the parquet files are located
         Returns:
         ----------
-            `bool`: True if the file was created successfully or False if not
+            `bool`: True if the file was created successfully
         """
         # Get all the files in the container
         print("GETTING PARQUET FILES FROM THE CONTAINER")
-        storage_controller = StorageController(connection_string, container_name)
-        file_names = storage_controller.get_all_blob(filter_criteria=directory)
+        self.storage_controller = StorageController(storage_connection_string, container_name)
+        file_names = self.storage_controller.get_all_blob(filter_criteria=directory)
+        filter_names = file_names
+        if filter_condition != "":
+            filter_names = self.storage_controller._list_filter(file_names, filter_condition)
 
-        storage_controller.set_BlobPrefix(file_names)
+        self.storage_controller.set_BlobPrefix(filter_names)
 
-        df_list, name_list = storage_controller.get_parquet("/", "\w+.parquet", True)
+        df_list, name_list = self.storage_controller.get_parquet("/", "\w+.parquet", True)
 
         # Write the csv files
-        print("WRITING CSV FILES")
-        storage_controller.upload_excel_csv(
-            directory_name=directory,
-            dfs=df_list,
-            blob_names=name_list,
-        )
+        if write_to_csv:
+            print("WRITING CSV FILES")
+            self.storage_controller.upload_excel_csv(
+                directory_name=directory,
+                dfs=df_list,
+                blob_names=name_list,
+            )
 
-        print("FINISHED WRITING CSV FILES")
-        return True
+            print("FINISHED WRITING CSV FILES")
+        return df_list
 
 
 ########################################################################################

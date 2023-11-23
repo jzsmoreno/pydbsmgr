@@ -10,12 +10,29 @@ import psutil
 import pyarrow as pa
 import pyarrow.parquet as pq
 import yaml
+import random
 from numpy import datetime64
 from pandas.core.frame import DataFrame
 from pandas.errors import IntCastingNaNError
 from pyarrow import Table
 
 from pydbsmgr.main import check_if_contains_dates, is_number_regex
+
+from pydbsmgr.utils.config import load_config, parse_config
+
+
+def generate_secure_password(pass_len: int = 24) -> str:
+    """
+    Generate a secure password with the length specified
+    """
+    config = load_config("./pydbsmgr/utils/config.ini")
+    config = parse_config(config)
+    password = ""
+    char_matrix = config["security"]["char_matrix"]
+    for _ in range(pass_len):
+        password = password + random.choice(char_matrix)
+
+    return password
 
 
 class ColumnsCheck:
@@ -101,7 +118,9 @@ class ControllerFeatures:
                 parquet_data = buf.getvalue().to_pybytes()
                 blob_path_name = directory_name + "/" + blob_name
                 self._container_client.upload_blob(
-                    name=blob_path_name + "." + format_type, data=parquet_data, overwrite=overwrite
+                    name=blob_path_name + "." + format_type,
+                    data=parquet_data,
+                    overwrite=overwrite,
                 )
             else:
                 files_not_loaded.append(blob_name)
@@ -241,7 +260,10 @@ class ColumnsDtypes:
         self.df = df_.copy()
 
     def correct(
-        self, drop_values: bool = False, drop_rows: bool = False, sample_frac: float = 0.1
+        self,
+        drop_values: bool = False,
+        drop_rows: bool = False,
+        sample_frac: float = 0.1,
     ) -> DataFrame:
         self._check_int_float(drop_values, drop_rows)
         self._check_datetime(sample_frac)

@@ -1,1 +1,1 @@
-init-hook='import sys; sys.path.append("./venv/bin/python")'
+init-hook='import sys; sys.path.append("./venv/")'
