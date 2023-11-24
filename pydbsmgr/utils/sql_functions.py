@@ -202,12 +202,10 @@ class FileToSQL(DataFrameToSQL):
             DATA_SOURCE = '{data_source_name}',
             FIELDTERMINATOR = ',',
             DATAFILETYPE = 'char',
+            ROWTERMINATOR = '\n',
             FIRSTROW = 3
         );"""
 
-        # # Execute queries
-        # self._con = pyodbc.connect(self._connection_string, autocommit=True)
-        # self._cur = self._con.cursor()
         try:
             self._cur.execute(external_data_source_query)
         except pyodbc.ProgrammingError as e:
