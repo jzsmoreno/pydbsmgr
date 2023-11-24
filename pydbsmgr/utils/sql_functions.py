@@ -136,13 +136,17 @@ class FileToSQL(DataFrameToSQL):
 
         Parameters:
         ----------
-            file_name (`str`): Name of the csv file in Azure Blob Storage
+            file_path (`str`): Path to the file in Azure Blob Storage
             db_table_name (`str`): Name of the table in which the data is being inserted
-            sas_str (`str`): SAS token for the storage account
-            blob_storage_name (`str`): Name of the storage account
-            credential_name (`str`): Name of the SQL credentials
-            data_source_name (`str`): Name of the external data source
+            sas_str (`str`): SAS string to the storage account
+            storage_connection_string (`str`): Connection string to the storage account
+            storage_account (`str`): Name of the storage account
+            container_name (`str`): Name of the container in which the data is being inserted
+            credential_name (`str`): Name of the credentials
+            data_source_name (`str`): Name of the data source
+            char_length (`int`): Length of varchar fields for text columns
             overwrite (`bool`): If `True` it will delete and recreate the table before inserting new data
+            if `False` it will append the new data onto the end of the existing table
         Returns:
         ----------
             `bool`: True if the data was inserted successfully
