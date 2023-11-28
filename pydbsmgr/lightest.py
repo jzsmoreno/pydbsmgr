@@ -1,25 +1,8 @@
 import concurrent.futures
-from collections import Counter
-
-from pydbsmgr.main import *
-from pydbsmgr.utils.tools import coerce_datetime
 from functools import partial
 
-
-def most_repeated_item(items: list) -> str:
-    # Use Counter to count occurrences of each item in the list
-    counter = Counter(items)
-
-    # Find the two most common items and its count
-    most_common = counter.most_common(2)
-
-    if len(most_common) == 2:
-        item1, _ = most_common[0]
-        item2, _ = most_common[1]
-        return item1, item2
-    else:
-        item, _ = most_common[0]
-        return item, None
+from pydbsmgr.main import *
+from pydbsmgr.utils.tools import coerce_datetime, most_repeated_item
 
 
 def process_dates(x: str, format_type: str, auxiliary_type: str) -> str:
@@ -39,7 +22,7 @@ def process_dates(x: str, format_type: str, auxiliary_type: str) -> str:
     x = str(x)
     x = x.replace("/", "")
     x = x.replace("-", "")
-    print(format_type, auxiliary_type)
+
     if len(x) == 8:
         try:
             x = str(pd.to_datetime(x, format=format_type, errors="raise"))[:10]
@@ -84,7 +67,6 @@ class LightCleaner:
                             )
                         )
                     )
-                    print(format_type, auxiliary_type)
                     with concurrent.futures.ThreadPoolExecutor() as executor:
                         partial_dates = partial(
                             process_dates,
@@ -94,7 +76,6 @@ class LightCleaner:
                         table[cols[column_index]] = list(
                             executor.map(partial_dates, table[cols[column_index]])
                         )
-                        print(table[cols[column_index]])
                         table[cols[column_index]] = list(
                             executor.map(coerce_datetime, table[cols[column_index]])
                         )

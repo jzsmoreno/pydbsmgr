@@ -3,6 +3,7 @@ import glob
 import os
 import random
 import re
+from collections import Counter
 from typing import List
 
 import numpy as np
@@ -18,6 +19,22 @@ from pyarrow import Table
 
 from pydbsmgr.main import check_if_contains_dates, is_number_regex
 from pydbsmgr.utils.config import load_config, parse_config
+
+
+def most_repeated_item(items: list) -> str:
+    # Use Counter to count occurrences of each item in the list
+    counter = Counter(items)
+
+    # Find the two most common items and its count
+    most_common = counter.most_common(2)
+
+    if len(most_common) == 2:
+        item1, _ = most_common[0]
+        item2, _ = most_common[1]
+        return item1, item2
+    else:
+        item, _ = most_common[0]
+        return item, None
 
 
 def generate_secure_password(pass_len: int = 24) -> str:
