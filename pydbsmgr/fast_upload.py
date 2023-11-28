@@ -27,6 +27,7 @@ class DataFrameToSQL(ColumnsCheck):
         overwrite: bool = True,
         char_length: int = 512,
         override_length: bool = True,
+        close_cursor: bool = True,
     ) -> None:
         """Process for importing the dataframe into the database"""
 
@@ -52,7 +53,9 @@ class DataFrameToSQL(ColumnsCheck):
                 """If the table exists, it will be deleted and recreated"""
                 self._cur.execute("DROP TABLE %s" % (table_name))
                 self._cur.execute(
-                    self._create_table_query(table_name, df, char_length, override_length)
+                    self._create_table_query(
+                        table_name, df, char_length, override_length
+                    )
                 )
             else:
                 warning_type = "UserWarning"
@@ -65,16 +68,22 @@ class DataFrameToSQL(ColumnsCheck):
         self._cur.executemany(
             self._insert_table_query(table_name, df),
             [
-                [None if (isinstance(value, float) and np.isnan(value)) else value for value in row]
+                [
+                    None if (isinstance(value, float) and np.isnan(value)) else value
+                    for value in row
+                ]
                 for row in df.values.tolist()
             ],
         )
-        self._con.close()
+        if close_cursor:
+            self._con.close()
 
         msg = "Table {%s}, successfully imported!" % table_name
         print(f"{msg}")
 
-    def upload_table(self, df: DataFrame, table_name: str, overwrite: bool = True) -> None:
+    def upload_table(
+        self, df: DataFrame, table_name: str, overwrite: bool = True
+    ) -> None:
         """Access to update data from a dataframe to a database"""
 
         """Check if the current connection is active. If it is not, create a new connection"""
@@ -92,7 +101,9 @@ class DataFrameToSQL(ColumnsCheck):
         try:
             """Insert data"""
             self._cur.fast_executemany = True
-            self._cur.executemany(self._insert_table_query(table_name, df), df.values.tolist())
+            self._cur.executemany(
+                self._insert_table_query(table_name, df), df.values.tolist()
+            )
             self._con.close()
         except pyodbc.Error as e:
             print(e)
@@ -158,7 +169,9 @@ if __name__ == "__main__":
     with open("conn.pkl", "rb") as file:
         connection_string = pickle.load(file)
 
-    connection_url = URL.create("mssql+pyodbc", query={"odbc_connect": connection_string})
+    connection_url = URL.create(
+        "mssql+pyodbc", query={"odbc_connect": connection_string}
+    )
 
     engine = create_engine(connection_url)
 
