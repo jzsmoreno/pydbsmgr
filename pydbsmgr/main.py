@@ -22,6 +22,20 @@ warnings.filterwarnings("ignore")
 ########################################################################################
 
 
+def get_date_format(input_string: str) -> int:
+    """Infer the date format from a given string."""
+    regex_formats = [
+        r"\d{4}(-|/)[0-1]+[0-9](-|/)[0-3]+[0-9]",
+        r"\d{4}(-|/)[0-3]+[0-9](-|/)[0-1]+[0-9]",
+        r"[0-3]+[0-9](-|/)[0-1]+[0-9](-|/)\d{4}",
+        r"[0-1]+[0-2](-|/)[0-3]+[0-9](-|/)\d{4}",
+    ]
+    formats = ["%Y%m%d", "%Y%d%m", "%d%m%Y", "%m%d%Y"]
+    for format, regex in enumerate(regex_formats):
+        if re.search(regex, str(input_string)):
+            return formats[format]
+
+
 def check_if_contains_dates(input_string: str) -> bool:
     """Check if a string contains date."""
     if input_string == "":

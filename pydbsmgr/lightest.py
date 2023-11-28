@@ -1,10 +1,28 @@
 import concurrent.futures
+from collections import Counter
 
 from pydbsmgr.main import *
 from pydbsmgr.utils.tools import coerce_datetime
+from functools import partial
 
 
-def process_dates(x: str) -> str:
+def most_repeated_item(items: list) -> str:
+    # Use Counter to count occurrences of each item in the list
+    counter = Counter(items)
+
+    # Find the two most common items and its count
+    most_common = counter.most_common(2)
+
+    if len(most_common) == 2:
+        item1, _ = most_common[0]
+        item2, _ = most_common[1]
+        return item1, item2
+    else:
+        item, _ = most_common[0]
+        return item, None
+
+
+def process_dates(x: str, format_type: str, auxiliary_type: str) -> str:
     """Auxiliary function in date type string processing
 
     Parameters
@@ -21,18 +39,20 @@ def process_dates(x: str) -> str:
     x = str(x)
     x = x.replace("/", "")
     x = x.replace("-", "")
+    print(format_type, auxiliary_type)
     if len(x) == 8:
-        x = convert_date(x)
+        try:
+            x = str(pd.to_datetime(x, format=format_type, errors="raise"))[:10]
+        except:
+            if auxiliary_type != None:
+                x = str(pd.to_datetime(x, format=auxiliary_type, errors="ignore"))[:10]
     else:
         if str(x).find(":") != -1:
-            x = convert_date(x[:8])
-            if str(x).isdigit():
-                x = str(pd.to_datetime(x, format="%Y%d%m", errors="ignore"))[:10]
-    if str(x).isdigit():
-        try:
-            x = str(pd.to_datetime(x, format="%Y%d%m", errors="ignore"))[:10]
-        except:
-            None
+            try:
+                x = str(pd.to_datetime(x[:8], format=format_type, errors="raise"))[:10]
+            except:
+                if auxiliary_type != None:
+                    x = str(pd.to_datetime(x[:8], format=auxiliary_type, errors="ignore"))[:10]
     return x
 
 
@@ -56,10 +76,25 @@ class LightCleaner:
                     .any()
                 )
                 if datetype_column:
-                    with concurrent.futures.ThreadPoolExecutor() as executor:
-                        table[cols[column_index]] = list(
-                            executor.map(process_dates, table[cols[column_index]])
+                    format_type, auxiliary_type = most_repeated_item(
+                        list(
+                            filter(
+                                lambda item: item is not None,
+                                table_sample[cols[column_index]].apply(get_date_format),
+                            )
                         )
+                    )
+                    print(format_type, auxiliary_type)
+                    with concurrent.futures.ThreadPoolExecutor() as executor:
+                        partial_dates = partial(
+                            process_dates,
+                            format_type=format_type,
+                            auxiliary_type=auxiliary_type,
+                        )
+                        table[cols[column_index]] = list(
+                            executor.map(partial_dates, table[cols[column_index]])
+                        )
+                        print(table[cols[column_index]])
                         table[cols[column_index]] = list(
                             executor.map(coerce_datetime, table[cols[column_index]])
                         )

@@ -1,6 +1,7 @@
 import concurrent.futures
 import glob
 import os
+import random
 import re
 from typing import List
 
@@ -10,14 +11,12 @@ import psutil
 import pyarrow as pa
 import pyarrow.parquet as pq
 import yaml
-import random
 from numpy import datetime64
 from pandas.core.frame import DataFrame
 from pandas.errors import IntCastingNaNError
 from pyarrow import Table
 
 from pydbsmgr.main import check_if_contains_dates, is_number_regex
-
 from pydbsmgr.utils.config import load_config, parse_config
 
 

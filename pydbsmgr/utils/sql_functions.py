@@ -5,7 +5,6 @@ import pyodbc
 
 from pydbsmgr.fast_upload import DataFrame, DataFrameToSQL
 from pydbsmgr.utils.azure_sdk import StorageController
-
 from pydbsmgr.utils.tools import generate_secure_password
 
 
@@ -65,9 +64,7 @@ class FileToSQL(DataFrameToSQL):
         # txt = "{:,}".format(len(df))
         print(f"Will be loaded {len(df_to_load)} rows.")
         if overwrite:
-            self._create(
-                df_to_load, table_name, overwrite, char_length, override_length
-            )
+            self._create(df_to_load, table_name, overwrite, char_length, override_length)
             self._append_to_table(df_to_load.iloc[2:, :], table_name)
         else:
             self._append_to_table(df_to_load.iloc[2:, :], table_name)
@@ -184,9 +181,7 @@ class FileToSQL(DataFrameToSQL):
         print("CREATING MASTER KEY")
         try:
             sspassword = generate_secure_password()
-            self._cur.execute(
-                f"CREATE MASTER KEY ENCRYPTION BY PASSWORD = '{sspassword}'"
-            )
+            self._cur.execute(f"CREATE MASTER KEY ENCRYPTION BY PASSWORD = '{sspassword}'")
             print(f"Master key created")
         except pyodbc.ProgrammingError as e:
             print("==============================================")
@@ -262,9 +257,7 @@ class FileToSQL(DataFrameToSQL):
         print("=============================================")
 
         # Drop dropable objects
-        self.drop_dropables(
-            data_source_name, credential_name=credential_name, masterkey=True
-        )
+        self.drop_dropables(data_source_name, credential_name=credential_name, masterkey=True)
         self._con.close()
 
         print("PROCESS FINISHED")
@@ -308,15 +301,11 @@ class FileToSQL(DataFrameToSQL):
         container_name: str,
         filter_condition: str,
     ) -> tuple[list[DataFrame], list[str]]:
-        self.storage_controller = StorageController(
-            storage_connection_string, container_name
-        )
+        self.storage_controller = StorageController(storage_connection_string, container_name)
         file_names = self.storage_controller.get_all_blob(filter_criteria=file_path)
         filter_names = file_names
         if filter_condition != "":
-            filter_names = self.storage_controller._list_filter(
-                file_names, filter_condition
-            )
+            filter_names = self.storage_controller._list_filter(file_names, filter_condition)
 
         self.storage_controller.set_BlobPrefix(filter_names)
         if file_path.endswith(".parquet"):
