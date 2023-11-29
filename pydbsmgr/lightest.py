@@ -46,7 +46,9 @@ class LightCleaner:
         self.df = df_.copy()
         self.dict_dtypes = dict(zip(["float", "int", "str"], ["float64", "int64", "object"]))
 
-    def clean_frame(self, sample_frac: float = 0.1, fast_execution: bool = True) -> DataFrame:
+    def clean_frame(
+        self, sample_frac: float = 0.1, fast_execution: bool = True, two_date_formats: bool = False
+    ) -> DataFrame:
         """`DataFrame` cleaning main function"""
         table = (self.df).copy()
         cols = table.columns
@@ -65,7 +67,8 @@ class LightCleaner:
                                 lambda item: item is not None,
                                 table_sample[cols[column_index]].apply(get_date_format),
                             )
-                        )
+                        ),
+                        two_date_formats,
                     )
                     with concurrent.futures.ThreadPoolExecutor() as executor:
                         partial_dates = partial(

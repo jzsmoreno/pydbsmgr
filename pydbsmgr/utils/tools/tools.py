@@ -4,7 +4,7 @@ import os
 import random
 import re
 from collections import Counter
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
@@ -21,17 +21,30 @@ from pydbsmgr.main import check_if_contains_dates, is_number_regex
 from pydbsmgr.utils.config import load_config, parse_config
 
 
-def most_repeated_item(items: list) -> str:
+def most_repeated_item(items: list, two_most_common: bool = False) -> Tuple[str, str | None]:
+    """Returns a `Tuple` with the most common elements of a `list`.
+
+    Args:
+        items (`list`): the `list` containing the items to be evaluated.
+        two_most_common (`bool`, optional): If `False`, returns only one element. Defaults to `False`.
+
+    Returns:
+        Tuple[`str`, `str` | `None`]: The two most common elements.
+    """
     # Use Counter to count occurrences of each item in the list
     counter = Counter(items)
 
     # Find the two most common items and its count
     most_common = counter.most_common(2)
 
-    if len(most_common) == 2:
-        item1, _ = most_common[0]
-        item2, _ = most_common[1]
-        return item1, item2
+    if two_most_common:
+        if len(most_common) == 2:
+            item1, _ = most_common[0]
+            item2, _ = most_common[1]
+            return item1, item2
+        else:
+            item, _ = most_common[0]
+            return item, None
     else:
         item, _ = most_common[0]
         return item, None
