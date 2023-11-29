@@ -22,7 +22,7 @@ warnings.filterwarnings("ignore")
 ########################################################################################
 
 
-def get_date_format(input_string: str) -> int:
+def get_date_format(input_string: str) -> str:
     """Infer the date format from a given string."""
     regex_formats = [
         r"\d{4}(-|/)[0-1]+[0-9](-|/)[0-3]+[0-9]",
@@ -34,6 +34,8 @@ def get_date_format(input_string: str) -> int:
     for format, regex in enumerate(regex_formats):
         if re.search(regex, str(input_string)):
             return formats[format]
+
+    return ""
 
 
 def check_if_contains_dates(input_string: str) -> bool:
@@ -88,8 +90,43 @@ def clean_names(dirty_string: str, pattern: str = r"[a-zA-Zñáéíóú_]+\b") -
     return result
 
 
+def clean_transform_helper(
+    col: str, mode: bool = True, remove_numeric: bool = True, remove_spaces: bool = True
+) -> str:
+    """
+    Transforms a column name by cleaning the column name and if needed makes it capital.
+
+    Parameters
+    ----------
+    col : str
+        The column name to be transformed.
+    mode : bool
+        Indicates if names will be capitalized. By default it is set to `True`.
+    remove_numeric : bool
+        Indicates if numeric characters will be removed. By default it is set to `True`.
+    remove_spaces : bool
+        Indicates if spaces will be removed. By default it is set to `True`.
+    Returns
+    ----------
+    col_name : str
+        The transformed column name.
+    """
+    col_name = remove_char(str(clean(col)))
+    if mode:
+        col_name = col_name.title()
+    if remove_numeric:
+        col_name = remove_numeric_char(col_name).strip()
+    if remove_spaces:
+        col_name = col_name.replace(" ", "_").replace("-", "_").replace("/", "_")
+
+    return col_name
+
+
 def clean_transform(
-    col_index: Index, mode: bool = True, remove_spaces: bool = True, remove_numeric: bool = True
+    col_index: Index,
+    mode: bool = True,
+    remove_spaces: bool = True,
+    remove_numeric: bool = True,
 ) -> List[str]:
     """
     Transforms a column index by cleaning the column names and if needed makes them capital.
@@ -106,20 +143,12 @@ def clean_transform(
     col_name_list : str
         The transformed column names as a `list` of strings.
     """
-    col_name_list = []
-    for i, col in enumerate(col_index):
-        if mode:
-            col_name_list.append(remove_char(str(clean(col)).title()))
-        else:
-            col_name_list.append(remove_char(clean(col)))
-        if remove_numeric:
-            col_name_list[i] = remove_numeric_char(col_name_list[i])
-            col_name_list[i] = col_name_list[i].strip()
-        if remove_spaces:
-            col_name_list[i] = col_name_list[i].replace(" ", "_")
-            col_name_list[i] = col_name_list[i].replace("-", "_")
-            col_name_list[i] = col_name_list[i].replace("/", "_")
-    return col_name_list
+    return [
+        clean_transform_helper(
+            col, mode=mode, remove_spaces=remove_spaces, remove_numeric=remove_numeric
+        )
+        for col in col_index
+    ]
 
 
 def remove_char(input_string: str) -> str:
@@ -141,7 +170,7 @@ def remove_char(input_string: str) -> str:
         try:
             input_string = input_string.replace(char, "")
         except:
-            None
+            pass
     input_string = correct_nan(input_string)
     return input_string
 
@@ -184,12 +213,18 @@ def convert_date(date_string: str) -> str:
         The date string in the proper format `YYYY-MM-DD`.
     """
     try:
-        proper_date = str(pd.to_datetime(date_string, format="%Y%m%d", errors="raise"))[:10]
+        proper_date = str(pd.to_datetime(date_string, format="%Y%m%d", errors="raise"))[
+            :10
+        ]
     except:
         try:
-            proper_date = str(pd.to_datetime(date_string, format="%d%m%Y", errors="raise"))[:10]
+            proper_date = str(
+                pd.to_datetime(date_string, format="%d%m%Y", errors="raise")
+            )[:10]
         except:
-            proper_date = str(pd.to_datetime(date_string, format="%Y%m%d", errors="ignore"))[:10]
+            proper_date = str(
+                pd.to_datetime(date_string, format="%Y%m%d", errors="ignore")
+            )[:10]
     return proper_date
 
 
@@ -250,7 +285,9 @@ def clean_and_convert_to(x: str) -> str:
     x = remove_char(x)
     try:
         x, find_ = check_if_isemail(x)
-        if (x.find("/") != -1 or x.find("-")) != -1 and not (x.find("//") or x.find("\\")) != -1:
+        if (x.find("/") != -1 or x.find("-")) != -1 and not (
+            x.find("//") or x.find("\\")
+        ) != -1:
             x_ = x.replace("/", "")
             x_ = x_.replace("-", "")
 
@@ -280,7 +317,9 @@ def clean_and_convert_to(x: str) -> str:
                     x = " ".join(x.split())
                     x = x.title()
     except:
-        print(f"No transformation has been performed, the character will be returned as it came.")
+        print(
+            f"No transformation has been performed, the character will be returned as it came."
+        )
         None
     return x
 
@@ -299,13 +338,9 @@ def correct_nan(check_missing: str) -> str:
     check_missing : `str`
         The corrected string format or `empty str`.
     """
-    if len(str(check_missing)) == 3:
-        if str(check_missing).find("nan") != -1 or str(check_missing).find("Nan") != -1:
-            return ""
-        else:
-            return check_missing
-    else:
-        return check_missing
+    if str(check_missing).lower() == "nan":
+        return ""
+    return check_missing
 
 
 def check_dtypes(dataframe: DataFrame, datatypes: Series) -> DataFrame:
@@ -331,14 +366,18 @@ def check_dtypes(dataframe: DataFrame, datatypes: Series) -> DataFrame:
             dataframe[cols[column_index]] = dataframe[cols[column_index]].apply(
                 clean_and_convert_to
             )
-            dataframe[cols[column_index]] = dataframe[cols[column_index]].apply(correct_nan)
+            dataframe[cols[column_index]] = dataframe[cols[column_index]].apply(
+                correct_nan
+            )
             try:
-                dataframe[cols[column_index]] = dataframe[cols[column_index]].map(str.strip)
+                dataframe[cols[column_index]] = dataframe[cols[column_index]].map(
+                    str.strip
+                )
             except:
                 try:
-                    dataframe[cols[column_index]] = dataframe[cols[column_index]].astype(
-                        "datetime64[ns]"
-                    )
+                    dataframe[cols[column_index]] = dataframe[
+                        cols[column_index]
+                    ].astype("datetime64[ns]")
                 except:
                     warning_type = "UserWarning"
                     msg = (
@@ -371,7 +410,9 @@ def create_yaml_from_df(
     df_info, df = check_values(df_, df_name="df_name", sheet_name="sheet_name")
 
     df_info["data type"] = [str(_type) for _type in df_info["data type"].to_list()]
-    df_info["sql name"] = [col_name.replace(" ", "_") for col_name in df_info["column name"]]
+    df_info["sql name"] = [
+        col_name.replace(" ", "_") for col_name in df_info["column name"]
+    ]
 
     data = {}
     for col_name, data_type, sql_name in zip(
@@ -387,7 +428,9 @@ def create_yaml_from_df(
         file.write(yaml_data)
 
 
-def create_yaml_tree(yaml_name: str, df_info: DataFrame, dabase_name: str = "database") -> None:
+def create_yaml_tree(
+    yaml_name: str, df_info: DataFrame, dabase_name: str = "database"
+) -> None:
     """
     Function that creates a `yaml` configuration file for database data type validation.
 
@@ -559,7 +602,9 @@ def check_values(
         lambda x: "{:.2%}".format(float(x))
     )
     info["# rows"] = info["# rows"].apply(lambda x: "{:,}".format(int(x)))
-    info["# missing rows"] = info["# missing rows"].apply(lambda x: "{:,}".format(int(x)))
+    info["# missing rows"] = info["# missing rows"].apply(
+        lambda x: "{:,}".format(int(x))
+    )
     info["unique values"] = info["unique values"].apply(lambda x: "{:,}".format(int(x)))
 
     return info, df
@@ -611,7 +656,9 @@ def check_for_list(
             drop_empty_cols=drop_empty_cols,
         )
         dataframes.append(df)
-        logger.info(f"DataFrame '{dfs_names[j]}' has been added to the list of dataframes")
+        logger.info(
+            f"DataFrame '{dfs_names[j]}' has been added to the list of dataframes"
+        )
         df_sheet_files_info = pd.concat([df_sheet_files_info, info])
     df_sheet_files_info.to_html(report_name, index=False, encoding=encoding)
     logger.info(f"A report has been created under the name '{report_name}'")
@@ -696,5 +743,7 @@ if __name__ == "__main__":
     with open("./Detail of the report/docs.txt", "w") as f:
         for line in docs:
             f.write(line[0] + "\t" + line[1] + "\t" + line[2] + "\n")
-    df_sheet_files_info.to_html("report-health-checker.html", index=False, encoding="latin1")
+    df_sheet_files_info.to_html(
+        "report-health-checker.html", index=False, encoding="latin1"
+    )
     print("***process completed***")
