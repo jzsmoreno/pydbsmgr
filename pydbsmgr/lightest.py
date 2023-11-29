@@ -47,7 +47,7 @@ class LightCleaner:
         self.dict_dtypes = dict(zip(["float", "int", "str"], ["float64", "int64", "object"]))
 
     def clean_frame(
-        self, sample_frac: float = 0.1, fast_execution: bool = True, two_date_formats: bool = False
+        self, sample_frac: float = 0.1, fast_execution: bool = True, two_date_formats: bool = True
     ) -> DataFrame:
         """`DataFrame` cleaning main function"""
         table = (self.df).copy()
@@ -61,7 +61,7 @@ class LightCleaner:
                     .any()
                 )
                 if datetype_column:
-                    format_type, auxiliary_type = most_repeated_item(
+                    main_type, auxiliary_type = most_repeated_item(
                         list(
                             filter(
                                 lambda item: item is not None,
@@ -70,11 +70,15 @@ class LightCleaner:
                         ),
                         two_date_formats,
                     )
+                    if auxiliary_type != None:
+                        format_type = auxiliary_type
+                    else:
+                        format_type = main_type
                     with concurrent.futures.ThreadPoolExecutor() as executor:
                         partial_dates = partial(
                             process_dates,
                             format_type=format_type,
-                            auxiliary_type=auxiliary_type,
+                            auxiliary_type=None,
                         )
                         table[cols[column_index]] = list(
                             executor.map(partial_dates, table[cols[column_index]])
