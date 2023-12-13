@@ -13,3 +13,4 @@ pyarrow
 fastparquet
 loguru
 psutil
+Unidecode
