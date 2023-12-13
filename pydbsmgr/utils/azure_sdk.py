@@ -110,7 +110,7 @@ class StorageController(ControllerFeatures):
                 raise ValueError(f"{format_type} not supported")
 
     def get_excel_csv(
-        self, directory_name: str, regex: str, manual_mode: bool = False, encoding: str = "latin1"
+        self, directory_name: str, regex: str, manual_mode: bool = False, encoding: str = "utf-8"
     ) -> Tuple[List[DataFrame], List[str]]:
         """Perform reading of `.xlsx` and `.csv` files in container-directory"""
         dataframes = list()
@@ -155,7 +155,7 @@ class StorageController(ControllerFeatures):
         dfs: List[DataFrame],
         blob_names: List[str],
         format_type: str = "csv",
-        encoding: str = "latin1",
+        encoding: str = "utf-8",
         overwrite: bool = True,
     ) -> None:
         """Perform upload of `.xlsx` and `.csv` files in container-directory"""
