@@ -153,6 +153,51 @@ class DataFrameToSQL(ColumnsCheck):
         else:
             raise ValueError("Data type could not be inferred!")
 
+class DFChunksToSQL(DataFrameToSQL):
+    """Allows you to create a table using chunks of a dataframe efficiently through DataFrameToSQL class"""
+
+    def __init__(self, connection_string: str) -> None:
+        """Set the connection with database using DataFrameToSQL class"""
+        super().__init__(connection_string)
+    
+        
+    def upload_chunks(
+        self, 
+        df: DataFrame, 
+        table_name: str, 
+        chunk_size: int,
+        overwrite: bool = True, 
+        char_length: int = 512,
+        override_length: bool = True,
+        close_cursor: bool = True,
+        auto_resolve: bool = True
+    ) -> None:
+        
+        """Check number of chunks corresponds to dataframe"""
+        assert len(df) > chunk_size, "chunk_size cant be bigger than length of df, change chunk size"
+
+
+        """ Obtain chunks of DataFrame"""
+        if auto_resolve:
+            if len(df)>= 0.5e6:
+                n = int((df).shape[0] * 0.01)
+                df_chunks = [(df)[i : i + n] for i in range(0, (df).shape[0], n)]
+            else:
+                df_chunks = np.array_split(df, chunk_size)
+        else:
+            df_chunks = np.array_split(df, chunk_size)
+
+        """ Insert First Chunk """
+
+        self.import_table(df_chunks[0], table_name, overwrite, char_length, override_length, close_cursor)
+        
+        """ Insert Chunks"""
+        
+        for i in range(1, len(df_chunks)):
+            self.upload_table(df_chunks[i], table_name, overwrite)
+
+
+
 
 ########################################################################################
 
