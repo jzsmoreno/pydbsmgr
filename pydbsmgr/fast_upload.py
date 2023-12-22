@@ -28,6 +28,7 @@ class DataFrameToSQL(ColumnsCheck):
         char_length: int = 512,
         override_length: bool = True,
         close_cursor: bool = True,
+        verbose: bool = False,
     ) -> None:
         """Process for importing the dataframe into the database"""
 
@@ -73,10 +74,11 @@ class DataFrameToSQL(ColumnsCheck):
         if close_cursor:
             self._con.close()
 
-        msg = "Table {%s}, successfully imported!" % table_name
-        print(f"{msg}")
+        if verbose:
+            msg = "Table {%s}, successfully imported!" % table_name
+            print(f"{msg}")
 
-    def upload_table(self, df: DataFrame, table_name: str, overwrite: bool = True) -> None:
+    def upload_table(self, df: DataFrame, table_name: str, verbose: bool = False) -> None:
         """Access to update data from a dataframe to a database"""
 
         """Check if the current connection is active. If it is not, create a new connection"""
@@ -103,8 +105,9 @@ class DataFrameToSQL(ColumnsCheck):
             msg += "Error: {%s}" % e
             print(f"{warning_type}: {msg}")
 
-        msg = "Table {%s}, successfully uploaded!" % table_name
-        print(f"{msg}")
+        if verbose:
+            msg = "Table {%s}, successfully uploaded!" % table_name
+            print(f"{msg}")
 
     def _create_table_query(
         self, table_name: str, df: DataFrame, char_length: int, override_length: bool
@@ -172,6 +175,7 @@ class UploadToSQL(DataFrameToSQL):
         close_cursor: bool = True,
         auto_resolve: bool = True,
         frac: float = 0.01,
+        verbose: bool = False,
     ) -> None:
         """Checks if the number of chunks corresponds to the `DataFrame`."""
         assert (
@@ -194,7 +198,12 @@ class UploadToSQL(DataFrameToSQL):
                 self._drop_table(table_name)
 
                 self.import_table(
-                    df_chunks[0], table_name, True, char_length, override_length, close_cursor
+                    df_chunks[0],
+                    table_name,
+                    True,
+                    char_length,
+                    override_length,
+                    close_cursor,
                 )
 
             else:
@@ -202,7 +211,12 @@ class UploadToSQL(DataFrameToSQL):
 
                 """Inserting the first chunk"""
                 self.import_table(
-                    df_chunks[0], table_name, True, char_length, override_length, close_cursor
+                    df_chunks[0],
+                    table_name,
+                    True,
+                    char_length,
+                    override_length,
+                    close_cursor,
                 )
 
             """Inserting the rest of the chunks"""
@@ -265,7 +279,7 @@ if __name__ == "__main__":
     data = {"Name": ["John", "Alice", "Bob"], "Age": [25, 30, 35]}
     df = pd.DataFrame(data)
     table_name = "test_table"
-    
+
     upload_from_df = UploadToSQL(connection_string)
     upload_from_df.execute(df, table_name, 2)
 
