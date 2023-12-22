@@ -20,7 +20,7 @@ class FileToSQL(DataFrameToSQL):
 
     def insert_data(
         self,
-        df: DataFrame,
+        df: DataFrame | str,
         table_name: str,
         overwrite: bool = True,
         char_length: int = 512,
@@ -59,10 +59,10 @@ class FileToSQL(DataFrameToSQL):
                     self.file_type = "xlsx"
                 except:
                     raise ValueError("Unable to parse Excel")
-        if type(df) == DataFrame:
+        elif type(df) == DataFrame:
             df_to_load = df
-        # txt = "{:,}".format(len(df))
-        print(f"Will be loaded {len(df_to_load)} rows.")
+        df_length = "{:,}".format(len(df_to_load))
+        print(f"Will be loaded {df_length} rows.")
         if overwrite:
             self._create(df_to_load, table_name, overwrite, char_length, override_length)
             self._append_to_table(df_to_load.iloc[2:, :], table_name)

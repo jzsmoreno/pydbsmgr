@@ -154,6 +154,103 @@ class DataFrameToSQL(ColumnsCheck):
             raise ValueError("Data type could not be inferred!")
 
 
+class UploadToSQL(DataFrameToSQL):
+    """It allows you to import/update a table from a `DataFrame` in an efficient way using the `DataFrameToSQL` class."""
+
+    def __init__(self, connection_string: str) -> None:
+        """Establish the connection to the database using the `DataFrameToSQL` class."""
+        super().__init__(connection_string)
+
+    def execute(
+        self,
+        df: DataFrame,
+        table_name: str,
+        chunk_size: int,
+        method: str = "override",  # or append
+        char_length: int = 512,
+        override_length: bool = True,
+        close_cursor: bool = True,
+        auto_resolve: bool = True,
+        frac: float = 0.01,
+    ) -> None:
+        """Checks if the number of chunks corresponds to the `DataFrame`."""
+        assert (
+            len(df) > chunk_size
+        ), "'chunk_size' cannot be greater than the length of the 'DataFrame', change the 'chunk_size'"
+
+        """Get chunks of `DataFrame`"""
+        if auto_resolve:
+            if len(df) >= 0.5e6:
+                n = int((df).shape[0] * frac)
+                df_chunks = [(df)[i : i + n] for i in range(0, (df).shape[0], n)]
+            else:
+                df_chunks = np.array_split(df, chunk_size)
+        else:
+            df_chunks = np.array_split(df, chunk_size)
+
+        if method == "override":
+            if self._check_table_exists(table_name):
+                print("Table exists, executing OVERRIDE...")
+                self._drop_table(table_name)
+
+                self.import_table(
+                    df_chunks[0], table_name, True, char_length, override_length, close_cursor
+                )
+
+            else:
+                print("Table does not exist, proceeding with CREATE TABLE.")
+
+                """Inserting the first chunk"""
+                self.import_table(
+                    df_chunks[0], table_name, True, char_length, override_length, close_cursor
+                )
+
+            """Inserting the rest of the chunks"""
+            for i in range(1, len(df_chunks)):
+                self.upload_table(df_chunks[i], table_name, True)
+        elif method == "append":
+            if self._check_table_exists(table_name):
+                for data in df_chunks:
+                    self.upload_table(data, table_name, False)
+            else:
+                raise ValueError("Method 'append' requires an existing table.")
+        else:
+            raise ValueError(
+                'Invalid value for argument "method". Choose from ["override","append"].'
+            )
+
+    def _drop_table(self, table_name: str) -> None:
+        query = f"DROP TABLE IF EXISTS {table_name}"
+        _con = pyodbc.connect(self._connection_string, autocommit=True)
+        cursor = _con.cursor()
+        try:
+            cursor.execute(query)
+        except Exception as e:
+            print(f"Failed to drop table '{table_name}'. Error message:\n{str(e)}")
+        cursor.close()
+        _con.close()
+
+    def _check_table_exists(self, table_name: str) -> bool:
+        query = f"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='{table_name}'"
+        result = self._execute_query(query)
+        return bool(result["data"][0][0])
+
+    def _execute_query(self, query: str):
+        _con = pyodbc.connect(self._connection_string, autocommit=True)
+        cursor = _con.cursor()
+        try:
+            cursor.execute(query)
+            results = {"columns": [desc[0] for desc in cursor.description]}
+            results["data"] = cursor.fetchall()
+            results["count"] = [len(results["data"])]
+        except Exception as e:
+            print("Error executing SQL Query")
+            raise ValueError(f"Query Error: {str(e)}")
+        cursor.close()
+        _con.close()
+        return results
+
+
 ########################################################################################
 
 if __name__ == "__main__":
@@ -168,12 +265,12 @@ if __name__ == "__main__":
     data = {"Name": ["John", "Alice", "Bob"], "Age": [25, 30, 35]}
     df = pd.DataFrame(data)
     table_name = "test_table"
-
-    upload_from_df = DataFrameToSQL(connection_string)
-    upload_from_df.import_table(df, table_name)
+    
+    upload_from_df = UploadToSQL(connection_string)
+    upload_from_df.execute(df, table_name, 2)
 
     # Update the table
     data = {"Name": ["Alexis", "Ivan", "Cordero"], "Age": [27, 27, 28]}
     df = pd.DataFrame(data)
 
-    upload_from_df.upload_table(df, table_name)
+    upload_from_df.execute(df, table_name, 2, "append")
