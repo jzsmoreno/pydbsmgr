@@ -1,3 +1,4 @@
+import os
 import pickle
 import re
 
@@ -198,12 +199,13 @@ class UploadToSQL(DataFrameToSQL):
                 self._drop_table(table_name)
 
                 self.import_table(
-                    df_chunks[0],
-                    table_name,
-                    True,
-                    char_length,
-                    override_length,
-                    close_cursor,
+                    df=df_chunks[0],
+                    table_name=table_name,
+                    overwrite=True,
+                    char_length=char_length,
+                    override_length=override_length,
+                    close_cursor=close_cursor,
+                    verbose=verbose,
                 )
 
             else:
@@ -217,11 +219,12 @@ class UploadToSQL(DataFrameToSQL):
                     char_length,
                     override_length,
                     close_cursor,
+                    verbose,
                 )
 
             """Inserting the rest of the chunks"""
             for i in range(1, len(df_chunks)):
-                self.upload_table(df_chunks[i], table_name, True)
+                self.upload_table(df_chunks[i], table_name, False)
         elif method == "append":
             if self._check_table_exists(table_name):
                 for data in df_chunks:
@@ -268,23 +271,30 @@ class UploadToSQL(DataFrameToSQL):
 ########################################################################################
 
 if __name__ == "__main__":
-    with open("conn.pkl", "rb") as file:
-        connection_string = pickle.load(file)
-
-    connection_url = URL.create("mssql+pyodbc", query={"odbc_connect": connection_string})
-
-    engine = create_engine(connection_url)
-
+    connection_string = os.getenv("conn_string")
     # Create a DataFrame
     data = {"Name": ["John", "Alice", "Bob"], "Age": [25, 30, 35]}
     df = pd.DataFrame(data)
     table_name = "test_table"
 
+    if connection_string is None:
+        raise ValueError("Connection string not found.")
+
     upload_from_df = UploadToSQL(connection_string)
-    upload_from_df.execute(df, table_name, 2)
+    upload_from_df.execute(
+        df=df,
+        table_name=table_name,
+        chunk_size=2,
+        method="override",
+    )
 
     # Update the table
     data = {"Name": ["Alexis", "Ivan", "Cordero"], "Age": [27, 27, 28]}
     df = pd.DataFrame(data)
 
-    upload_from_df.execute(df, table_name, 2, "append")
+    upload_from_df.execute(
+        df=df,
+        table_name=table_name,
+        chunk_size=2,
+        method="append",
+    )
