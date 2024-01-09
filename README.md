@@ -23,3 +23,37 @@ This package can be easily installed with pip:
 ```bash
 pip install git+https://github.com/jzsmoreno/pydbsmgr
 ```
+
+## Installation from GitHub
+
+1. Clone this repository (Requires git):
+
+```
+git clone https://github.com/jzsmoreno/pydbsmgr.git
+cd pydbsmgr
+```
+
+2. Create and activate a python virtual environment (The activation can vary depending on your SO here is the example for Linux):
+
+```
+python3 -m venv venv
+source ./venv/bin/activate
+```
+
+3. Install all the requirements:
+
+```
+pip3 install -r requirements.txt
+```
+
+4. Now you can test it with any python file you want. But you can also use it in a jupyter notebook, just install jupyterlab
+
+```
+pip3 install jupyterlab
+```
+
+5. Open the jupyter lab instance (you can see that already exists an `example.ipynb`, where you can see some of the things you can do):
+
+```
+jupyter lab
+```
