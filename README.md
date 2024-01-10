@@ -21,10 +21,20 @@ Before you begin, ensure you have met the following requirements:
 This package can be easily installed with pip:
 
 ```bash
-pip install git+https://github.com/jzsmoreno/pydbsmgr
+pip install pydbsmgr
 ```
 
 ## Installation from GitHub
+
+If you prefer, you can do it in this other way:
+
+```bash
+pip install git+https://github.com/jzsmoreno/pydbsmgr
+```
+
+## You can contribute to this repository
+
+Through the following steps:
 
 1. Clone this repository (Requires git):
 
@@ -33,20 +43,20 @@ git clone https://github.com/jzsmoreno/pydbsmgr.git
 cd pydbsmgr
 ```
 
-2. Create and activate a python virtual environment (The activation can vary depending on your SO here is the example for Linux):
+1. Create and activate a python virtual environment (The activation may vary depending on your OS here is the example for Linux):
 
 ```
 python3 -m venv venv
 source ./venv/bin/activate
 ```
 
-3. Install all the requirements:
+3. Install all the `requirements`:
 
 ```
 pip3 install -r requirements.txt
 ```
 
-4. Now you can test it with any python file you want. But you can also use it in a jupyter notebook, just install jupyterlab
+4. Now you can test it with any python file you want. But you can also use it in a jupyter notebook, just install [jupyterlab](https://pypi.org/project/jupyterlab/)
 
 ```
 pip3 install jupyterlab
