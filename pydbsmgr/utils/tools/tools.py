@@ -3,8 +3,9 @@ import glob
 import os
 import random
 import re
+import sys
 from collections import Counter
-from typing import List, Tuple
+from typing import Callable, List, Tuple
 
 import numpy as np
 import pandas as pd
@@ -19,6 +20,23 @@ from pyarrow import Table
 
 from pydbsmgr.main import check_if_contains_dates, is_number_regex
 from pydbsmgr.utils.config import load_config, parse_config
+
+
+def disableprints(func: Callable) -> Callable:
+    """Decorator to temporarily suppress print statements in a function"""
+
+    def wrapper(*args, **kwargs):
+        sys.stdout = open(os.devnull, "w")
+        result = func(*args, **kwargs)
+        sys.stdout = sys.__stdout__
+        return result
+
+    # Preserve the function's docstring if it has one
+    if func.__doc__ is not None:
+        wrapper.__doc__ = func.__doc__
+        return wrapper
+    else:
+        return func
 
 
 def most_repeated_item(items: list, two_most_common: bool = False) -> Tuple[str, str | None]:
