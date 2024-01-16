@@ -70,14 +70,14 @@ def clean_names(dirty_string: str, pattern: str = r"[a-zA-Zñáéíóú_]+\b") -
 
     Parameters
     ----------
-    dirty_string : str
+    dirty_string : `str`
         string of characters
-    pattern : str
+    pattern : `str`
         regular expression string
 
     Returns
     -------
-    result : str
+    result : `str`
         clean character string
     """
     result = re.findall(pattern, str(dirty_string).replace("_", ""))
@@ -98,17 +98,17 @@ def clean_transform_helper(
 
     Parameters
     ----------
-    col : str
+    col : `str`
         The column name to be transformed.
-    mode : bool
+    mode : `bool`
         Indicates if names will be capitalized. By default it is set to `True`.
-    remove_numeric : bool
+    remove_numeric : `bool`
         Indicates if numeric characters will be removed. By default it is set to `True`.
-    remove_spaces : bool
+    remove_spaces : `bool`
         Indicates if spaces will be removed. By default it is set to `True`.
     Returns
     ----------
-    col_name : str
+    col_name : `str`
         The transformed column name.
     """
     col_name = remove_char(str(clean(col)))
@@ -133,14 +133,14 @@ def clean_transform(
 
     Parameters
     ----------
-    col_index : Index
+    col_index : `Index`
         The column index to be transformed.
     mode : bool
         Indicates if names will be capitalized. By default it is set to `True`.
 
     Returns
     ----------
-    col_name_list : str
+    col_name_list : `str`
         The transformed column names as a `list` of strings.
     """
     return [
@@ -157,12 +157,12 @@ def remove_char(input_string: str) -> str:
 
     Parameters
     ----------
-    input_string : str
+    input_string : `str`
         The input string from which characters will be removed.
 
     Returns
     ----------
-    input_string : str
+    input_string : `str`
         The string with specified characters removed.
     """
     list_of_char = ["#", "$", "*", "?", "!", "(", ")", "&", "%"]
@@ -181,12 +181,12 @@ def check_if_isemail(check_email: str) -> Tuple[str, bool]:
 
     Parameters
     ----------
-    check_email : str
+    check_email : `str`
         The input string to be checked for an email address.
 
     Returns
     ----------
-    check_email, found_email : str, bool
+    check_email, found_email : `str`, `bool`
         A tuple containing the cleaned string and a boolean flag indicating if an email address was found.
     """
     found_email = False
@@ -204,12 +204,12 @@ def convert_date(date_string: str) -> str:
 
     Parameters
     ----------
-    date_string : str
+    date_string : `str`
         The input string representing a date.
 
     Returns
     -------
-    proper_date : str
+    proper_date : `str`
         The date string in the proper format `YYYY-MM-DD`.
     """
     try:
@@ -600,13 +600,13 @@ def check_for_list(
     concat_vertically: bool = False,
     drop_empty_cols: bool = True,
 ) -> Tuple[DataFrame, DataFrame]:
-    """Function that performs the implementation of the check_values function on lists of dataframes.
+    """Function that performs the implementation of the `check_values` function on lists of dataframes.
 
     Parameters
     ----------
     dfs_ : List[`DataFrame`]
         The `list` of dataframes to be validated.
-    dfs_names : List[str]
+    dfs_names : List[`str`]
         The `list` containing the dataframe names.
     mode : `bool`
         Indicates whether to generate a visualization and report in `html`. By default it is set to `False`.

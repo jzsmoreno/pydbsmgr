@@ -213,11 +213,13 @@ class StorageController(ControllerFeatures):
         """Function that filters a list from a criteria
 
         Args:
-            elements (list): list of values to be filtered
-            character (str): filter criteria
+        ----------
+            elements (`list`): list of values to be filtered
+            character (`str`): filter criteria
 
         Returns:
-            List[str]: list of filtered elements
+        ----------
+            List[`str`]: list of filtered elements
         """
         filter_elements = []
         for element in elements:
