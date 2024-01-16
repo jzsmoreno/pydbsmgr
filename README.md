@@ -36,7 +36,7 @@ pip install git+https://github.com/jzsmoreno/pydbsmgr
 
 Through the following steps:
 
-1. Clone this repository (Requires git):
+1. Clone this repository (requires `git`):
 
 ```
 git clone https://github.com/jzsmoreno/pydbsmgr.git
