@@ -11,10 +11,10 @@ from sqlalchemy.engine import URL
 
 from pydbsmgr.utils.tools import ColumnsCheck
 
-
 class DataFrameToSQL(ColumnsCheck):
     """Allows you to create a table from a dataframe"""
 
+    __slots__ = ['_connection_string','_con', '_cur' ]
     def __init__(self, connection_string: str) -> None:
         """Set the connection with the database"""
         self._connection_string = connection_string
@@ -165,6 +165,7 @@ class UploadToSQL(DataFrameToSQL):
         """Establish the connection to the database using the `DataFrameToSQL` class."""
         super().__init__(connection_string)
 
+    
     def execute(
         self,
         df: DataFrame,
