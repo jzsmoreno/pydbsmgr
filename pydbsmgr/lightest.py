@@ -1,6 +1,5 @@
 import concurrent.futures
-from functools import partial
-from functools import cached_property
+from functools import cached_property, partial
 
 from pydbsmgr.main import *
 from pydbsmgr.utils.tools import coerce_datetime, most_repeated_item
