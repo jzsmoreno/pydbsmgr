@@ -17,7 +17,7 @@ from pydbsmgr.main import (
 
 
 class FrameCheck:
-    """Class for checking and transforming a dataframe"""
+    """Class for checking and transforming a `DataFrame`/dataframes"""
 
     def __init__(self, _df: DataFrame | List[DataFrame], df_names: str | List[str] = None) -> None:
         self.df_names = df_names
@@ -52,12 +52,6 @@ class FrameCheck:
 
     def get_frames(self) -> List[DataFrame]:
         return self._dfs
-
-    def get_frame(self) -> DataFrame:
-        try:
-            return self.df
-        except AttributeError:
-            raise Exception("No specific frame has been set yet. Use 'generate_report' method")
 
     def generate_report(
         self,
@@ -155,7 +149,7 @@ class FrameCheck:
         self._create_yaml_tree()
 
     @abstractmethod
-    def _ops_dtypes(self, df, count) -> None:
+    def _ops_dtypes(self, df, count) -> DataFrame:
         """Processing of data types"""
         df = check_dtypes(df, df.dtypes)
         logger.info(f"{count+1}) The data type has been verified.")
