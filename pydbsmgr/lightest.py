@@ -1,5 +1,5 @@
 import concurrent.futures
-from functools import partial
+from functools import cached_property, partial
 
 from pydbsmgr.main import *
 from pydbsmgr.utils.tools import coerce_datetime, most_repeated_item
@@ -41,6 +41,9 @@ def process_dates(x: str, format_type: str, auxiliary_type: str) -> str:
 
 class LightCleaner:
     """Performs a light cleaning on the table"""
+
+    # Increase memory efficiency
+    __slots__ = ["df", "dict_dtypes"]
 
     def __init__(self, df_: DataFrame):
         self.df = df_.copy()

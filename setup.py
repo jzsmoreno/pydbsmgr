@@ -5,10 +5,12 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="pydbsmgr",
-    version="0.8.0",
+    version="0.8.1",
     author="J. A. Moreno-Guerra",
     author_email="jzs.gm27@gmail.com",
-    description="Testing installation of Package",
+    maintainer="David Pedroza",
+    maintainer_email="david.pedroza.segoviano@gmail.com",
+    description="Python package for database control and DataFrame processing",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/jzsmoreno/pydbsmgr",

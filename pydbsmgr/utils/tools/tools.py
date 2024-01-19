@@ -43,10 +43,12 @@ def most_repeated_item(items: list, two_most_common: bool = False) -> Tuple[str,
     """Returns a `Tuple` with the most common elements of a `list`.
 
     Args:
+    ----------
         items (`list`): the `list` containing the items to be evaluated.
         two_most_common (`bool`, optional): If `False`, returns only one element. Defaults to `False`.
 
     Returns:
+    ----------
         Tuple[`str`, `str` | `None`]: The two most common elements.
     """
     # Use Counter to count occurrences of each item in the list
@@ -276,11 +278,13 @@ def get_extraction_date(
     """Allows to extract the date of extraction according to the directory within the storage account.
 
     Args:
+    ----------
         filename (`str` | List[`str`]): file path inside the storage account
         REGEX_PATTERN (`str`, optional): regular expression pattern to extract the date. Defaults to `r"\d{4}-\d{2}-\d{2}"`.
 
     Returns:
-        str: the date that was extracted if found in the file path.
+    ----------
+        `str`: the date that was extracted if found in the file path.
     """
 
     def sub_extraction_date(filename: str, REGEX_PATTERN: str) -> str:
