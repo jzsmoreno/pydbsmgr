@@ -93,10 +93,9 @@ class CheckerFrame:
             self._dfs = intersection_cols(self._dfs)
             self._dfs = [pd.concat(self._dfs, axis=0)]
 
-            ax = msno.matrix(self._dfs[0])
-            ax.get_figure().savefig("./" + directory_name + "/msno_report.png", dpi=300)
-
         for j, df in enumerate(self._dfs):
+            ax = msno.matrix(self._dfs[j])
+            ax.get_figure().savefig("./" + directory_name + f"/{j}_msno_report.png", dpi=300)
             info = []
             for col in df.columns:
                 try:
