@@ -16,7 +16,7 @@ from pydbsmgr.main import (
 )
 
 
-class CheckerFrame:
+class FrameCheck:
     """Class for checking and transforming a dataframe"""
 
     def __init__(self, _df: DataFrame | List[DataFrame], df_names: str | List[str] = None) -> None:
