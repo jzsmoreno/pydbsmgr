@@ -50,9 +50,40 @@ class LightCleaner:
         self.dict_dtypes = dict(zip(["float", "int", "str"], ["float64", "int64", "object"]))
 
     def clean_frame(
-        self, sample_frac: float = 0.1, fast_execution: bool = True, two_date_formats: bool = True
+        self,
+        sample_frac: float = 0.1,
+        fast_execution: bool = True,
+        two_date_formats: bool = True,
+        **kwargs,
     ) -> DataFrame:
-        """`DataFrame` cleaning main function"""
+        """`DataFrame` cleaning main function
+
+        Keyword Arguments:
+        ----------
+        - fix_unicode: (`bool`): By default it is set to `True`.
+        - to_ascii: (`bool`): By default it is set to `True`.
+        - lower: (`bool`): By default it is set to `True`.
+        - normalize_whitespace: (`bool`): By default it is set to `True`.
+        - no_line_breaks: (`bool`): By default it is set to `False`.
+        - strip_lines: (`bool`): By default it is set to `True`.
+        - keep_two_line_breaks: (`bool`): By default it is set to `False`.
+        - no_urls: (`bool`): By default it is set to `False`.
+        - no_emails: (`bool`): By default it is set to `False`.
+        - no_phone_numbers: (`bool`): By default it is set to `False`.
+        - no_numbers: (`bool`): By default it is set to `False`.
+        - no_digits: (`bool`): By default it is set to `False`.
+        - no_currency_symbols: (`bool`): By default it is set to `False`.
+        - no_punct: (`bool`): By default it is set to `False`.
+        - no_emoji: (`bool`): By default it is set to `False`.
+        - replace_with_url: (`str`): For example, the following `<URL>`.
+        - replace_with_email: (`str`): For example, the following `<EMAIL>`.
+        - replace_with_phone_number: (`str`): For example, the following `<PHONE>`.
+        - replace_with_number: (`str`): For example, the following `<NUMBER>`.
+        - replace_with_digit: (`str`): For example, the following `0`.
+        - replace_with_currency_symbol: (`str`): For example, the following `<CUR>`.
+        - replace_with_punct: (`str`): = For example, the following `""`.
+        - lang: (`str`): = By default it is set to `en`.
+        """
         table = (self.df).copy()
         cols = table.columns
         table_sample = table.sample(frac=sample_frac)
@@ -94,9 +125,10 @@ class LightCleaner:
                     ).dt.normalize()
                 else:
                     if fast_execution == False:
+                        partial_clean = partial(clean, **kwargs)
                         with concurrent.futures.ThreadPoolExecutor() as executor:
                             table[cols[column_index]] = list(
-                                executor.map(clean, table[cols[column_index]])
+                                executor.map(partial_clean, table[cols[column_index]])
                             )
                             table[cols[column_index]] = list(
                                 executor.map(remove_char, table[cols[column_index]])
