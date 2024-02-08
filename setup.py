@@ -1,11 +1,21 @@
+from pathlib import Path
+
 import setuptools
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
+about = {}
+ROOT_DIR = Path(__file__).resolve().parent
+PACKAGE_DIR = ROOT_DIR / "pydbsmgr"
+with open(PACKAGE_DIR / "VERSION") as f:
+    _version = f.read().strip()
+    about["__version__"] = _version
+
+
 setuptools.setup(
     name="pydbsmgr",
-    version="0.8.2",
+    version=about["__version__"],
     author="J. A. Moreno-Guerra",
     author_email="jzs.gm27@gmail.com",
     maintainer="David Pedroza",
@@ -18,7 +28,7 @@ setuptools.setup(
     license="MIT",
     packages=setuptools.find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     install_requires=[
-        "numpy",
+        "numpy<2.0.0",
         "pandas",
         "clean-text",
         "missingno",
@@ -33,6 +43,7 @@ setuptools.setup(
         "fastparquet",
         "loguru",
         "psutil",
+        "Unidecode",
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

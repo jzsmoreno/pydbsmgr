@@ -1,4 +1,5 @@
 """Define azure storage utilities"""
+
 import gzip
 import os
 import re
