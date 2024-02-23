@@ -20,6 +20,21 @@ def process_dates(x: str, format_type: str, auxiliary_type: str) -> str:
     """
     # performing data type conversion
     x = str(x)
+    if format_type in ["dayfirst", "monthfirst"] and len(x) < 10:
+        # split by "/" or "-"
+        if format_type == "dayfirst":
+            dmy = x.split("/") if "/" in x else x.split("-")
+            day = dmy[0] if len(dmy[0]) == 2 else "0" + dmy[0]
+            month = dmy[1] if len(dmy[1]) == 2 else "0" + dmy[1]
+            year = dmy[-1]
+        elif format_type == "monthfirst":
+            mdy = x.split("/") if "/" in x else x.split("-")
+            month = mdy[0] if len(mdy[0]) == 2 else "0" + mdy[0]
+            day = mdy[1] if len(mdy[1]) == 2 else "0" + mdy[1]
+            year = mdy[-1]
+
+        return str(pd.to_datetime(f"{year}{month}{day}", format="%Y%m%d", errors="raise"))[:10]
+
     x = x.replace("/", "")
     x = x.replace("-", "")
 

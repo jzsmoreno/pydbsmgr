@@ -48,6 +48,15 @@ def test_columns_dtypes(columns_dtypes_with_data):
     assert data_types[1] == "datetime64[ns]"
 
 
+def test_lightest(lightest_with_data):
+    fecha, first_date, anther_date, third_date = lightest_with_data
+    comparison = ["1974-09-10", "1973-01-06", "1975-01-18", "2020-08-25"]
+    assert fecha == comparison
+    assert first_date == comparison
+    assert anther_date == comparison
+    assert third_date == comparison
+
+
 def test_get_extraction_date(_get_extraction_date):
     assert _get_extraction_date("filename_2023-11-17") == "2023-11-17"
     assert _get_extraction_date(["filename_2023-11-17"]) == ["2023-11-17"]

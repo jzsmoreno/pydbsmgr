@@ -26,8 +26,10 @@ def get_date_format(input_string: str) -> str:
         r"\d{4}(-|/)[0-3]+[0-9](-|/)[0-1]+[0-9]",
         r"[0-3]+[0-9](-|/)[0-1]+[0-9](-|/)\d{4}",
         r"[0-1]+[0-9](-|/)[0-3]+[0-9](-|/)\d{4}",
+        r"([1-9]|[12][0-9]|3[01])(-|/)([1-9]|1[0-2])(-|/)\d{4}",
+        r"([1-9]|1[0-2])(-|/)([1-9]|[12][0-9]|3[01])(-|/)\d{4}",
     ]
-    formats = ["%Y%m%d", "%Y%d%m", "%d%m%Y", "%m%d%Y"]
+    formats = ["%Y%m%d", "%Y%d%m", "%d%m%Y", "%m%d%Y", "dayfirst", "monthfirst"]
     for format, regex in enumerate(regex_formats):
         if re.search(regex, str(input_string)):
             return formats[format]
