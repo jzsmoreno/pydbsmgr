@@ -90,8 +90,8 @@ class ColumnsCheck:
     def __init__(self, df: DataFrame):
         self.df = df
 
-    def get_frame(self) -> DataFrame:
-        self.df = self._process_columns()
+    def get_frame(self, **kwargs) -> DataFrame:
+        self.df = self._process_columns(**kwargs)
         return self.df
 
     def _process_columns(self, surrounding: bool = True) -> DataFrame:
@@ -102,7 +102,8 @@ class ColumnsCheck:
         df.columns = df.columns.str.replace(r"[^a-zA-Z0-9ñáéíóú_]", "_", regex=True)
 
         df.columns = df.columns.str.replace("_+", "_", regex=True)
-        df.columns = df.columns.str.strip().strip("_")
+        df.columns = df.columns.str.strip()
+        df.columns = df.columns.str.strip("_")
         if surrounding:
             df.columns = [f"[{col}]" for col in df.columns]
 

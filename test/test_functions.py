@@ -61,6 +61,15 @@ def test_lightest(lightest_with_data):
     assert third_date == comparison
 
 
+def test_columnscheck(columns_check_with_data):
+    cols = columns_check_with_data
+    assert cols[0] == "index"
+    assert cols[1] == "raw_data"
+    assert cols[2] == "first_data"
+    assert cols[3] == "first_data_2"
+    assert cols[4] == "another_data"
+
+
 def test_get_extraction_date(_get_extraction_date):
     assert _get_extraction_date("filename_2023-11-17") == "2023-11-17"
     assert _get_extraction_date(["filename_2023-11-17"]) == ["2023-11-17"]

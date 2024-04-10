@@ -5,7 +5,7 @@ import pytest
 
 from pydbsmgr.lightest import LightCleaner
 from pydbsmgr.main import *
-from pydbsmgr.utils.tools import ColumnsDtypes, get_extraction_date
+from pydbsmgr.utils.tools import ColumnsCheck, ColumnsDtypes, get_extraction_date
 
 
 @pytest.fixture()
@@ -80,3 +80,24 @@ def lightest_with_data() -> Callable:
         df["another_date"].astype(str).to_list(),
         df["third_date"].astype(str).to_list(),
     )
+
+
+@pytest.fixture()
+def columns_check_with_data() -> Callable:
+    """
+    Fixture that returns an instance of the class ColumnsCheck with data for testing
+    """
+    df = pd.DataFrame(
+        {
+            "index": ["0", "1", "2", "3"],
+            "Raw Data!": ["10", "06", "18", "25"],
+            "First Data #": ["09", "01", "01", "08"],
+            "First Data 2": ["9", "1", "1", "8"],
+            "Another Data?": ["10", "6", "18", "25"],
+        }
+    )
+
+    handler = ColumnsCheck(df)
+    df = handler.get_frame(surrounding=False)
+
+    return df.columns.to_list()
