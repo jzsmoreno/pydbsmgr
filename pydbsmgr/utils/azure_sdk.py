@@ -1,16 +1,14 @@
 """Define azure storage utilities"""
 
-import gzip
 import os
 import re
 from io import BytesIO, StringIO
 from typing import List, Tuple
 
-import pandas as pd
 import pyarrow.parquet as pq
 from azure.storage.blob import BlobPrefix, BlobServiceClient
 from dotenv import load_dotenv
-from pandas import ExcelFile, read_csv, read_excel, read_parquet, read_table
+from pandas import read_csv, read_excel
 from pandas.core.frame import DataFrame
 
 from pydbsmgr.utils.tools import ControllerFeatures
@@ -111,7 +109,7 @@ class StorageController(ControllerFeatures):
                 raise ValueError(f"{format_type} not supported")
 
     def get_excel_csv(
-        self, directory_name: str, regex: str, manual_mode: bool = False, encoding: str = "utf-8"
+        self, directory_name: str, regex: str, manual_mode: bool = False
     ) -> Tuple[List[DataFrame], List[str]]:
         """Perform reading of `.xlsx` and `.csv` files in container-directory"""
         dataframes = list()
@@ -129,24 +127,28 @@ class StorageController(ControllerFeatures):
                 container=self.container_name, blob=file["name"]
             )
             blob_data = blob_client.download_blob().readall()
+
             print("File name : ", file["name"].split("/")[-1])
 
-            blob_data_str = StringIO(str(blob_data, encoding))
-
             if file["name"].endswith(".csv"):
+                # blob_data_str = StringIO(str(blob_data, encoding))
+                try:
+                    blob_data_str = blob_data.decode("utf-8")
+                except UnicodeDecodeError:
+                    blob_data_str = blob_data.decode("latin-1")
                 df_name = str(file["name"]).replace(".csv", "").split("/")[-1]
                 dataframe_names.append(df_name)
-                df = read_csv(blob_data_str, index_col=None, low_memory=False)
+                df = read_csv(StringIO(blob_data_str), index_col=None, low_memory=False)
                 dataframes.append(df)
             elif file["name"].endswith(".xlsx"):
-                xls_buffer = ExcelFile(blob_data)
-                for sheet_name in xls_buffer.sheet_names:
+                xls_buffer = BytesIO(blob_data)
+                all_sheets = read_excel(xls_buffer, sheet_name=None, index_col=None)
+                for sheet_name, df in all_sheets.items():
                     df_name = (
                         str(file["name"]).replace(".xlsx", "").split("/")[-1] + "-" + sheet_name
                     )
                     dataframe_names.append(df_name)
-                    df = read_excel(xls_buffer, sheet_name=sheet_name, index_col=None)
-                    dataframes.append(df)
+                    dataframes.append(df.reset_index(drop=True))
 
         return dataframes, dataframe_names
 
