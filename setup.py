@@ -1,6 +1,13 @@
 from pathlib import Path
 
 import setuptools
+from pip._internal.req import parse_requirements
+
+# Parse the requirements.txt file
+requirements = parse_requirements("requirements.txt", session="hack")
+
+# Get the list of requirements as strings
+install_requires = [str(req.requirement) for req in requirements]
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
@@ -27,24 +34,7 @@ setuptools.setup(
     project_urls={"Bug Tracker": "https://github.com/jzsmoreno/pydbsmgr"},
     license="MIT",
     packages=setuptools.find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
-    install_requires=[
-        "numpy<2.0.0",
-        "pandas",
-        "clean-text",
-        "missingno",
-        "pyodbc",
-        "ipython",
-        "SQLAlchemy",
-        "pyyaml",
-        "azure-storage-blob==12.16.0",
-        "python-dotenv==1.0.0",
-        "openpyxl==3.1.2",
-        "pyarrow",
-        "fastparquet",
-        "loguru",
-        "psutil",
-        "Unidecode",
-    ],
+    install_requires=install_requires,
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

@@ -92,49 +92,20 @@ class ColumnsCheck:
 
     def get_frame(self) -> DataFrame:
         self.df = self._process_columns()
-        self.df = self._check_reserved_words()
         return self.df
 
-    def _process_columns(self) -> DataFrame:
+    def _process_columns(self, surrounding: bool = True) -> DataFrame:
         df = (self.df).copy()
         df.columns = df.columns.str.lower()
         df.columns = df.columns.str.replace(".", "")
         df.columns = df.columns.str.replace(",", "")
-        df.columns = df.columns.str.replace("__", "_")
-        new_cols = []
-        for col in df.columns:
-            res = any(chr.isdigit() for chr in col)
-            if res:
-                col = "[" + col + "]"
-            else:
-                col = re.sub("[^a-zA-Z0-9ñáéíóú_]", "_", col)
-            new_cols.append(col)
+        df.columns = df.columns.str.replace(r"[^a-zA-Z0-9ñáéíóú_]", "_", regex=True)
 
-        df.columns = new_cols
-        return df
+        df.columns = df.columns.str.replace("_+", "_", regex=True)
+        df.columns = df.columns.str.strip().strip("_")
+        if surrounding:
+            df.columns = [f"[{col}]" for col in df.columns]
 
-    def _check_reserved_words(self) -> DataFrame:
-        df = (self.df).copy()
-        new_cols = []
-        for col in df.columns:
-            # SQL reserved words
-            reserved_words = [
-                "update",
-                "insert",
-                "delete",
-                "create",
-                "drop",
-                "truncate",
-                "into",
-                "from",
-                "where",
-                "group",
-                "view",
-            ]
-            if col in reserved_words:
-                col = "[" + col + "]"
-            new_cols.append(col)
-        df.columns = new_cols
         return df
 
 
