@@ -1,13 +1,10 @@
 from pathlib import Path
 
 import setuptools
-from pip._internal.req import parse_requirements
 
 # Parse the requirements.txt file
-requirements = parse_requirements("requirements.txt", session="hack")
-
-# Get the list of requirements as strings
-install_requires = [str(req.requirement) for req in requirements]
+with open("requirements.txt", "r") as f:
+    install_requires = f.read().splitlines()
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
