@@ -97,8 +97,8 @@ class ColumnsCheck:
     def _process_columns(self, surrounding: bool = True) -> DataFrame:
         df = (self.df).copy()
         df.columns = df.columns.str.lower()
-        df.columns = df.columns.str.replace(".", "")
-        df.columns = df.columns.str.replace(",", "")
+        df.columns = df.columns.str.replace(".", "", regex=False)
+        df.columns = df.columns.str.replace(",", "", regex=False)
         df.columns = df.columns.str.replace(r"[^a-zA-Z0-9ñáéíóú_]", "_", regex=True)
 
         df.columns = df.columns.str.replace("_+", "_", regex=True)

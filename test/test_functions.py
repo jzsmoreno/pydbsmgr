@@ -5,14 +5,13 @@ from typing import List, Tuple
 import numpy as np
 import pandas as pd
 import pytest
-from cleantext import clean
 from pandas.core.frame import DataFrame
 from pandas.core.indexes.base import Index
 from pandas.core.series import Series
 
 
-def test_clean_names(_clean_names):
-    assert _clean_names("#tes$ting") == "tes_ting"
+def test_clean(_clean):
+    assert _clean("#Tes$ting method*") == "testing method"
 
 
 def test_clean_transform(_clean_transform):
@@ -49,9 +48,6 @@ def test_columns_dtypes(columns_dtypes_with_data):
     assert data_types[1] == "datetime64[ns]"
 
 
-@pytest.mark.xfail(
-    reason="Due to the use of 'concurrent.futures' you have this error. Try to run it again."
-)
 def test_lightest(lightest_with_data):
     fecha, first_date, anther_date, third_date = lightest_with_data
     comparison = ["1974-09-10", "1973-01-06", "1975-01-18", "2020-08-25"]

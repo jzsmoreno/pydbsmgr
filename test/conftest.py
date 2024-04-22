@@ -14,8 +14,8 @@ def _get_extraction_date() -> Callable:
 
 
 @pytest.fixture()
-def _clean_names() -> Callable:
-    return clean_names
+def _clean() -> Callable:
+    return clean
 
 
 @pytest.fixture()

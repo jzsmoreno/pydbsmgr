@@ -8,7 +8,6 @@ from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
-from cleantext import clean
 from IPython.display import clear_output
 from pandas.core.frame import DataFrame
 from pandas.core.indexes.base import Index
@@ -32,6 +31,8 @@ def get_date_format(input_string: str) -> str:
     formats = ["%Y%m%d", "%Y%d%m", "%d%m%Y", "%m%d%Y", "dayfirst", "monthfirst"]
     for format, regex in enumerate(regex_formats):
         if re.search(regex, str(input_string)):
+            if formats[format] == formats[2] and int((input_string[3:5]).replace("0", "")) > 12:
+                return formats[3]
             return formats[format]
 
     return ""
@@ -63,7 +64,12 @@ def remove_numeric_char(input_string: str) -> str:
     return re.sub(r"\d", "", input_string)
 
 
-def clean_names(dirty_string: str, pattern: str = r"[a-zA-Zñáéíóú_]+\b") -> str:
+def clean(
+    dirty_string: str,
+    pattern: str = r"[a-zA-Zñáéíóú_@.0-9]+\b",
+    no_emoji: bool = False,
+    title_mode: bool = False,
+) -> str:
     """
     Receive a string and clean it of special characters
 
@@ -79,14 +85,27 @@ def clean_names(dirty_string: str, pattern: str = r"[a-zA-Zñáéíóú_]+\b") -
     result : `str`
         clean character string
     """
-    result = re.findall(pattern, str(dirty_string).replace("_", ""))
-    if len(result) > 0:
-        result = "_".join(result)
+    if no_emoji:
+        emoji_pattern = re.compile(
+            "["
+            "\U0001F600-\U0001F64F"
+            "\U0001F300-\U0001F5FF"
+            "\U0001F680-\U0001F6FF"
+            "\U0001F1E0-\U0001F1FF"
+            "]+",
+            flags=re.UNICODE,
+        )
+        dirty_string = emoji_pattern.sub(r"", dirty_string)
+    dirty_string = dirty_string.lower()
+    words = dirty_string.split()
+    processed_words = ["".join(re.findall(pattern, word)) for word in words]
+    result = " ".join(processed_words)
+    # Remove any extra spaces that were introduced by
+    result = result.strip()
+    if title_mode:
+        return result.title()
     else:
-        pattern = r"[a-zA-Z]+"
-        result = re.findall(pattern, str(dirty_string).replace("_", ""))
-        result = "_".join(result)
-    return result
+        return result
 
 
 def clean_transform_helper(

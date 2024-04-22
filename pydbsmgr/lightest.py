@@ -1,4 +1,3 @@
-import concurrent.futures
 from functools import partial
 
 from pydbsmgr.main import *
@@ -42,15 +41,19 @@ def process_dates(x: str, format_type: str, auxiliary_type: str) -> str:
         try:
             x = str(pd.to_datetime(x, format=format_type, errors="raise"))[:10]
         except:
-            if auxiliary_type != None:
+            if auxiliary_type is not None:
                 x = str(pd.to_datetime(x, format=auxiliary_type, errors="ignore"))[:10]
+            else:
+                raise ValueError("Date value does not match the expected format.")
     else:
         if str(x).find(":") != -1:
             try:
                 x = str(pd.to_datetime(x[:8], format=format_type, errors="raise"))[:10]
             except:
-                if auxiliary_type != None:
+                if auxiliary_type is not None:
                     x = str(pd.to_datetime(x[:8], format=auxiliary_type, errors="ignore"))[:10]
+                else:
+                    raise ValueError("Date value does not match the expected format.")
     return x
 
 
@@ -73,31 +76,18 @@ class LightCleaner:
     ) -> DataFrame:
         """`DataFrame` cleaning main function
 
+        Parameters
+        ----------
+        - sample_frac (`float`): The fraction of rows to use for date type inference. Default is 0.1 i.e., 10%.
+        - fast_execution (`bool`): If `False` use `applymap` pandas for extra text cleanup. Default is `True`.
+
         Keyword Arguments:
         ----------
-        - fix_unicode: (`bool`): By default it is set to `True`.
-        - to_ascii: (`bool`): By default it is set to `True`.
-        - lower: (`bool`): By default it is set to `True`.
-        - normalize_whitespace: (`bool`): By default it is set to `True`.
-        - no_line_breaks: (`bool`): By default it is set to `False`.
-        - strip_lines: (`bool`): By default it is set to `True`.
-        - keep_two_line_breaks: (`bool`): By default it is set to `False`.
-        - no_urls: (`bool`): By default it is set to `False`.
-        - no_emails: (`bool`): By default it is set to `False`.
-        - no_phone_numbers: (`bool`): By default it is set to `False`.
-        - no_numbers: (`bool`): By default it is set to `False`.
-        - no_digits: (`bool`): By default it is set to `False`.
-        - no_currency_symbols: (`bool`): By default it is set to `False`.
-        - no_punct: (`bool`): By default it is set to `False`.
         - no_emoji: (`bool`): By default it is set to `False`.
-        - replace_with_url: (`str`): For example, the following `<URL>`.
-        - replace_with_email: (`str`): For example, the following `<EMAIL>`.
-        - replace_with_phone_number: (`str`): For example, the following `<PHONE>`.
-        - replace_with_number: (`str`): For example, the following `<NUMBER>`.
-        - replace_with_digit: (`str`): For example, the following `0`.
-        - replace_with_currency_symbol: (`str`): For example, the following `<CUR>`.
-        - replace_with_punct: (`str`): = For example, the following `""`.
-        - lang: (`str`): = By default it is set to `en`.
+        If `True`, removes all emojis from text data. Works only when `fast_execution` = `False`.
+        - title_mode: (`bool`): By default it is set to `True`.
+        If `False`, converts the text to lowercase. Works only when `fast_execution` = `False`.
+        By default, converts everything to `title`.
         """
         table = (self.df).copy()
         cols = table.columns
@@ -120,50 +110,68 @@ class LightCleaner:
                         two_date_formats,
                     )
                     if auxiliary_type != None:
-                        format_type = auxiliary_type
+                        try:
+                            format_type = auxiliary_type
+                            partial_dates = partial(
+                                process_dates,
+                                format_type=format_type,
+                                auxiliary_type=None,
+                            )
+                            vpartial_dates = np.vectorize(partial_dates)
+                            table[cols[column_index]] = vpartial_dates(table[cols[column_index]])
+                        except:
+                            format_type = main_type
+                            partial_dates = partial(
+                                process_dates,
+                                format_type=format_type,
+                                auxiliary_type=None,
+                            )
+                            vpartial_dates = np.vectorize(partial_dates)
+                            table[cols[column_index]] = vpartial_dates(table[cols[column_index]])
                     else:
                         format_type = main_type
-                    with concurrent.futures.ThreadPoolExecutor() as executor:
                         partial_dates = partial(
                             process_dates,
                             format_type=format_type,
                             auxiliary_type=None,
                         )
-                        table[cols[column_index]] = list(
-                            executor.map(partial_dates, table[cols[column_index]])
-                        )
-                        table[cols[column_index]] = list(
-                            executor.map(coerce_datetime, table[cols[column_index]])
-                        )
+                        vpartial_dates = np.vectorize(partial_dates)
+                        table[cols[column_index]] = vpartial_dates(table[cols[column_index]])
+                    vcoerce_datetime = np.vectorize(coerce_datetime)
+                    table[cols[column_index]] = vcoerce_datetime(table[cols[column_index]])
                     table[cols[column_index]] = pd.to_datetime(
                         table[cols[column_index]], format="%Y%m%d", errors="coerce"
                     ).dt.normalize()
                 else:
-                    if fast_execution == False:
-                        partial_clean = partial(clean, **kwargs)
-                        with concurrent.futures.ThreadPoolExecutor() as executor:
-                            table[cols[column_index]] = list(
-                                executor.map(partial_clean, table[cols[column_index]])
-                            )
-                            table[cols[column_index]] = list(
-                                executor.map(remove_char, table[cols[column_index]])
-                            )
-                            try:
-                                table[cols[column_index]] = list(
-                                    executor.map(
-                                        lambda text: text.title() if text is not None else text,
-                                        table[cols[column_index]],
-                                    )
-                                )
-                            except AttributeError as e:
-                                warning_type = "UserWarning"
-                                msg = (
-                                    "It was not possible to perform the cleaning, the column {%s} is duplicated. "
-                                    % cols[column_index]
-                                )
-                                msg += "Error: {%s}" % e
-                                print(f"{warning_type}: {msg}")
-                                sys.exit("Perform correction manually")
+                    try:
+                        table[cols[column_index]] = (
+                            table[cols[column_index]]
+                            .replace(np.nan, "")
+                            .astype(str)
+                            .str.normalize("NFKD")
+                            .str.encode("ascii", errors="ignore")
+                            .str.decode("ascii")
+                            .str.title()
+                        )
+                    except AttributeError as e:
+                        warning_type = "UserWarning"
+                        msg = (
+                            "It was not possible to perform the cleaning, the column {%s} is duplicated. "
+                            % cols[column_index]
+                        )
+                        msg += "Error: {%s}" % e
+                        print(f"{warning_type}: {msg}")
+                        sys.exit("Perform correction manually")
+                    if not fast_execution:
+                        no_emoji = kwargs["no_emoji"] if "no_emoji" in kwargs else False
+                        title_mode = kwargs["title_mode"] if "title_mode" in kwargs else True
+                        partial_clean = partial(
+                            clean,
+                            no_emoji=no_emoji,
+                            title_mode=title_mode,
+                        )
+                        vpartial_clean = np.vectorize(partial_clean)
+                        table[cols[column_index]] = vpartial_clean(table[cols[column_index]])
 
         table = self._remove_duplicate_columns(table)
         self.df = table.copy()
