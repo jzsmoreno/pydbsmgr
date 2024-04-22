@@ -4,7 +4,7 @@ from pydbsmgr.main import *
 from pydbsmgr.utils.tools import coerce_datetime, most_repeated_item
 
 
-def process_dates(x: str, format_type: str, auxiliary_type: str) -> str:
+def process_dates(x: str, format_type: str, auxiliary_type: str, errors: str = "ignore") -> str:
     """Auxiliary function in date type string processing
 
     Parameters
@@ -43,7 +43,7 @@ def process_dates(x: str, format_type: str, auxiliary_type: str) -> str:
         except:
             if auxiliary_type is not None:
                 x = str(pd.to_datetime(x, format=auxiliary_type, errors="ignore"))[:10]
-            else:
+            elif errors == "raise":
                 raise ValueError("Date value does not match the expected format.")
     else:
         if str(x).find(":") != -1:
@@ -52,7 +52,7 @@ def process_dates(x: str, format_type: str, auxiliary_type: str) -> str:
             except:
                 if auxiliary_type is not None:
                     x = str(pd.to_datetime(x[:8], format=auxiliary_type, errors="ignore"))[:10]
-                else:
+                elif errors == "raise":
                     raise ValueError("Date value does not match the expected format.")
     return x
 
@@ -92,6 +92,7 @@ class LightCleaner:
         table = (self.df).copy()
         cols = table.columns
         table_sample = table.sample(frac=sample_frac)
+        errors = kwargs["errors"] if "errors" in kwargs else "ignore"
         for column_index, datatype in enumerate(table.dtypes):
             if datatype == "object":
                 datetype_column = (
@@ -116,6 +117,7 @@ class LightCleaner:
                                 process_dates,
                                 format_type=format_type,
                                 auxiliary_type=None,
+                                errors=errors,
                             )
                             vpartial_dates = np.vectorize(partial_dates)
                             table[cols[column_index]] = vpartial_dates(table[cols[column_index]])
@@ -125,6 +127,7 @@ class LightCleaner:
                                 process_dates,
                                 format_type=format_type,
                                 auxiliary_type=None,
+                                errors=errors,
                             )
                             vpartial_dates = np.vectorize(partial_dates)
                             table[cols[column_index]] = vpartial_dates(table[cols[column_index]])
@@ -134,6 +137,7 @@ class LightCleaner:
                             process_dates,
                             format_type=format_type,
                             auxiliary_type=None,
+                            errors=errors,
                         )
                         vpartial_dates = np.vectorize(partial_dates)
                         table[cols[column_index]] = vpartial_dates(table[cols[column_index]])

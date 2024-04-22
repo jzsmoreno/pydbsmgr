@@ -72,7 +72,7 @@ def lightest_with_data() -> Callable:
         }
     )
     handler = LightCleaner(df)
-    df = handler.clean_frame(sample_frac=1.0, fast_execution=False)
+    df = handler.clean_frame(sample_frac=1.0, fast_execution=False, errors="raise")
 
     return (
         df["fecha"].astype(str).to_list(),
