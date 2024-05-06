@@ -43,6 +43,7 @@ jobs:
 
     - name: Commit documentation changes
       env:
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
         GITHUB_ACTOR: ${{ github.actor }}
         GITHUB_EMAIL: action@github.com
       run: |
