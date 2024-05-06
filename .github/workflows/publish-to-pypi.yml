@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - 'main'
+    paths:
+      - 'pydbsmgr/VERSION'
 
 jobs:
   build-and-publish-to-pypi:

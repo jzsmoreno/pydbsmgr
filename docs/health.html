@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>pydbsmgr.health API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pydbsmgr.health</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import os
+from abc import abstractmethod
+from typing import List
+
+import missingno as msno
+import numpy as np
+import pandas as pd
+import yaml
+from loguru import logger
+from pandas.core.frame import DataFrame
+
+from pydbsmgr.main import check_dtypes, clean_transform, drop_empty_columns, intersection_cols
+
+
+class FrameCheck:
+    &#34;&#34;&#34;Class for checking and transforming a `DataFrame`/dataframes&#34;&#34;&#34;
+
+    def __init__(self, _df: DataFrame | List[DataFrame], df_names: str | List[str] = None) -&gt; None:
+        self.df_names = df_names
+        if isinstance(self.df_names, str):
+            logger.add(self.df_names + &#34;_{time}.log&#34;, rotation=&#34;100 KB&#34;)
+        else:
+            logger.add(&#34;report_{time}.log&#34;, rotation=&#34;100 KB&#34;)
+
+        if isinstance(_df, list):
+            self._dfs = _df
+            assert len(self._dfs) &gt; 0, &#34;At least one dataframe must be provided&#34;
+        elif isinstance(_df, DataFrame):
+            self._dfs = [_df]
+        else:
+            raise TypeError(&#34;Input should be either a single dataframe or a list of dataframes&#34;)
+
+    def fix(self, cols_upper_case: bool = False, drop_empty_cols: bool = True) -&gt; None:
+        &#34;&#34;&#34;Performs the clean of the data and validation
+
+        Args:
+        -----
+            cols_upper_case (`bool`, optional): Indicates whether to convert column names to uppercase. Defaults to `False`.
+            drop_empty_cols (`bool`, optional): Variable indicating whether columns with all their values empty should be removed. Defaults to `True`.
+        &#34;&#34;&#34;
+        if drop_empty_cols:
+            for count, df in enumerate(self._dfs):
+                self._dfs[count] = drop_empty_columns(df)
+                logger.info(f&#34;{count+1}) Empty columns have been removed.&#34;)
+                self._dfs[count].columns = clean_transform(df.columns, cols_upper_case)
+                logger.info(f&#34;{count+1}) Columns have been cleaned and transformed.&#34;)
+                self._dfs[count] = self._ops_dtypes(df, count)
+
+    def get_frames(self) -&gt; List[DataFrame]:
+        return self._dfs
+
+    def generate_report(
+        self,
+        report_name: str = &#34;./report.html&#34;,
+        yaml_name: str = &#34;./output.yaml&#34;,
+        database_name: str = &#34;database&#34;,
+        directory_name: str = &#34;summary&#34;,
+        concat_vertically: bool = False,
+        encoding: str = &#34;utf-8&#34;,
+    ) -&gt; None:
+        &#34;&#34;&#34;Generate a `.html` health check report.
+
+        Args:
+        -----
+            report_name (`str`, optional): Name of the quality assessment report. Defaults to `./report.html`.
+            yaml_name (`str`, optional): Indicates the name of the `.yaml` file that will serve as a template for the creation of the SQL table. Defaults to `./output.yaml`.
+            database_name (`str`, optional): The header of the `.yaml` file. Default value is `database`
+            directory_name (`str`, optional): Folder in which the reports will be saved. Defaults to `summary`.
+            concat_vertically: (`bool`, optional), Variable indicating whether the list of dataframes should be vertically concatenated into a single one. Default value is `False`.
+            encoding (`str`, optional): The encoding of dataframes. Defaults to `utf-8`.
+        &#34;&#34;&#34;
+        self.df_files_info = pd.DataFrame()
+        self.yaml_name = yaml_name
+        self.database_name = database_name
+        if not os.path.exists(directory_name):
+            os.mkdir(directory_name)
+            warning_type = &#34;UserWarning&#34;
+            msg = &#34;The directory {%s} was created&#34; % directory_name
+            print(f&#34;{warning_type}: {msg}&#34;)
+            logger.info(f&#34;The {directory_name} directory has been created.&#34;)
+
+        if concat_vertically:
+            self._dfs = intersection_cols(self._dfs)
+            self._dfs = [pd.concat(self._dfs, axis=0)]
+
+        for j, df in enumerate(self._dfs):
+            ax = msno.matrix(self._dfs[j])
+            ax.get_figure().savefig(&#34;./&#34; + directory_name + f&#34;/{j}_msno_report.png&#34;, dpi=300)
+            info = []
+            for col in df.columns:
+                try:
+                    if col.find(&#34;unnamed&#34;) == -1:
+                        nrows = df.isnull().sum()[col] + df[col].count()
+                        nrows_missing = df.isnull().sum()[col]
+                        percentage = nrows_missing / nrows
+                        datatype = df.dtypes[col]
+                        unique_vals = len(df[col].unique())
+                        info.append(
+                            [
+                                col,
+                                datatype,
+                                self.df_names[j],
+                                nrows,
+                                nrows_missing,
+                                percentage,
+                                unique_vals,
+                            ]
+                        )
+
+                except:
+                    pass  # column doesn&#39;t exist in this dataframe
+            info = np.array(info).reshape((-1, 7))
+            info = pd.DataFrame(
+                info,
+                columns=[
+                    &#34;column name&#34;,
+                    &#34;data type&#34;,
+                    &#34;database name&#34;,
+                    &#34;# rows&#34;,
+                    &#34;# missing rows&#34;,
+                    &#34;# missing rows (percentage)&#34;,
+                    &#34;unique values&#34;,
+                ],
+            )
+            info[&#34;# missing rows (percentage)&#34;] = info[&#34;# missing rows (percentage)&#34;].apply(
+                lambda x: &#34;{:.2%}&#34;.format(float(x))
+            )
+            info[&#34;# rows&#34;] = info[&#34;# rows&#34;].apply(lambda x: &#34;{:,}&#34;.format(int(x)))
+            info[&#34;# missing rows&#34;] = info[&#34;# missing rows&#34;].apply(lambda x: &#34;{:,}&#34;.format(int(x)))
+            info[&#34;unique values&#34;] = info[&#34;unique values&#34;].apply(lambda x: &#34;{:,}&#34;.format(int(x)))
+
+            logger.info(f&#34;DataFrame &#39;{self.df_names[j]}&#39; has been processed&#34;)
+            self.df_files_info = pd.concat([self.df_files_info, info])
+
+        self.df_files_info.to_html(report_name, index=False, encoding=encoding)
+        logger.info(f&#34;A report has been created under the name &#39;{report_name}&#39;&#34;)
+
+        self.df_files_info[&#34;data type&#34;] = [
+            str(_type) for _type in self.df_files_info[&#34;data type&#34;].to_list()
+        ]
+        self.df_files_info[&#34;sql name&#34;] = [
+            col_name.replace(&#34; &#34;, &#34;_&#34;) for col_name in self.df_files_info[&#34;column name&#34;]
+        ]
+
+        self._create_yaml_tree()
+
+    @abstractmethod
+    def _ops_dtypes(self, df, count) -&gt; DataFrame:
+        &#34;&#34;&#34;Processing of data types&#34;&#34;&#34;
+        df = check_dtypes(df, df.dtypes)
+        logger.info(f&#34;{count+1}) The data type has been verified.&#34;)
+        df = df.replace(r&#34;(nan|Nan)&#34;, np.nan, regex=True)
+        logger.info(f&#34;{count+1}) The `nan` strings have been replaced by `np.nan`.&#34;)
+        df = df.loc[:, ~df.columns.str.contains(&#34;^unnamed&#34;)]
+        logger.info(f&#34;{count+1}) Only the named columns have been retained.&#34;)
+        return df
+
+    def _create_yaml_tree(self) -&gt; None:
+        &#34;&#34;&#34;Function that creates a `yaml` configuration file for database data type validation.&#34;&#34;&#34;
+        data = {}
+        for col_name, data_type, sql_name in zip(
+            self.df_files_info[&#34;column name&#34;].to_list(),
+            self.df_files_info[&#34;data type&#34;],
+            self.df_files_info[&#34;sql name&#34;].to_list(),
+        ):
+            data[col_name] = {&#34;type&#34;: [data_type], &#34;sql_name&#34;: [sql_name]}
+
+        yaml_data = yaml.dump({self.database_name: data})
+
+        with open(self.yaml_name, &#34;w&#34;) as file:
+            file.write(yaml_data)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="pydbsmgr.health.FrameCheck"><code class="flex name class">
+<span>class <span class="ident">FrameCheck</span></span>
+<span>(</span><span>_df: Union[pandas.core.frame.DataFrame, List[pandas.core.frame.DataFrame]], df_names: Union[str, List[str]] = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Class for checking and transforming a <code>DataFrame</code>/dataframes</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FrameCheck:
+    &#34;&#34;&#34;Class for checking and transforming a `DataFrame`/dataframes&#34;&#34;&#34;
+
+    def __init__(self, _df: DataFrame | List[DataFrame], df_names: str | List[str] = None) -&gt; None:
+        self.df_names = df_names
+        if isinstance(self.df_names, str):
+            logger.add(self.df_names + &#34;_{time}.log&#34;, rotation=&#34;100 KB&#34;)
+        else:
+            logger.add(&#34;report_{time}.log&#34;, rotation=&#34;100 KB&#34;)
+
+        if isinstance(_df, list):
+            self._dfs = _df
+            assert len(self._dfs) &gt; 0, &#34;At least one dataframe must be provided&#34;
+        elif isinstance(_df, DataFrame):
+            self._dfs = [_df]
+        else:
+            raise TypeError(&#34;Input should be either a single dataframe or a list of dataframes&#34;)
+
+    def fix(self, cols_upper_case: bool = False, drop_empty_cols: bool = True) -&gt; None:
+        &#34;&#34;&#34;Performs the clean of the data and validation
+
+        Args:
+        -----
+            cols_upper_case (`bool`, optional): Indicates whether to convert column names to uppercase. Defaults to `False`.
+            drop_empty_cols (`bool`, optional): Variable indicating whether columns with all their values empty should be removed. Defaults to `True`.
+        &#34;&#34;&#34;
+        if drop_empty_cols:
+            for count, df in enumerate(self._dfs):
+                self._dfs[count] = drop_empty_columns(df)
+                logger.info(f&#34;{count+1}) Empty columns have been removed.&#34;)
+                self._dfs[count].columns = clean_transform(df.columns, cols_upper_case)
+                logger.info(f&#34;{count+1}) Columns have been cleaned and transformed.&#34;)
+                self._dfs[count] = self._ops_dtypes(df, count)
+
+    def get_frames(self) -&gt; List[DataFrame]:
+        return self._dfs
+
+    def generate_report(
+        self,
+        report_name: str = &#34;./report.html&#34;,
+        yaml_name: str = &#34;./output.yaml&#34;,
+        database_name: str = &#34;database&#34;,
+        directory_name: str = &#34;summary&#34;,
+        concat_vertically: bool = False,
+        encoding: str = &#34;utf-8&#34;,
+    ) -&gt; None:
+        &#34;&#34;&#34;Generate a `.html` health check report.
+
+        Args:
+        -----
+            report_name (`str`, optional): Name of the quality assessment report. Defaults to `./report.html`.
+            yaml_name (`str`, optional): Indicates the name of the `.yaml` file that will serve as a template for the creation of the SQL table. Defaults to `./output.yaml`.
+            database_name (`str`, optional): The header of the `.yaml` file. Default value is `database`
+            directory_name (`str`, optional): Folder in which the reports will be saved. Defaults to `summary`.
+            concat_vertically: (`bool`, optional), Variable indicating whether the list of dataframes should be vertically concatenated into a single one. Default value is `False`.
+            encoding (`str`, optional): The encoding of dataframes. Defaults to `utf-8`.
+        &#34;&#34;&#34;
+        self.df_files_info = pd.DataFrame()
+        self.yaml_name = yaml_name
+        self.database_name = database_name
+        if not os.path.exists(directory_name):
+            os.mkdir(directory_name)
+            warning_type = &#34;UserWarning&#34;
+            msg = &#34;The directory {%s} was created&#34; % directory_name
+            print(f&#34;{warning_type}: {msg}&#34;)
+            logger.info(f&#34;The {directory_name} directory has been created.&#34;)
+
+        if concat_vertically:
+            self._dfs = intersection_cols(self._dfs)
+            self._dfs = [pd.concat(self._dfs, axis=0)]
+
+        for j, df in enumerate(self._dfs):
+            ax = msno.matrix(self._dfs[j])
+            ax.get_figure().savefig(&#34;./&#34; + directory_name + f&#34;/{j}_msno_report.png&#34;, dpi=300)
+            info = []
+            for col in df.columns:
+                try:
+                    if col.find(&#34;unnamed&#34;) == -1:
+                        nrows = df.isnull().sum()[col] + df[col].count()
+                        nrows_missing = df.isnull().sum()[col]
+                        percentage = nrows_missing / nrows
+                        datatype = df.dtypes[col]
+                        unique_vals = len(df[col].unique())
+                        info.append(
+                            [
+                                col,
+                                datatype,
+                                self.df_names[j],
+                                nrows,
+                                nrows_missing,
+                                percentage,
+                                unique_vals,
+                            ]
+                        )
+
+                except:
+                    pass  # column doesn&#39;t exist in this dataframe
+            info = np.array(info).reshape((-1, 7))
+            info = pd.DataFrame(
+                info,
+                columns=[
+                    &#34;column name&#34;,
+                    &#34;data type&#34;,
+                    &#34;database name&#34;,
+                    &#34;# rows&#34;,
+                    &#34;# missing rows&#34;,
+                    &#34;# missing rows (percentage)&#34;,
+                    &#34;unique values&#34;,
+                ],
+            )
+            info[&#34;# missing rows (percentage)&#34;] = info[&#34;# missing rows (percentage)&#34;].apply(
+                lambda x: &#34;{:.2%}&#34;.format(float(x))
+            )
+            info[&#34;# rows&#34;] = info[&#34;# rows&#34;].apply(lambda x: &#34;{:,}&#34;.format(int(x)))
+            info[&#34;# missing rows&#34;] = info[&#34;# missing rows&#34;].apply(lambda x: &#34;{:,}&#34;.format(int(x)))
+            info[&#34;unique values&#34;] = info[&#34;unique values&#34;].apply(lambda x: &#34;{:,}&#34;.format(int(x)))
+
+            logger.info(f&#34;DataFrame &#39;{self.df_names[j]}&#39; has been processed&#34;)
+            self.df_files_info = pd.concat([self.df_files_info, info])
+
+        self.df_files_info.to_html(report_name, index=False, encoding=encoding)
+        logger.info(f&#34;A report has been created under the name &#39;{report_name}&#39;&#34;)
+
+        self.df_files_info[&#34;data type&#34;] = [
+            str(_type) for _type in self.df_files_info[&#34;data type&#34;].to_list()
+        ]
+        self.df_files_info[&#34;sql name&#34;] = [
+            col_name.replace(&#34; &#34;, &#34;_&#34;) for col_name in self.df_files_info[&#34;column name&#34;]
+        ]
+
+        self._create_yaml_tree()
+
+    @abstractmethod
+    def _ops_dtypes(self, df, count) -&gt; DataFrame:
+        &#34;&#34;&#34;Processing of data types&#34;&#34;&#34;
+        df = check_dtypes(df, df.dtypes)
+        logger.info(f&#34;{count+1}) The data type has been verified.&#34;)
+        df = df.replace(r&#34;(nan|Nan)&#34;, np.nan, regex=True)
+        logger.info(f&#34;{count+1}) The `nan` strings have been replaced by `np.nan`.&#34;)
+        df = df.loc[:, ~df.columns.str.contains(&#34;^unnamed&#34;)]
+        logger.info(f&#34;{count+1}) Only the named columns have been retained.&#34;)
+        return df
+
+    def _create_yaml_tree(self) -&gt; None:
+        &#34;&#34;&#34;Function that creates a `yaml` configuration file for database data type validation.&#34;&#34;&#34;
+        data = {}
+        for col_name, data_type, sql_name in zip(
+            self.df_files_info[&#34;column name&#34;].to_list(),
+            self.df_files_info[&#34;data type&#34;],
+            self.df_files_info[&#34;sql name&#34;].to_list(),
+        ):
+            data[col_name] = {&#34;type&#34;: [data_type], &#34;sql_name&#34;: [sql_name]}
+
+        yaml_data = yaml.dump({self.database_name: data})
+
+        with open(self.yaml_name, &#34;w&#34;) as file:
+            file.write(yaml_data)</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="pydbsmgr.health.FrameCheck.fix"><code class="name flex">
+<span>def <span class="ident">fix</span></span>(<span>self, cols_upper_case: bool = False, drop_empty_cols: bool = True) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Performs the clean of the data and validation</p>
+<h2 id="args">Args:</h2>
+<pre><code>cols_upper_case (&lt;code&gt;bool&lt;/code&gt;, optional): Indicates whether to convert column names to uppercase. Defaults to &lt;code&gt;False&lt;/code&gt;.
+drop_empty_cols (&lt;code&gt;bool&lt;/code&gt;, optional): Variable indicating whether columns with all their values empty should be removed. Defaults to &lt;code&gt;True&lt;/code&gt;.
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fix(self, cols_upper_case: bool = False, drop_empty_cols: bool = True) -&gt; None:
+    &#34;&#34;&#34;Performs the clean of the data and validation
+
+    Args:
+    -----
+        cols_upper_case (`bool`, optional): Indicates whether to convert column names to uppercase. Defaults to `False`.
+        drop_empty_cols (`bool`, optional): Variable indicating whether columns with all their values empty should be removed. Defaults to `True`.
+    &#34;&#34;&#34;
+    if drop_empty_cols:
+        for count, df in enumerate(self._dfs):
+            self._dfs[count] = drop_empty_columns(df)
+            logger.info(f&#34;{count+1}) Empty columns have been removed.&#34;)
+            self._dfs[count].columns = clean_transform(df.columns, cols_upper_case)
+            logger.info(f&#34;{count+1}) Columns have been cleaned and transformed.&#34;)
+            self._dfs[count] = self._ops_dtypes(df, count)</code></pre>
+</details>
+</dd>
+<dt id="pydbsmgr.health.FrameCheck.generate_report"><code class="name flex">
+<span>def <span class="ident">generate_report</span></span>(<span>self, report_name: str = './report.html', yaml_name: str = './output.yaml', database_name: str = 'database', directory_name: str = 'summary', concat_vertically: bool = False, encoding: str = 'utf-8') ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Generate a <code>.html</code> health check report.</p>
+<h2 id="args">Args:</h2>
+<pre><code>report_name (&lt;code&gt;str&lt;/code&gt;, optional): Name of the quality assessment report. Defaults to `./report.html`.
+yaml_name (&lt;code&gt;str&lt;/code&gt;, optional): Indicates the name of the &lt;code&gt;.yaml&lt;/code&gt; file that will serve as a template for the creation of the SQL table. Defaults to `./output.yaml`.
+database_name (&lt;code&gt;str&lt;/code&gt;, optional): The header of the &lt;code&gt;.yaml&lt;/code&gt; file. Default value is &lt;code&gt;database&lt;/code&gt;
+directory_name (&lt;code&gt;str&lt;/code&gt;, optional): Folder in which the reports will be saved. Defaults to &lt;code&gt;summary&lt;/code&gt;.
+concat_vertically: (&lt;code&gt;bool&lt;/code&gt;, optional), Variable indicating whether the list of dataframes should be vertically concatenated into a single one. Default value is &lt;code&gt;False&lt;/code&gt;.
+encoding (&lt;code&gt;str&lt;/code&gt;, optional): The encoding of dataframes. Defaults to `utf-8`.
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_report(
+    self,
+    report_name: str = &#34;./report.html&#34;,
+    yaml_name: str = &#34;./output.yaml&#34;,
+    database_name: str = &#34;database&#34;,
+    directory_name: str = &#34;summary&#34;,
+    concat_vertically: bool = False,
+    encoding: str = &#34;utf-8&#34;,
+) -&gt; None:
+    &#34;&#34;&#34;Generate a `.html` health check report.
+
+    Args:
+    -----
+        report_name (`str`, optional): Name of the quality assessment report. Defaults to `./report.html`.
+        yaml_name (`str`, optional): Indicates the name of the `.yaml` file that will serve as a template for the creation of the SQL table. Defaults to `./output.yaml`.
+        database_name (`str`, optional): The header of the `.yaml` file. Default value is `database`
+        directory_name (`str`, optional): Folder in which the reports will be saved. Defaults to `summary`.
+        concat_vertically: (`bool`, optional), Variable indicating whether the list of dataframes should be vertically concatenated into a single one. Default value is `False`.
+        encoding (`str`, optional): The encoding of dataframes. Defaults to `utf-8`.
+    &#34;&#34;&#34;
+    self.df_files_info = pd.DataFrame()
+    self.yaml_name = yaml_name
+    self.database_name = database_name
+    if not os.path.exists(directory_name):
+        os.mkdir(directory_name)
+        warning_type = &#34;UserWarning&#34;
+        msg = &#34;The directory {%s} was created&#34; % directory_name
+        print(f&#34;{warning_type}: {msg}&#34;)
+        logger.info(f&#34;The {directory_name} directory has been created.&#34;)
+
+    if concat_vertically:
+        self._dfs = intersection_cols(self._dfs)
+        self._dfs = [pd.concat(self._dfs, axis=0)]
+
+    for j, df in enumerate(self._dfs):
+        ax = msno.matrix(self._dfs[j])
+        ax.get_figure().savefig(&#34;./&#34; + directory_name + f&#34;/{j}_msno_report.png&#34;, dpi=300)
+        info = []
+        for col in df.columns:
+            try:
+                if col.find(&#34;unnamed&#34;) == -1:
+                    nrows = df.isnull().sum()[col] + df[col].count()
+                    nrows_missing = df.isnull().sum()[col]
+                    percentage = nrows_missing / nrows
+                    datatype = df.dtypes[col]
+                    unique_vals = len(df[col].unique())
+                    info.append(
+                        [
+                            col,
+                            datatype,
+                            self.df_names[j],
+                            nrows,
+                            nrows_missing,
+                            percentage,
+                            unique_vals,
+                        ]
+                    )
+
+            except:
+                pass  # column doesn&#39;t exist in this dataframe
+        info = np.array(info).reshape((-1, 7))
+        info = pd.DataFrame(
+            info,
+            columns=[
+                &#34;column name&#34;,
+                &#34;data type&#34;,
+                &#34;database name&#34;,
+                &#34;# rows&#34;,
+                &#34;# missing rows&#34;,
+                &#34;# missing rows (percentage)&#34;,
+                &#34;unique values&#34;,
+            ],
+        )
+        info[&#34;# missing rows (percentage)&#34;] = info[&#34;# missing rows (percentage)&#34;].apply(
+            lambda x: &#34;{:.2%}&#34;.format(float(x))
+        )
+        info[&#34;# rows&#34;] = info[&#34;# rows&#34;].apply(lambda x: &#34;{:,}&#34;.format(int(x)))
+        info[&#34;# missing rows&#34;] = info[&#34;# missing rows&#34;].apply(lambda x: &#34;{:,}&#34;.format(int(x)))
+        info[&#34;unique values&#34;] = info[&#34;unique values&#34;].apply(lambda x: &#34;{:,}&#34;.format(int(x)))
+
+        logger.info(f&#34;DataFrame &#39;{self.df_names[j]}&#39; has been processed&#34;)
+        self.df_files_info = pd.concat([self.df_files_info, info])
+
+    self.df_files_info.to_html(report_name, index=False, encoding=encoding)
+    logger.info(f&#34;A report has been created under the name &#39;{report_name}&#39;&#34;)
+
+    self.df_files_info[&#34;data type&#34;] = [
+        str(_type) for _type in self.df_files_info[&#34;data type&#34;].to_list()
+    ]
+    self.df_files_info[&#34;sql name&#34;] = [
+        col_name.replace(&#34; &#34;, &#34;_&#34;) for col_name in self.df_files_info[&#34;column name&#34;]
+    ]
+
+    self._create_yaml_tree()</code></pre>
+</details>
+</dd>
+<dt id="pydbsmgr.health.FrameCheck.get_frames"><code class="name flex">
+<span>def <span class="ident">get_frames</span></span>(<span>self) ‑> List[pandas.core.frame.DataFrame]</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_frames(self) -&gt; List[DataFrame]:
+    return self._dfs</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pydbsmgr" href="index.html">pydbsmgr</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="pydbsmgr.health.FrameCheck" href="#pydbsmgr.health.FrameCheck">FrameCheck</a></code></h4>
+<ul class="">
+<li><code><a title="pydbsmgr.health.FrameCheck.fix" href="#pydbsmgr.health.FrameCheck.fix">fix</a></code></li>
+<li><code><a title="pydbsmgr.health.FrameCheck.generate_report" href="#pydbsmgr.health.FrameCheck.generate_report">generate_report</a></code></li>
+<li><code><a title="pydbsmgr.health.FrameCheck.get_frames" href="#pydbsmgr.health.FrameCheck.get_frames">get_frames</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>
