@@ -30,10 +30,11 @@ jobs:
       id: get_package_name
       run: |
        name=$(python setup.py --name)
+       echo "::set-output name=name::$name"
 
     - name: Generate documentation
       run: |
-        pdoc --html --output-dir docs ${{ steps.get_package_name.outputs.name }}
+        pdoc --html . --output-dir docs
 
     - name: Copy documentation files
       run: |
