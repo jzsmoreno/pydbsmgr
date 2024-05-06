@@ -50,6 +50,11 @@ jobs:
       run: |
         git config user.email "${GITHUB_EMAIL}"
         git config user.name "${GITHUB_ACTOR}"
-        git add docs/
-        git commit -m "Auto-generated documentation"
-        git push origin main
+        if git status --porcelain | grep .; then
+          echo "Changes detected, proceeding with workflow steps..."
+          git add docs/
+          git commit -m "Auto-generated documentation"
+          git push origin main
+        else
+          echo "No changes detected, skipping workflow steps."
+        fi
