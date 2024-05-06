@@ -7,7 +7,7 @@
 
 # pydbsmgr
 
-Python package for database control and administration as well as for DataFrame processing. Also contains a simpler [Python SDK for Azure Cloud tools](https://learn.microsoft.com/en-us/azure/developer/python/sdk/azure-sdk-overview) such as uploading `.parquet`, `.csv` and `.xlsx` files, downloading them and DataFrame cleansing.
+Python package for database control and administration as well as for DataFrame processing. Also contains a simpler [Python SDK for Azure Cloud tools](https://learn.microsoft.com/en-us/azure/developer/python/sdk/azure-sdk-overview) such as uploading `.parquet`, `.csv` and `.xlsx` files, downloading them and DataFrame cleansing, for more information review our [`documentation`](https://jzsmoreno.github.io/pydbsmgr/).
 
 ## Prerequisities
 
