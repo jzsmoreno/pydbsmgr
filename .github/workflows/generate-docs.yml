@@ -51,4 +51,4 @@ jobs:
         git config user.name "${GITHUB_ACTOR}"
         git add docs/
         git commit -m "Auto-generated documentation"
-        git push
+        git push origin main
