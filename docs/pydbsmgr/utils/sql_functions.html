@@ -1,0 +1,1205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>pydbsmgr.utils.sql_functions API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pydbsmgr.utils.sql_functions</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import os
+
+import pandas as pd
+import pyodbc
+
+from pydbsmgr.fast_upload import DataFrame, DataFrameToSQL
+from pydbsmgr.utils.azure_sdk import StorageController
+from pydbsmgr.utils.tools import generate_secure_password
+
+
+class FileToSQL(DataFrameToSQL):
+    &#34;&#34;&#34;Allows you to create a table from a file or dataframe&#34;&#34;&#34;
+
+    def __init__(self, connection_string: str) -&gt; None:
+        &#34;&#34;&#34;Set the connection with the database&#34;&#34;&#34;
+        self._connection_string = connection_string
+        self._con = pyodbc.connect(self._connection_string, autocommit=True)
+        self._cur = self._con.cursor()
+        super().__init__(connection_string)
+
+    def insert_data(
+        self,
+        df: DataFrame | str,
+        table_name: str,
+        overwrite: bool = True,
+        char_length: int = 512,
+        override_length: bool = True,
+    ) -&gt; None:
+        &#34;&#34;&#34;Insert data into SQL Server.
+
+        Parameters:
+        ----------
+            df (`Dataframe` or `str`): The pandas dataframe that will be inserted into sql server
+            table_name (`str`): Name of the table in which the data is being inserted
+            overwrite (`bool`): If `True` it will delete and recreate the table before inserting new data
+            if `False` it will append the new data onto the end of the existing table
+            char_length (`int`): Length of varchar fields for text columns
+            override_length (`bool`): Override length of varchar fields for text columns.
+
+        Returns:
+        ----------
+            `None`
+        &#34;&#34;&#34;
+
+        self.file_type = None
+        df_to_load: DataFrame = pd.DataFrame()
+        if type(df) == str:
+            self.path = df
+            # read csv file
+            if df.find(&#34;csv&#34;) != -1:
+                try:
+                    df_to_load = pd.read_csv(df)
+                except:
+                    raise ValueError(&#34;Unable to parse CSV&#34;)
+            # read xlsx file
+            else:
+                try:
+                    df_to_load = pd.read_excel(df)
+                    self.file_type = &#34;xlsx&#34;
+                except:
+                    raise ValueError(&#34;Unable to parse Excel&#34;)
+        elif type(df) == DataFrame:
+            df_to_load = df
+        df_length = &#34;{:,}&#34;.format(len(df_to_load))
+        print(f&#34;Will be loaded {df_length} rows.&#34;)
+        if overwrite:
+            self._create(df_to_load, table_name, overwrite, char_length, override_length)
+            self._append_to_table(df_to_load.iloc[2:, :], table_name)
+        else:
+            self._append_to_table(df_to_load.iloc[2:, :], table_name)
+
+    def _create(
+        self,
+        df: DataFrame,
+        table_name: str,
+        overwrite: bool,
+        char_length: int,
+        override_length: bool,
+        close_cursor: bool = True,
+    ):
+        self.import_table(
+            (df.iloc[0:1, :]),
+            table_name,
+            overwrite,
+            char_length,
+            override_length,
+            close_cursor,
+        )
+
+    def _append_to_table(self, df: DataFrame, db_table_nm: str) -&gt; None:
+        # csv_buffer = StringIO()
+        # df.to_csv(csv_buffer, index=False)
+
+        # Get the CSV data as a string
+        # csv_data = csv_buffer.getvalue()
+        # get path
+        if self.file_type == &#34;xlsx&#34;:
+            csv_file_nm = os.path.join(os.getcwd(), &#34;csv_file_nm.csv&#34;)
+            df.to_csv(csv_file_nm, index=False)
+        else:
+            csv_file_nm = self.path
+        self.query = (
+            &#34;BULK INSERT &#34;
+            + db_table_nm
+            + &#34; FROM &#39;&#34;
+            + csv_file_nm
+            + &#34;&#39; WITH (FORMAT = &#39;CSV&#39;, FIRSTROW = 2)&#34;
+        )
+        self._con = pyodbc.connect(self._connection_string, autocommit=True)
+        self._cur = self._con.cursor()
+        self._cur.execute(self.query)
+        self._con.close()
+        print(&#34;Successfully loaded&#34;)
+
+        if self.file_type == &#34;xlsx&#34;:
+            # Delete csv_file_nm.csv file
+            os.remove(csv_file_nm)
+
+    def bulk_insert_from_csv(
+        self,
+        file_path: str,
+        db_table_name: str,
+        sas_str: str,
+        storage_connection_string: str,
+        storage_account: str,
+        container_name: str,
+        credential_name: str = &#34;UploadCSV_Credential&#34;,
+        data_source_name: str = &#34;UploadCSV_DS&#34;,
+        char_length: int = 512,
+        overwrite: bool = True,
+    ) -&gt; bool:
+        &#34;&#34;&#34;Insert data from csv files in Azure Blob Storage into SQL Server with Bulk command
+
+        Parameters:
+        ----------
+            file_path (`str`): Path to the file in Azure Blob Storage
+            db_table_name (`str`): Name of the table in which the data is being inserted
+            sas_str (`str`): SAS string to the storage account
+            storage_connection_string (`str`): Connection string to the storage account
+            storage_account (`str`): Name of the storage account
+            container_name (`str`): Name of the container in which the data is being inserted
+            credential_name (`str`): Name of the credentials
+            data_source_name (`str`): Name of the data source
+            char_length (`int`): Length of varchar fields for text columns
+            overwrite (`bool`): If `True` it will delete and recreate the table before inserting new data
+            if `False` it will append the new data onto the end of the existing table
+        Returns:
+        ----------
+            `bool`: True if the data was inserted successfully
+        &#34;&#34;&#34;
+        # Get all the files in the container or file individually
+        filter_condition = &#34;&#34;
+        if not file_path.endswith(&#34;/&#34;):
+            filter_condition = file_path.split(&#34;/&#34;)[-1]
+
+        print(&#34;GETTING FILES FROM THE CONTAINER&#34;)
+        df_list, name_list = self.get_df(
+            file_path=file_path,
+            storage_connection_string=storage_connection_string,
+            container_name=container_name,
+            filter_condition=filter_condition,
+        )
+        print(&#34;FINISHED GETTING FILES FROM THE CONTAINER&#34;)
+        if not df_list:
+            print(&#34;No files found&#34;)
+            return False
+
+        df = df_list[0]
+        print(&#34;=============================================&#34;)
+        if file_path.endswith(&#34;.parquet&#34;):
+            # Write the csv files from df_list and name_list
+            print(&#34;WRITING CSV FILES&#34;)
+            self.write_csv_from_parquet(
+                df_list=df_list,
+                name_list=name_list,
+                directory=&#34;/&#34;.join(file_path.split(&#34;/&#34;)[:-1]),
+            )
+            print(&#34;FINISHED WRITING CSV FILES&#34;)
+
+        # Create master key if not created already
+        print(&#34;CREATING MASTER KEY&#34;)
+        try:
+            sspassword = generate_secure_password()
+            self._cur.execute(f&#34;CREATE MASTER KEY ENCRYPTION BY PASSWORD = &#39;{sspassword}&#39;&#34;)
+            print(f&#34;Master key created&#34;)
+        except pyodbc.ProgrammingError as e:
+            print(&#34;==============================================&#34;)
+            warning_type = &#34;UserWarning&#34;
+            msg = f&#34;Master key already exists. If you want to create a new one, please drop the existing one first.&#34;
+            msg += f&#34;Error: {e}&#34;
+            print(f&#34;{warning_type}: {msg}&#34;)
+        print(&#34;=============================================&#34;)
+
+        # Create credentials query
+        print(&#34;CREATING CREDENTIALS&#34;)
+        try:
+            credentials_query = f&#34;&#34;&#34;CREATE DATABASE SCOPED CREDENTIAL {credential_name}
+            WITH IDENTITY = &#39;SHARED ACCESS SIGNATURE&#39;,
+            SECRET = &#39;{sas_str}&#39;;&#34;&#34;&#34;
+            self._cur.execute(credentials_query)
+            print(f&#34;Credentials with name {credential_name} created&#34;)
+        except pyodbc.ProgrammingError as e:
+            print(&#34;==============================================&#34;)
+            warning_type = &#34;UserWarning&#34;
+            msg = f&#34;Credentials already exists. If you want to create a new one, please drop the existing one first.&#34;
+            msg += f&#34;Error: {e}&#34;
+            print(f&#34;{warning_type}: {msg}&#34;)
+        print(&#34;=============================================&#34;)
+
+        # Create external data source query
+        print(&#34;CREATING EXTERNAL DATA SOURCE&#34;)
+        try:
+            external_data_source_query = f&#34;&#34;&#34;CREATE EXTERNAL DATA SOURCE {data_source_name}
+            WITH (
+                TYPE = BLOB_STORAGE,
+                LOCATION = &#39;https://{storage_account}.blob.core.windows.net&#39;,
+                CREDENTIAL = {credential_name}
+            );&#34;&#34;&#34;
+            self._cur.execute(external_data_source_query)
+            print(f&#34;External data source with name {data_source_name} created&#34;)
+        except pyodbc.ProgrammingError as e:
+            print(&#34;==============================================&#34;)
+            warning_type = &#34;UserWarning&#34;
+            msg = f&#34;External data source already exists. If you want to create a new one, please drop the existing one first.&#34;
+            msg += f&#34;Error: {e}&#34;
+            print(f&#34;{warning_type}: {msg}&#34;)
+
+        print(&#34;=============================================&#34;)
+
+        # Create bulk insert query
+        bulk_insert_query = f&#34;&#34;&#34;BULK INSERT {db_table_name}
+        FROM &#39;{file_path}&#39;
+        WITH (
+            DATA_SOURCE = &#39;{data_source_name}&#39;,
+            FIELDTERMINATOR = &#39;,&#39;,
+            DATAFILETYPE = &#39;char&#39;,
+            ROWTERMINATOR = &#39;\n&#39;,
+            FIRSTROW = 3
+        );&#34;&#34;&#34;
+
+        # Create table
+        if overwrite:
+            print(&#34;CREATING TABLE FOR BULK INSERT&#34;)
+            self._create(
+                df=df,
+                table_name=db_table_name,
+                overwrite=overwrite,
+                char_length=char_length,
+                override_length=True,
+                close_cursor=False,
+            )
+            print(&#34;TABLE CREATED&#34;)
+            print(&#34;=============================================&#34;)
+        print(&#34;INSERTING DATA, PLEASE WAIT&#34;)
+        self._cur.execute(bulk_insert_query)
+        print(&#34;SUCCESSFULLY &#39;BULK INSERTED&#39;&#34;)
+        print(&#34;=============================================&#34;)
+
+        # Drop dropable objects
+        self.drop_dropables(data_source_name, credential_name=credential_name, masterkey=True)
+        self._con.close()
+
+        print(&#34;PROCESS FINISHED&#34;)
+        return True
+
+    def drop_dropables(
+        self, data_source_name: str, credential_name: str, masterkey: bool = False
+    ) -&gt; bool:
+        &#34;&#34;&#34;Drop dropable objects
+
+        Parameters:
+        ----------
+            data_source_name (`str`): Name of the data source
+            masterkey (`bool`): If `True` it will drop the master key
+        Returns:
+        ----------
+            `Bool`: True if the data was inserted successfully
+        &#34;&#34;&#34;
+        print(&#34;DROPPING EXTERNAL DATA SOURCE&#34;)
+        self._cur.execute(f&#34;DROP EXTERNAL DATA SOURCE {data_source_name}&#34;)
+        print(&#34;DROPPING CREDENTIALS&#34;)
+        self._cur.execute(f&#34;DROP DATABASE SCOPED CREDENTIAL {credential_name}&#34;)
+        if masterkey:
+            print(&#34;DROPPING MASTER KEY&#34;)
+            try:
+                self._cur.execute(f&#34;DROP MASTER KEY&#34;)
+            except pyodbc.ProgrammingError as e:
+                print(&#34;==============================================&#34;)
+                warning_type = &#34;UserWarning&#34;
+                msg = f&#34;Master key does not exist.&#34;
+                msg += f&#34;Error: {e}&#34;
+                print(f&#34;{warning_type}: {msg}&#34;)
+                print(&#34;==============================================&#34;)
+
+        return True
+
+    def get_df(
+        self,
+        file_path: str,
+        storage_connection_string: str,
+        container_name: str,
+        filter_condition: str,
+    ) -&gt; tuple[list[DataFrame], list[str]]:
+        self.storage_controller = StorageController(storage_connection_string, container_name)
+        file_names = self.storage_controller.get_all_blob(filter_criteria=file_path)
+        filter_names = file_names
+        if filter_condition != &#34;&#34;:
+            filter_names = self.storage_controller._list_filter(file_names, filter_condition)
+
+        self.storage_controller.set_BlobPrefix(filter_names)
+        if file_path.endswith(&#34;.parquet&#34;):
+            # Get all the files in the container
+            print(&#34;GETTING PARQUET FILES FROM THE CONTAINER&#34;)
+            df_list, name_list = self.storage_controller.get_parquet(
+                directory_name=&#34;/&#34;.join(file_path.split(&#34;/&#34;)[:-1]),
+                regex=&#34;\w+.parquet&#34;,
+                manual_mode=True,
+            )
+            return df_list, name_list
+        elif file_path.endswith(&#34;.csv&#34;):
+            # Get all the files in the container
+            print(&#34;GETTING CSV FILES FROM THE CONTAINER&#34;)
+            df_list, name_list = self.storage_controller.get_excel_csv(
+                directory_name=&#34;/&#34;.join(file_path.split(&#34;/&#34;)[:-1]),
+                regex=&#34;\w+.csv&#34;,
+                manual_mode=True,
+            )
+            return df_list, name_list
+        else:
+            print(&#34;Not supported yet&#34;)
+
+        return [], []
+
+    def write_csv_from_parquet(
+        self,
+        df_list: list[DataFrame],
+        name_list: list[str],
+        directory: str = &#34;/&#34;,
+        write_to_csv: bool = True,
+    ) -&gt; None:
+        &#34;&#34;&#34;Write a csv file from parquet files in a container
+        Parameters:
+        ----------
+            connection_string (`str`): Connection string to the storage account
+            container_name (`str`): Name of the container in which the data is being inserted
+            directory (`str`): Directory in which the parquet files are located
+        Returns:
+        ----------
+            `bool`: True if the file was created successfully
+        &#34;&#34;&#34;
+        # Write the csv files
+        if write_to_csv:
+            print(&#34;WRITING CSV FILES&#34;)
+            self.storage_controller.upload_excel_csv(
+                directory_name=directory,
+                dfs=df_list,
+                blob_names=name_list,
+            )
+
+            print(&#34;FINISHED WRITING CSV FILES&#34;)
+
+
+########################################################################################</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="pydbsmgr.utils.sql_functions.FileToSQL"><code class="flex name class">
+<span>class <span class="ident">FileToSQL</span></span>
+<span>(</span><span>connection_string: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Allows you to create a table from a file or dataframe</p>
+<p>Set the connection with the database</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FileToSQL(DataFrameToSQL):
+    &#34;&#34;&#34;Allows you to create a table from a file or dataframe&#34;&#34;&#34;
+
+    def __init__(self, connection_string: str) -&gt; None:
+        &#34;&#34;&#34;Set the connection with the database&#34;&#34;&#34;
+        self._connection_string = connection_string
+        self._con = pyodbc.connect(self._connection_string, autocommit=True)
+        self._cur = self._con.cursor()
+        super().__init__(connection_string)
+
+    def insert_data(
+        self,
+        df: DataFrame | str,
+        table_name: str,
+        overwrite: bool = True,
+        char_length: int = 512,
+        override_length: bool = True,
+    ) -&gt; None:
+        &#34;&#34;&#34;Insert data into SQL Server.
+
+        Parameters:
+        ----------
+            df (`Dataframe` or `str`): The pandas dataframe that will be inserted into sql server
+            table_name (`str`): Name of the table in which the data is being inserted
+            overwrite (`bool`): If `True` it will delete and recreate the table before inserting new data
+            if `False` it will append the new data onto the end of the existing table
+            char_length (`int`): Length of varchar fields for text columns
+            override_length (`bool`): Override length of varchar fields for text columns.
+
+        Returns:
+        ----------
+            `None`
+        &#34;&#34;&#34;
+
+        self.file_type = None
+        df_to_load: DataFrame = pd.DataFrame()
+        if type(df) == str:
+            self.path = df
+            # read csv file
+            if df.find(&#34;csv&#34;) != -1:
+                try:
+                    df_to_load = pd.read_csv(df)
+                except:
+                    raise ValueError(&#34;Unable to parse CSV&#34;)
+            # read xlsx file
+            else:
+                try:
+                    df_to_load = pd.read_excel(df)
+                    self.file_type = &#34;xlsx&#34;
+                except:
+                    raise ValueError(&#34;Unable to parse Excel&#34;)
+        elif type(df) == DataFrame:
+            df_to_load = df
+        df_length = &#34;{:,}&#34;.format(len(df_to_load))
+        print(f&#34;Will be loaded {df_length} rows.&#34;)
+        if overwrite:
+            self._create(df_to_load, table_name, overwrite, char_length, override_length)
+            self._append_to_table(df_to_load.iloc[2:, :], table_name)
+        else:
+            self._append_to_table(df_to_load.iloc[2:, :], table_name)
+
+    def _create(
+        self,
+        df: DataFrame,
+        table_name: str,
+        overwrite: bool,
+        char_length: int,
+        override_length: bool,
+        close_cursor: bool = True,
+    ):
+        self.import_table(
+            (df.iloc[0:1, :]),
+            table_name,
+            overwrite,
+            char_length,
+            override_length,
+            close_cursor,
+        )
+
+    def _append_to_table(self, df: DataFrame, db_table_nm: str) -&gt; None:
+        # csv_buffer = StringIO()
+        # df.to_csv(csv_buffer, index=False)
+
+        # Get the CSV data as a string
+        # csv_data = csv_buffer.getvalue()
+        # get path
+        if self.file_type == &#34;xlsx&#34;:
+            csv_file_nm = os.path.join(os.getcwd(), &#34;csv_file_nm.csv&#34;)
+            df.to_csv(csv_file_nm, index=False)
+        else:
+            csv_file_nm = self.path
+        self.query = (
+            &#34;BULK INSERT &#34;
+            + db_table_nm
+            + &#34; FROM &#39;&#34;
+            + csv_file_nm
+            + &#34;&#39; WITH (FORMAT = &#39;CSV&#39;, FIRSTROW = 2)&#34;
+        )
+        self._con = pyodbc.connect(self._connection_string, autocommit=True)
+        self._cur = self._con.cursor()
+        self._cur.execute(self.query)
+        self._con.close()
+        print(&#34;Successfully loaded&#34;)
+
+        if self.file_type == &#34;xlsx&#34;:
+            # Delete csv_file_nm.csv file
+            os.remove(csv_file_nm)
+
+    def bulk_insert_from_csv(
+        self,
+        file_path: str,
+        db_table_name: str,
+        sas_str: str,
+        storage_connection_string: str,
+        storage_account: str,
+        container_name: str,
+        credential_name: str = &#34;UploadCSV_Credential&#34;,
+        data_source_name: str = &#34;UploadCSV_DS&#34;,
+        char_length: int = 512,
+        overwrite: bool = True,
+    ) -&gt; bool:
+        &#34;&#34;&#34;Insert data from csv files in Azure Blob Storage into SQL Server with Bulk command
+
+        Parameters:
+        ----------
+            file_path (`str`): Path to the file in Azure Blob Storage
+            db_table_name (`str`): Name of the table in which the data is being inserted
+            sas_str (`str`): SAS string to the storage account
+            storage_connection_string (`str`): Connection string to the storage account
+            storage_account (`str`): Name of the storage account
+            container_name (`str`): Name of the container in which the data is being inserted
+            credential_name (`str`): Name of the credentials
+            data_source_name (`str`): Name of the data source
+            char_length (`int`): Length of varchar fields for text columns
+            overwrite (`bool`): If `True` it will delete and recreate the table before inserting new data
+            if `False` it will append the new data onto the end of the existing table
+        Returns:
+        ----------
+            `bool`: True if the data was inserted successfully
+        &#34;&#34;&#34;
+        # Get all the files in the container or file individually
+        filter_condition = &#34;&#34;
+        if not file_path.endswith(&#34;/&#34;):
+            filter_condition = file_path.split(&#34;/&#34;)[-1]
+
+        print(&#34;GETTING FILES FROM THE CONTAINER&#34;)
+        df_list, name_list = self.get_df(
+            file_path=file_path,
+            storage_connection_string=storage_connection_string,
+            container_name=container_name,
+            filter_condition=filter_condition,
+        )
+        print(&#34;FINISHED GETTING FILES FROM THE CONTAINER&#34;)
+        if not df_list:
+            print(&#34;No files found&#34;)
+            return False
+
+        df = df_list[0]
+        print(&#34;=============================================&#34;)
+        if file_path.endswith(&#34;.parquet&#34;):
+            # Write the csv files from df_list and name_list
+            print(&#34;WRITING CSV FILES&#34;)
+            self.write_csv_from_parquet(
+                df_list=df_list,
+                name_list=name_list,
+                directory=&#34;/&#34;.join(file_path.split(&#34;/&#34;)[:-1]),
+            )
+            print(&#34;FINISHED WRITING CSV FILES&#34;)
+
+        # Create master key if not created already
+        print(&#34;CREATING MASTER KEY&#34;)
+        try:
+            sspassword = generate_secure_password()
+            self._cur.execute(f&#34;CREATE MASTER KEY ENCRYPTION BY PASSWORD = &#39;{sspassword}&#39;&#34;)
+            print(f&#34;Master key created&#34;)
+        except pyodbc.ProgrammingError as e:
+            print(&#34;==============================================&#34;)
+            warning_type = &#34;UserWarning&#34;
+            msg = f&#34;Master key already exists. If you want to create a new one, please drop the existing one first.&#34;
+            msg += f&#34;Error: {e}&#34;
+            print(f&#34;{warning_type}: {msg}&#34;)
+        print(&#34;=============================================&#34;)
+
+        # Create credentials query
+        print(&#34;CREATING CREDENTIALS&#34;)
+        try:
+            credentials_query = f&#34;&#34;&#34;CREATE DATABASE SCOPED CREDENTIAL {credential_name}
+            WITH IDENTITY = &#39;SHARED ACCESS SIGNATURE&#39;,
+            SECRET = &#39;{sas_str}&#39;;&#34;&#34;&#34;
+            self._cur.execute(credentials_query)
+            print(f&#34;Credentials with name {credential_name} created&#34;)
+        except pyodbc.ProgrammingError as e:
+            print(&#34;==============================================&#34;)
+            warning_type = &#34;UserWarning&#34;
+            msg = f&#34;Credentials already exists. If you want to create a new one, please drop the existing one first.&#34;
+            msg += f&#34;Error: {e}&#34;
+            print(f&#34;{warning_type}: {msg}&#34;)
+        print(&#34;=============================================&#34;)
+
+        # Create external data source query
+        print(&#34;CREATING EXTERNAL DATA SOURCE&#34;)
+        try:
+            external_data_source_query = f&#34;&#34;&#34;CREATE EXTERNAL DATA SOURCE {data_source_name}
+            WITH (
+                TYPE = BLOB_STORAGE,
+                LOCATION = &#39;https://{storage_account}.blob.core.windows.net&#39;,
+                CREDENTIAL = {credential_name}
+            );&#34;&#34;&#34;
+            self._cur.execute(external_data_source_query)
+            print(f&#34;External data source with name {data_source_name} created&#34;)
+        except pyodbc.ProgrammingError as e:
+            print(&#34;==============================================&#34;)
+            warning_type = &#34;UserWarning&#34;
+            msg = f&#34;External data source already exists. If you want to create a new one, please drop the existing one first.&#34;
+            msg += f&#34;Error: {e}&#34;
+            print(f&#34;{warning_type}: {msg}&#34;)
+
+        print(&#34;=============================================&#34;)
+
+        # Create bulk insert query
+        bulk_insert_query = f&#34;&#34;&#34;BULK INSERT {db_table_name}
+        FROM &#39;{file_path}&#39;
+        WITH (
+            DATA_SOURCE = &#39;{data_source_name}&#39;,
+            FIELDTERMINATOR = &#39;,&#39;,
+            DATAFILETYPE = &#39;char&#39;,
+            ROWTERMINATOR = &#39;\n&#39;,
+            FIRSTROW = 3
+        );&#34;&#34;&#34;
+
+        # Create table
+        if overwrite:
+            print(&#34;CREATING TABLE FOR BULK INSERT&#34;)
+            self._create(
+                df=df,
+                table_name=db_table_name,
+                overwrite=overwrite,
+                char_length=char_length,
+                override_length=True,
+                close_cursor=False,
+            )
+            print(&#34;TABLE CREATED&#34;)
+            print(&#34;=============================================&#34;)
+        print(&#34;INSERTING DATA, PLEASE WAIT&#34;)
+        self._cur.execute(bulk_insert_query)
+        print(&#34;SUCCESSFULLY &#39;BULK INSERTED&#39;&#34;)
+        print(&#34;=============================================&#34;)
+
+        # Drop dropable objects
+        self.drop_dropables(data_source_name, credential_name=credential_name, masterkey=True)
+        self._con.close()
+
+        print(&#34;PROCESS FINISHED&#34;)
+        return True
+
+    def drop_dropables(
+        self, data_source_name: str, credential_name: str, masterkey: bool = False
+    ) -&gt; bool:
+        &#34;&#34;&#34;Drop dropable objects
+
+        Parameters:
+        ----------
+            data_source_name (`str`): Name of the data source
+            masterkey (`bool`): If `True` it will drop the master key
+        Returns:
+        ----------
+            `Bool`: True if the data was inserted successfully
+        &#34;&#34;&#34;
+        print(&#34;DROPPING EXTERNAL DATA SOURCE&#34;)
+        self._cur.execute(f&#34;DROP EXTERNAL DATA SOURCE {data_source_name}&#34;)
+        print(&#34;DROPPING CREDENTIALS&#34;)
+        self._cur.execute(f&#34;DROP DATABASE SCOPED CREDENTIAL {credential_name}&#34;)
+        if masterkey:
+            print(&#34;DROPPING MASTER KEY&#34;)
+            try:
+                self._cur.execute(f&#34;DROP MASTER KEY&#34;)
+            except pyodbc.ProgrammingError as e:
+                print(&#34;==============================================&#34;)
+                warning_type = &#34;UserWarning&#34;
+                msg = f&#34;Master key does not exist.&#34;
+                msg += f&#34;Error: {e}&#34;
+                print(f&#34;{warning_type}: {msg}&#34;)
+                print(&#34;==============================================&#34;)
+
+        return True
+
+    def get_df(
+        self,
+        file_path: str,
+        storage_connection_string: str,
+        container_name: str,
+        filter_condition: str,
+    ) -&gt; tuple[list[DataFrame], list[str]]:
+        self.storage_controller = StorageController(storage_connection_string, container_name)
+        file_names = self.storage_controller.get_all_blob(filter_criteria=file_path)
+        filter_names = file_names
+        if filter_condition != &#34;&#34;:
+            filter_names = self.storage_controller._list_filter(file_names, filter_condition)
+
+        self.storage_controller.set_BlobPrefix(filter_names)
+        if file_path.endswith(&#34;.parquet&#34;):
+            # Get all the files in the container
+            print(&#34;GETTING PARQUET FILES FROM THE CONTAINER&#34;)
+            df_list, name_list = self.storage_controller.get_parquet(
+                directory_name=&#34;/&#34;.join(file_path.split(&#34;/&#34;)[:-1]),
+                regex=&#34;\w+.parquet&#34;,
+                manual_mode=True,
+            )
+            return df_list, name_list
+        elif file_path.endswith(&#34;.csv&#34;):
+            # Get all the files in the container
+            print(&#34;GETTING CSV FILES FROM THE CONTAINER&#34;)
+            df_list, name_list = self.storage_controller.get_excel_csv(
+                directory_name=&#34;/&#34;.join(file_path.split(&#34;/&#34;)[:-1]),
+                regex=&#34;\w+.csv&#34;,
+                manual_mode=True,
+            )
+            return df_list, name_list
+        else:
+            print(&#34;Not supported yet&#34;)
+
+        return [], []
+
+    def write_csv_from_parquet(
+        self,
+        df_list: list[DataFrame],
+        name_list: list[str],
+        directory: str = &#34;/&#34;,
+        write_to_csv: bool = True,
+    ) -&gt; None:
+        &#34;&#34;&#34;Write a csv file from parquet files in a container
+        Parameters:
+        ----------
+            connection_string (`str`): Connection string to the storage account
+            container_name (`str`): Name of the container in which the data is being inserted
+            directory (`str`): Directory in which the parquet files are located
+        Returns:
+        ----------
+            `bool`: True if the file was created successfully
+        &#34;&#34;&#34;
+        # Write the csv files
+        if write_to_csv:
+            print(&#34;WRITING CSV FILES&#34;)
+            self.storage_controller.upload_excel_csv(
+                directory_name=directory,
+                dfs=df_list,
+                blob_names=name_list,
+            )
+
+            print(&#34;FINISHED WRITING CSV FILES&#34;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pydbsmgr.fast_upload.DataFrameToSQL" href="../fast_upload.html#pydbsmgr.fast_upload.DataFrameToSQL">DataFrameToSQL</a></li>
+<li><a title="pydbsmgr.utils.tools.tools.ColumnsCheck" href="tools/tools.html#pydbsmgr.utils.tools.tools.ColumnsCheck">ColumnsCheck</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="pydbsmgr.utils.sql_functions.FileToSQL.bulk_insert_from_csv"><code class="name flex">
+<span>def <span class="ident">bulk_insert_from_csv</span></span>(<span>self, file_path: str, db_table_name: str, sas_str: str, storage_connection_string: str, storage_account: str, container_name: str, credential_name: str = 'UploadCSV_Credential', data_source_name: str = 'UploadCSV_DS', char_length: int = 512, overwrite: bool = True) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Insert data from csv files in Azure Blob Storage into SQL Server with Bulk command</p>
+<h2 id="parameters">Parameters:</h2>
+<pre><code>file_path (&lt;code&gt;str&lt;/code&gt;): Path to the file in Azure Blob Storage
+db_table_name (&lt;code&gt;str&lt;/code&gt;): Name of the table in which the data is being inserted
+sas_str (&lt;code&gt;str&lt;/code&gt;): SAS string to the storage account
+storage_connection_string (&lt;code&gt;str&lt;/code&gt;): Connection string to the storage account
+storage_account (&lt;code&gt;str&lt;/code&gt;): Name of the storage account
+container_name (&lt;code&gt;str&lt;/code&gt;): Name of the container in which the data is being inserted
+credential_name (&lt;code&gt;str&lt;/code&gt;): Name of the credentials
+data_source_name (&lt;code&gt;str&lt;/code&gt;): Name of the data source
+char_length (&lt;code&gt;int&lt;/code&gt;): Length of varchar fields for text columns
+overwrite (&lt;code&gt;bool&lt;/code&gt;): If &lt;code&gt;True&lt;/code&gt; it will delete and recreate the table before inserting new data
+if &lt;code&gt;False&lt;/code&gt; it will append the new data onto the end of the existing table
+</code></pre>
+<h2 id="returns">Returns:</h2>
+<pre><code>&lt;code&gt;bool&lt;/code&gt;: True if the data was inserted successfully
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def bulk_insert_from_csv(
+    self,
+    file_path: str,
+    db_table_name: str,
+    sas_str: str,
+    storage_connection_string: str,
+    storage_account: str,
+    container_name: str,
+    credential_name: str = &#34;UploadCSV_Credential&#34;,
+    data_source_name: str = &#34;UploadCSV_DS&#34;,
+    char_length: int = 512,
+    overwrite: bool = True,
+) -&gt; bool:
+    &#34;&#34;&#34;Insert data from csv files in Azure Blob Storage into SQL Server with Bulk command
+
+    Parameters:
+    ----------
+        file_path (`str`): Path to the file in Azure Blob Storage
+        db_table_name (`str`): Name of the table in which the data is being inserted
+        sas_str (`str`): SAS string to the storage account
+        storage_connection_string (`str`): Connection string to the storage account
+        storage_account (`str`): Name of the storage account
+        container_name (`str`): Name of the container in which the data is being inserted
+        credential_name (`str`): Name of the credentials
+        data_source_name (`str`): Name of the data source
+        char_length (`int`): Length of varchar fields for text columns
+        overwrite (`bool`): If `True` it will delete and recreate the table before inserting new data
+        if `False` it will append the new data onto the end of the existing table
+    Returns:
+    ----------
+        `bool`: True if the data was inserted successfully
+    &#34;&#34;&#34;
+    # Get all the files in the container or file individually
+    filter_condition = &#34;&#34;
+    if not file_path.endswith(&#34;/&#34;):
+        filter_condition = file_path.split(&#34;/&#34;)[-1]
+
+    print(&#34;GETTING FILES FROM THE CONTAINER&#34;)
+    df_list, name_list = self.get_df(
+        file_path=file_path,
+        storage_connection_string=storage_connection_string,
+        container_name=container_name,
+        filter_condition=filter_condition,
+    )
+    print(&#34;FINISHED GETTING FILES FROM THE CONTAINER&#34;)
+    if not df_list:
+        print(&#34;No files found&#34;)
+        return False
+
+    df = df_list[0]
+    print(&#34;=============================================&#34;)
+    if file_path.endswith(&#34;.parquet&#34;):
+        # Write the csv files from df_list and name_list
+        print(&#34;WRITING CSV FILES&#34;)
+        self.write_csv_from_parquet(
+            df_list=df_list,
+            name_list=name_list,
+            directory=&#34;/&#34;.join(file_path.split(&#34;/&#34;)[:-1]),
+        )
+        print(&#34;FINISHED WRITING CSV FILES&#34;)
+
+    # Create master key if not created already
+    print(&#34;CREATING MASTER KEY&#34;)
+    try:
+        sspassword = generate_secure_password()
+        self._cur.execute(f&#34;CREATE MASTER KEY ENCRYPTION BY PASSWORD = &#39;{sspassword}&#39;&#34;)
+        print(f&#34;Master key created&#34;)
+    except pyodbc.ProgrammingError as e:
+        print(&#34;==============================================&#34;)
+        warning_type = &#34;UserWarning&#34;
+        msg = f&#34;Master key already exists. If you want to create a new one, please drop the existing one first.&#34;
+        msg += f&#34;Error: {e}&#34;
+        print(f&#34;{warning_type}: {msg}&#34;)
+    print(&#34;=============================================&#34;)
+
+    # Create credentials query
+    print(&#34;CREATING CREDENTIALS&#34;)
+    try:
+        credentials_query = f&#34;&#34;&#34;CREATE DATABASE SCOPED CREDENTIAL {credential_name}
+        WITH IDENTITY = &#39;SHARED ACCESS SIGNATURE&#39;,
+        SECRET = &#39;{sas_str}&#39;;&#34;&#34;&#34;
+        self._cur.execute(credentials_query)
+        print(f&#34;Credentials with name {credential_name} created&#34;)
+    except pyodbc.ProgrammingError as e:
+        print(&#34;==============================================&#34;)
+        warning_type = &#34;UserWarning&#34;
+        msg = f&#34;Credentials already exists. If you want to create a new one, please drop the existing one first.&#34;
+        msg += f&#34;Error: {e}&#34;
+        print(f&#34;{warning_type}: {msg}&#34;)
+    print(&#34;=============================================&#34;)
+
+    # Create external data source query
+    print(&#34;CREATING EXTERNAL DATA SOURCE&#34;)
+    try:
+        external_data_source_query = f&#34;&#34;&#34;CREATE EXTERNAL DATA SOURCE {data_source_name}
+        WITH (
+            TYPE = BLOB_STORAGE,
+            LOCATION = &#39;https://{storage_account}.blob.core.windows.net&#39;,
+            CREDENTIAL = {credential_name}
+        );&#34;&#34;&#34;
+        self._cur.execute(external_data_source_query)
+        print(f&#34;External data source with name {data_source_name} created&#34;)
+    except pyodbc.ProgrammingError as e:
+        print(&#34;==============================================&#34;)
+        warning_type = &#34;UserWarning&#34;
+        msg = f&#34;External data source already exists. If you want to create a new one, please drop the existing one first.&#34;
+        msg += f&#34;Error: {e}&#34;
+        print(f&#34;{warning_type}: {msg}&#34;)
+
+    print(&#34;=============================================&#34;)
+
+    # Create bulk insert query
+    bulk_insert_query = f&#34;&#34;&#34;BULK INSERT {db_table_name}
+    FROM &#39;{file_path}&#39;
+    WITH (
+        DATA_SOURCE = &#39;{data_source_name}&#39;,
+        FIELDTERMINATOR = &#39;,&#39;,
+        DATAFILETYPE = &#39;char&#39;,
+        ROWTERMINATOR = &#39;\n&#39;,
+        FIRSTROW = 3
+    );&#34;&#34;&#34;
+
+    # Create table
+    if overwrite:
+        print(&#34;CREATING TABLE FOR BULK INSERT&#34;)
+        self._create(
+            df=df,
+            table_name=db_table_name,
+            overwrite=overwrite,
+            char_length=char_length,
+            override_length=True,
+            close_cursor=False,
+        )
+        print(&#34;TABLE CREATED&#34;)
+        print(&#34;=============================================&#34;)
+    print(&#34;INSERTING DATA, PLEASE WAIT&#34;)
+    self._cur.execute(bulk_insert_query)
+    print(&#34;SUCCESSFULLY &#39;BULK INSERTED&#39;&#34;)
+    print(&#34;=============================================&#34;)
+
+    # Drop dropable objects
+    self.drop_dropables(data_source_name, credential_name=credential_name, masterkey=True)
+    self._con.close()
+
+    print(&#34;PROCESS FINISHED&#34;)
+    return True</code></pre>
+</details>
+</dd>
+<dt id="pydbsmgr.utils.sql_functions.FileToSQL.drop_dropables"><code class="name flex">
+<span>def <span class="ident">drop_dropables</span></span>(<span>self, data_source_name: str, credential_name: str, masterkey: bool = False) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Drop dropable objects</p>
+<h2 id="parameters">Parameters:</h2>
+<pre><code>data_source_name (&lt;code&gt;str&lt;/code&gt;): Name of the data source
+masterkey (&lt;code&gt;bool&lt;/code&gt;): If &lt;code&gt;True&lt;/code&gt; it will drop the master key
+</code></pre>
+<h2 id="returns">Returns:</h2>
+<pre><code>&lt;code&gt;Bool&lt;/code&gt;: True if the data was inserted successfully
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def drop_dropables(
+    self, data_source_name: str, credential_name: str, masterkey: bool = False
+) -&gt; bool:
+    &#34;&#34;&#34;Drop dropable objects
+
+    Parameters:
+    ----------
+        data_source_name (`str`): Name of the data source
+        masterkey (`bool`): If `True` it will drop the master key
+    Returns:
+    ----------
+        `Bool`: True if the data was inserted successfully
+    &#34;&#34;&#34;
+    print(&#34;DROPPING EXTERNAL DATA SOURCE&#34;)
+    self._cur.execute(f&#34;DROP EXTERNAL DATA SOURCE {data_source_name}&#34;)
+    print(&#34;DROPPING CREDENTIALS&#34;)
+    self._cur.execute(f&#34;DROP DATABASE SCOPED CREDENTIAL {credential_name}&#34;)
+    if masterkey:
+        print(&#34;DROPPING MASTER KEY&#34;)
+        try:
+            self._cur.execute(f&#34;DROP MASTER KEY&#34;)
+        except pyodbc.ProgrammingError as e:
+            print(&#34;==============================================&#34;)
+            warning_type = &#34;UserWarning&#34;
+            msg = f&#34;Master key does not exist.&#34;
+            msg += f&#34;Error: {e}&#34;
+            print(f&#34;{warning_type}: {msg}&#34;)
+            print(&#34;==============================================&#34;)
+
+    return True</code></pre>
+</details>
+</dd>
+<dt id="pydbsmgr.utils.sql_functions.FileToSQL.get_df"><code class="name flex">
+<span>def <span class="ident">get_df</span></span>(<span>self, file_path: str, storage_connection_string: str, container_name: str, filter_condition: str) ‑> tuple[list[pandas.core.frame.DataFrame], list[str]]</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_df(
+    self,
+    file_path: str,
+    storage_connection_string: str,
+    container_name: str,
+    filter_condition: str,
+) -&gt; tuple[list[DataFrame], list[str]]:
+    self.storage_controller = StorageController(storage_connection_string, container_name)
+    file_names = self.storage_controller.get_all_blob(filter_criteria=file_path)
+    filter_names = file_names
+    if filter_condition != &#34;&#34;:
+        filter_names = self.storage_controller._list_filter(file_names, filter_condition)
+
+    self.storage_controller.set_BlobPrefix(filter_names)
+    if file_path.endswith(&#34;.parquet&#34;):
+        # Get all the files in the container
+        print(&#34;GETTING PARQUET FILES FROM THE CONTAINER&#34;)
+        df_list, name_list = self.storage_controller.get_parquet(
+            directory_name=&#34;/&#34;.join(file_path.split(&#34;/&#34;)[:-1]),
+            regex=&#34;\w+.parquet&#34;,
+            manual_mode=True,
+        )
+        return df_list, name_list
+    elif file_path.endswith(&#34;.csv&#34;):
+        # Get all the files in the container
+        print(&#34;GETTING CSV FILES FROM THE CONTAINER&#34;)
+        df_list, name_list = self.storage_controller.get_excel_csv(
+            directory_name=&#34;/&#34;.join(file_path.split(&#34;/&#34;)[:-1]),
+            regex=&#34;\w+.csv&#34;,
+            manual_mode=True,
+        )
+        return df_list, name_list
+    else:
+        print(&#34;Not supported yet&#34;)
+
+    return [], []</code></pre>
+</details>
+</dd>
+<dt id="pydbsmgr.utils.sql_functions.FileToSQL.insert_data"><code class="name flex">
+<span>def <span class="ident">insert_data</span></span>(<span>self, df: pandas.core.frame.DataFrame | str, table_name: str, overwrite: bool = True, char_length: int = 512, override_length: bool = True) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Insert data into SQL Server.</p>
+<h2 id="parameters">Parameters:</h2>
+<pre><code>df (&lt;code&gt;Dataframe&lt;/code&gt; or &lt;code&gt;str&lt;/code&gt;): The pandas dataframe that will be inserted into sql server
+table_name (&lt;code&gt;str&lt;/code&gt;): Name of the table in which the data is being inserted
+overwrite (&lt;code&gt;bool&lt;/code&gt;): If &lt;code&gt;True&lt;/code&gt; it will delete and recreate the table before inserting new data
+if &lt;code&gt;False&lt;/code&gt; it will append the new data onto the end of the existing table
+char_length (&lt;code&gt;int&lt;/code&gt;): Length of varchar fields for text columns
+override_length (&lt;code&gt;bool&lt;/code&gt;): Override length of varchar fields for text columns.
+</code></pre>
+<h2 id="returns">Returns:</h2>
+<pre><code>&lt;code&gt;None&lt;/code&gt;
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def insert_data(
+    self,
+    df: DataFrame | str,
+    table_name: str,
+    overwrite: bool = True,
+    char_length: int = 512,
+    override_length: bool = True,
+) -&gt; None:
+    &#34;&#34;&#34;Insert data into SQL Server.
+
+    Parameters:
+    ----------
+        df (`Dataframe` or `str`): The pandas dataframe that will be inserted into sql server
+        table_name (`str`): Name of the table in which the data is being inserted
+        overwrite (`bool`): If `True` it will delete and recreate the table before inserting new data
+        if `False` it will append the new data onto the end of the existing table
+        char_length (`int`): Length of varchar fields for text columns
+        override_length (`bool`): Override length of varchar fields for text columns.
+
+    Returns:
+    ----------
+        `None`
+    &#34;&#34;&#34;
+
+    self.file_type = None
+    df_to_load: DataFrame = pd.DataFrame()
+    if type(df) == str:
+        self.path = df
+        # read csv file
+        if df.find(&#34;csv&#34;) != -1:
+            try:
+                df_to_load = pd.read_csv(df)
+            except:
+                raise ValueError(&#34;Unable to parse CSV&#34;)
+        # read xlsx file
+        else:
+            try:
+                df_to_load = pd.read_excel(df)
+                self.file_type = &#34;xlsx&#34;
+            except:
+                raise ValueError(&#34;Unable to parse Excel&#34;)
+    elif type(df) == DataFrame:
+        df_to_load = df
+    df_length = &#34;{:,}&#34;.format(len(df_to_load))
+    print(f&#34;Will be loaded {df_length} rows.&#34;)
+    if overwrite:
+        self._create(df_to_load, table_name, overwrite, char_length, override_length)
+        self._append_to_table(df_to_load.iloc[2:, :], table_name)
+    else:
+        self._append_to_table(df_to_load.iloc[2:, :], table_name)</code></pre>
+</details>
+</dd>
+<dt id="pydbsmgr.utils.sql_functions.FileToSQL.write_csv_from_parquet"><code class="name flex">
+<span>def <span class="ident">write_csv_from_parquet</span></span>(<span>self, df_list: list[pandas.core.frame.DataFrame], name_list: list[str], directory: str = '/', write_to_csv: bool = True) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Write a csv file from parquet files in a container
+Parameters:</p>
+<hr>
+<pre><code>connection_string (&lt;code&gt;str&lt;/code&gt;): Connection string to the storage account
+container_name (&lt;code&gt;str&lt;/code&gt;): Name of the container in which the data is being inserted
+directory (&lt;code&gt;str&lt;/code&gt;): Directory in which the parquet files are located
+</code></pre>
+<h2 id="returns">Returns:</h2>
+<pre><code>&lt;code&gt;bool&lt;/code&gt;: True if the file was created successfully
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_csv_from_parquet(
+    self,
+    df_list: list[DataFrame],
+    name_list: list[str],
+    directory: str = &#34;/&#34;,
+    write_to_csv: bool = True,
+) -&gt; None:
+    &#34;&#34;&#34;Write a csv file from parquet files in a container
+    Parameters:
+    ----------
+        connection_string (`str`): Connection string to the storage account
+        container_name (`str`): Name of the container in which the data is being inserted
+        directory (`str`): Directory in which the parquet files are located
+    Returns:
+    ----------
+        `bool`: True if the file was created successfully
+    &#34;&#34;&#34;
+    # Write the csv files
+    if write_to_csv:
+        print(&#34;WRITING CSV FILES&#34;)
+        self.storage_controller.upload_excel_csv(
+            directory_name=directory,
+            dfs=df_list,
+            blob_names=name_list,
+        )
+
+        print(&#34;FINISHED WRITING CSV FILES&#34;)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pydbsmgr.fast_upload.DataFrameToSQL" href="../fast_upload.html#pydbsmgr.fast_upload.DataFrameToSQL">DataFrameToSQL</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pydbsmgr.fast_upload.DataFrameToSQL.import_table" href="../fast_upload.html#pydbsmgr.fast_upload.DataFrameToSQL.import_table">import_table</a></code></li>
+<li><code><a title="pydbsmgr.fast_upload.DataFrameToSQL.upload_table" href="../fast_upload.html#pydbsmgr.fast_upload.DataFrameToSQL.upload_table">upload_table</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pydbsmgr.utils" href="index.html">pydbsmgr.utils</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="pydbsmgr.utils.sql_functions.FileToSQL" href="#pydbsmgr.utils.sql_functions.FileToSQL">FileToSQL</a></code></h4>
+<ul class="">
+<li><code><a title="pydbsmgr.utils.sql_functions.FileToSQL.bulk_insert_from_csv" href="#pydbsmgr.utils.sql_functions.FileToSQL.bulk_insert_from_csv">bulk_insert_from_csv</a></code></li>
+<li><code><a title="pydbsmgr.utils.sql_functions.FileToSQL.drop_dropables" href="#pydbsmgr.utils.sql_functions.FileToSQL.drop_dropables">drop_dropables</a></code></li>
+<li><code><a title="pydbsmgr.utils.sql_functions.FileToSQL.get_df" href="#pydbsmgr.utils.sql_functions.FileToSQL.get_df">get_df</a></code></li>
+<li><code><a title="pydbsmgr.utils.sql_functions.FileToSQL.insert_data" href="#pydbsmgr.utils.sql_functions.FileToSQL.insert_data">insert_data</a></code></li>
+<li><code><a title="pydbsmgr.utils.sql_functions.FileToSQL.write_csv_from_parquet" href="#pydbsmgr.utils.sql_functions.FileToSQL.write_csv_from_parquet">write_csv_from_parquet</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

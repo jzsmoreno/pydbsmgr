@@ -1,0 +1,1249 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>pydbsmgr.main API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pydbsmgr.main</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import datetime
+import glob
+import os
+import re
+import sys
+import warnings
+from typing import List, Tuple
+
+import numpy as np
+import pandas as pd
+from IPython.display import clear_output
+from pandas.core.frame import DataFrame
+from pandas.core.indexes.base import Index
+from pandas.core.series import Series
+
+warnings.filterwarnings(&#34;ignore&#34;)
+
+########################################################################################
+
+
+def get_date_format(input_string: str) -&gt; str:
+    &#34;&#34;&#34;Infer the date format from a given string.&#34;&#34;&#34;
+    regex_formats = [
+        r&#34;\d{4}(-|/)[0-1]+[0-9](-|/)[0-3]+[0-9]&#34;,
+        r&#34;\d{4}(-|/)[0-3]+[0-9](-|/)[0-1]+[0-9]&#34;,
+        r&#34;[0-3]+[0-9](-|/)[0-1]+[0-9](-|/)\d{4}&#34;,
+        r&#34;[0-1]+[0-9](-|/)[0-3]+[0-9](-|/)\d{4}&#34;,
+        r&#34;([1-9]|[12][0-9]|3[01])(-|/)([1-9]|1[0-2])(-|/)\d{4}&#34;,
+        r&#34;([1-9]|1[0-2])(-|/)([1-9]|[12][0-9]|3[01])(-|/)\d{4}&#34;,
+    ]
+    formats = [&#34;%Y%m%d&#34;, &#34;%Y%d%m&#34;, &#34;%d%m%Y&#34;, &#34;%m%d%Y&#34;, &#34;dayfirst&#34;, &#34;monthfirst&#34;]
+    for format, regex in enumerate(regex_formats):
+        if re.search(regex, str(input_string)):
+            if formats[format] == formats[2] and int((input_string[3:5]).replace(&#34;0&#34;, &#34;&#34;)) &gt; 12:
+                return formats[3]
+            return formats[format]
+
+    return &#34;&#34;
+
+
+def check_if_contains_dates(input_string: str) -&gt; bool:
+    &#34;&#34;&#34;Check if a string contains date.&#34;&#34;&#34;
+    if input_string == &#34;&#34;:
+        return False
+    else:
+        if re.search(r&#34;\d{4}(-|/)\d{1,2}(-|/)\d{1,2}&#34;, str(input_string)):
+            return True
+        else:
+            if re.search(r&#34;\d{1,2}(-|/)\d{1,2}(-|/)\d{4}&#34;, str(input_string)):
+                return True
+            else:
+                return False
+
+
+def remove_numeric_char(input_string: str) -&gt; str:
+    &#34;&#34;&#34;Remove all numeric characters from a string.
+
+    Args:
+        input_string (`str`): character string to be cleaned of numeric characters
+
+    Returns:
+        `str`: clean character string
+    &#34;&#34;&#34;
+    return re.sub(r&#34;\d&#34;, &#34;&#34;, input_string)
+
+
+def clean(
+    dirty_string: str,
+    pattern: str = r&#34;[a-zA-Zñáéíóú_@.0-9]+\b&#34;,
+    no_emoji: bool = False,
+    title_mode: bool = False,
+) -&gt; str:
+    &#34;&#34;&#34;
+    Receive a string and clean it of special characters
+
+    Parameters
+    ----------
+    dirty_string : `str`
+        string of characters
+    pattern : `str`
+        regular expression string
+
+    Returns
+    -------
+    result : `str`
+        clean character string
+    &#34;&#34;&#34;
+    if no_emoji:
+        emoji_pattern = re.compile(
+            &#34;[&#34;
+            &#34;\U0001F600-\U0001F64F&#34;
+            &#34;\U0001F300-\U0001F5FF&#34;
+            &#34;\U0001F680-\U0001F6FF&#34;
+            &#34;\U0001F1E0-\U0001F1FF&#34;
+            &#34;]+&#34;,
+            flags=re.UNICODE,
+        )
+        dirty_string = emoji_pattern.sub(r&#34;&#34;, dirty_string)
+    dirty_string = dirty_string.lower()
+    words = dirty_string.split()
+    processed_words = [&#34;&#34;.join(re.findall(pattern, word)) for word in words]
+    result = &#34; &#34;.join(processed_words)
+    # Remove any extra spaces that were introduced by
+    result = result.strip()
+    if title_mode:
+        return result.title()
+    else:
+        return result
+
+
+def clean_transform_helper(
+    col: str, mode: bool = True, remove_numeric: bool = True, remove_spaces: bool = True
+) -&gt; str:
+    &#34;&#34;&#34;
+    Transforms a column name by cleaning the column name and if needed makes it capital.
+
+    Parameters
+    ----------
+    col : `str`
+        The column name to be transformed.
+    mode : `bool`
+        Indicates if names will be capitalized. By default it is set to `True`.
+    remove_numeric : `bool`
+        Indicates if numeric characters will be removed. By default it is set to `True`.
+    remove_spaces : `bool`
+        Indicates if spaces will be removed. By default it is set to `True`.
+    Returns
+    -------
+    col_name : `str`
+        The transformed column name.
+    &#34;&#34;&#34;
+    col_name = remove_char(str(clean(col)))
+    if mode:
+        col_name = col_name.title()
+    if remove_numeric:
+        col_name = remove_numeric_char(col_name).strip()
+    if remove_spaces:
+        col_name = col_name.replace(&#34; &#34;, &#34;_&#34;).replace(&#34;-&#34;, &#34;_&#34;).replace(&#34;/&#34;, &#34;_&#34;)
+
+    return col_name
+
+
+def clean_transform(
+    col_index: Index,
+    mode: bool = True,
+    remove_spaces: bool = True,
+    remove_numeric: bool = True,
+) -&gt; List[str]:
+    &#34;&#34;&#34;
+    Transforms a column index by cleaning the column names and if needed makes them capital.
+
+    Parameters
+    ----------
+    col_index : `Index`
+        The column index to be transformed.
+    mode : bool
+        Indicates if names will be capitalized. By default it is set to `True`.
+
+    Returns
+    -------
+    col_name_list : `str`
+        The transformed column names as a `list` of strings.
+    &#34;&#34;&#34;
+    return [
+        clean_transform_helper(
+            col, mode=mode, remove_spaces=remove_spaces, remove_numeric=remove_numeric
+        )
+        for col in col_index
+    ]
+
+
+def remove_char(input_string: str) -&gt; str:
+    &#34;&#34;&#34;
+    Removes special characters from a string.
+
+    Parameters
+    ----------
+    input_string : `str`
+        The input string from which characters will be removed.
+
+    Returns
+    -------
+    input_string : `str`
+        The string with specified characters removed.
+    &#34;&#34;&#34;
+    list_of_char = [&#34;#&#34;, &#34;$&#34;, &#34;*&#34;, &#34;?&#34;, &#34;!&#34;, &#34;(&#34;, &#34;)&#34;, &#34;&amp;&#34;, &#34;%&#34;]
+    for char in list_of_char:
+        try:
+            input_string = input_string.replace(char, &#34;&#34;)
+        except:
+            pass
+    input_string = correct_nan(input_string)
+    return input_string
+
+
+def check_if_isemail(check_email: str) -&gt; Tuple[str, bool]:
+    &#34;&#34;&#34;
+    Checks if a string is an email address and returns the cleaned string and a flag indicating if the string is an email.
+
+    Parameters
+    ----------
+    check_email : `str`
+        The input string to be checked for an email address.
+
+    Returns
+    -------
+    check_email, found_email : `str`, `bool`
+        A tuple containing the cleaned string and a boolean flag indicating if an email address was found.
+    &#34;&#34;&#34;
+    found_email = False
+    if str(check_email).find(&#34;@&#34;) != -1:
+        check_email = str(clean(check_email))
+        found_email = True
+        print(f&#34;An e-mail has been detected.&#34;)
+
+    return check_email, found_email
+
+
+def convert_date(date_string: str) -&gt; str:
+    &#34;&#34;&#34;
+    Converts a `str` of a date to a proper `datetime64[ns]` format.
+
+    Parameters
+    ----------
+    date_string : `str`
+        The input string representing a date.
+
+    Returns
+    -------
+    proper_date : `str`
+        The date string in the proper format `YYYY-MM-DD`.
+    &#34;&#34;&#34;
+    try:
+        proper_date = str(pd.to_datetime(date_string, format=&#34;%Y%m%d&#34;, errors=&#34;raise&#34;))[:10]
+    except:
+        try:
+            proper_date = str(pd.to_datetime(date_string, format=&#34;%d%m%Y&#34;, errors=&#34;raise&#34;))[:10]
+        except:
+            proper_date = str(pd.to_datetime(date_string, format=&#34;%Y%m%d&#34;, errors=&#34;ignore&#34;))[:10]
+    return proper_date
+
+
+def is_number_regex(s):
+    &#34;&#34;&#34;Returns True if string is a number.&#34;&#34;&#34;
+    if re.match(&#34;^\d+?\.\d+?$&#34;, s) is None:
+        return s.isdigit()
+    return True
+
+
+def clean_and_convert_to(x: str) -&gt; str:
+    &#34;&#34;&#34;
+    Performs cleaning and some conversions on a `str`.
+
+    Parameters
+    ----------
+    x : `str`
+        The input string to be cleaned and converted.
+
+    Returns
+    -------
+    x : `str`
+        The cleaned and converted string.
+    &#34;&#34;&#34;
+
+    # Consider cases where a number is passed as a `str`
+    if is_number_regex(str(x)):
+        if str(x).find(&#34;.&#34;) != -1:
+            try:
+                return float(x)
+            except:
+                # Could not convert to float, converted to `np.nan`.
+                return np.nan
+        else:
+            try:
+                return int(x)
+            except:
+                # Could not convert to `int`, converted to `np.nan`.
+                return np.nan
+    else:
+        # Consider cases in which a `float` number is passed as a `str` and is erroneous
+        if str(x).find(&#34;.&#34;) != -1:
+            try:
+                return float(x)
+            except:
+                # Could not convert {x} to float, converting to `str`...
+                x = str(x)
+                # Successfully converted {x} to `str`.
+        # Cases in which we have an identifier with numbers and letters
+        else:
+            result = re.findall(r&#34;^[A-Za-z0-9]+$&#34;, str(x))
+            try:
+                return result[0]
+            # Case in which none of the above applies
+            except:
+                x = str(x)
+
+    x = remove_char(x)
+    try:
+        x, find_ = check_if_isemail(x)
+        if (x.find(&#34;/&#34;) != -1 or x.find(&#34;-&#34;)) != -1 and not (x.find(&#34;//&#34;) or x.find(&#34;\\&#34;)) != -1:
+            x_ = x.replace(&#34;/&#34;, &#34;&#34;)
+            x_ = x_.replace(&#34;-&#34;, &#34;&#34;)
+
+            if len(x_) == 8:
+                x = convert_date(x_)
+            else:
+                if str(x_).find(&#34;:&#34;) != -1:
+                    x = convert_date(x_[:8])
+                else:
+                    # No date found.
+                    x = clean(x)
+                    x = x.title()
+        else:
+            if not find_:
+                if str(x).find(&#34;.&#34;) != -1:
+                    x_ = x.replace(&#34;.&#34;, &#34;&#34;)
+                    if len(x) == 8:
+                        x = convert_date(x_)
+                    else:
+                        if x.find(&#34;//&#34;) == -1:
+                            x_ = x.replace(&#34;.&#34;, &#34; &#34;)
+                            x_ = &#34; &#34;.join(x_.split())
+                            x_ = clean(x_)
+                            x = x_.title()
+                else:
+                    x = clean(x)
+                    x = &#34; &#34;.join(x.split())
+                    x = x.title()
+    except:
+        print(f&#34;No transformation has been performed, the character will be returned as it came.&#34;)
+    return x
+
+
+def correct_nan(check_missing: str) -&gt; str:
+    &#34;&#34;&#34;
+    Corrects the format of missing values in a `str` to the correct `empty str`.
+
+    Parameters
+    ----------
+    check_missing : `str`
+        The string to be checked for incorrect missing value format.
+
+    Returns
+    -------
+    check_missing : `str`
+        The corrected string format or `empty str`.
+    &#34;&#34;&#34;
+    if str(check_missing).lower() == &#34;nan&#34;:
+        return &#34;&#34;
+    return check_missing
+
+
+def check_dtypes(dataframe: DataFrame, datatypes: Series) -&gt; DataFrame:
+    &#34;&#34;&#34;
+    Checks and updates the data types of columns in a `DataFrame`.
+
+    Parameters
+    ----------
+    dataframe : `DataFrame`
+        The `DataFrame` to check and update the data types.
+    datatypes : `Series`
+        The `Series` containing the desired data types for each column in the `DataFrame`.
+
+    Returns
+    -------
+    dataframe : `DataFrame`
+        The `DataFrame` with updated data types.
+    &#34;&#34;&#34;
+    cols = dataframe.columns
+
+    for column_index, datatype in enumerate(datatypes):
+        if datatype == &#34;object&#34; or datatype == &#34;datetime64[ns]&#34;:
+            dataframe[cols[column_index]] = dataframe[cols[column_index]].apply(
+                clean_and_convert_to
+            )
+            dataframe[cols[column_index]] = dataframe[cols[column_index]].apply(correct_nan)
+            try:
+                dataframe[cols[column_index]] = dataframe[cols[column_index]].map(str.strip)
+            except:
+                try:
+                    dataframe[cols[column_index]] = dataframe[cols[column_index]].astype(
+                        &#34;datetime64[ns]&#34;
+                    )
+                except:
+                    warning_type = &#34;UserWarning&#34;
+                    msg = (
+                        &#34;It was not possible to convert the column {%s} to datetime64[ns] type&#34;
+                        % cols[column_index]
+                    )
+                    print(f&#34;{warning_type}: {msg}&#34;)
+    return dataframe
+
+
+def drop_empty_columns(df_: DataFrame) -&gt; DataFrame:
+    &#34;&#34;&#34;
+    Function that removes empty columns
+    &#34;&#34;&#34;
+    cols_to_keep = []
+    for col in df_.columns:
+        if not (pd.isnull(df_[col]).sum() == len(df_[col])):
+            cols_to_keep.append(col)
+    return df_[cols_to_keep].copy()
+
+
+def intersection_cols(dfs_: List[DataFrame]) -&gt; DataFrame:
+    &#34;&#34;&#34;
+    Function that resolves columns issues of a `list` of dataframes
+
+    Parameters
+    ----------
+    dfs_ : List[`DataFrame`]
+        The `list` of dataframes with columns to be resolves.
+
+    Returns
+    -------
+    dfs_ : List[`DataFrame`]
+        The `list` of dataframes with the corrections in their columns (intersection).
+    &#34;&#34;&#34;
+    min_cols = []
+    index_dfs = []
+    for i, df in enumerate(dfs_):
+        min_cols.append(len(df.columns))
+        index_dfs.append(i)
+    df_dict = dict(zip(min_cols, index_dfs))
+
+    min_col = min(min_cols)
+    index_min = df_dict[min_col]
+    cols_ = set(dfs_[index_min].columns)
+    for i, df in enumerate(dfs_):
+        dfs_[i] = (dfs_[i][list(cols_)]).copy()
+
+    return dfs_
+
+
+def clearConsole():
+    command = &#34;clear&#34;
+    if os.name in (&#34;nt&#34;, &#34;dos&#34;):
+        command = &#34;cls&#34;
+    os.system(command)
+
+
+########################################################################################
+
+if __name__ == &#34;__main__&#34;:
+    today = datetime.date.today()
+    date = str(today)
+    print(&#34;Today date is: &#34;, today)
+
+    # directory_path = os.getcwd()
+    # directory_path = input(&#34;Enter directory path of the database: &#34;)
+
+    directory_path = sys.argv[1]
+    if len(sys.argv) &gt; 2:
+        for i in range(2, len(sys.argv)):
+            directory_path += &#34; &#34; + sys.argv[i]
+    directory_path.replace(&#34;\\&#34;, &#34;/&#34;)
+    print(&#34;You have selected the path :&#34;, directory_path)
+
+    extension = &#34;.xlsx&#34;
+
+    print(&#34;Searching files...&#34;)
+    dirs = glob.glob(directory_path + &#34;/**/*&#34; + extension, recursive=True)
+    print(&#34;Found files :&#34;, len(dirs))
+    df_sheet_files_info = pd.DataFrame()
+
+    if not os.path.exists(&#34;Detail of the report&#34;):
+        print(&#34;Directory created : &#34;, &#34;Detail of the report&#34;)
+        os.mkdir(&#34;Detail of the report&#34;)
+
+    j = 0
+    docs = []
+    docs.append([&#34;rpt_name&#34;, &#34;name_xls&#34;, &#34;sheet_name&#34;])
+    with pd.ExcelWriter(&#34;./Detail of the report/mult_sheets_database.xlsx&#34;) as writer:
+        for i in dirs:
+            xls = pd.ExcelFile(i)
+            for sheet_name in xls.sheet_names:
+                df = pd.read_excel(xls, sheet_name=sheet_name, index_col=None)
+                name_xls = i
+                name_xls = name_xls.replace(directory_path, &#34;&#34;)
+                name_xls = name_xls.replace(&#34;\\&#34;, &#34;&#34;)
+                name_xls = name_xls.replace(extension, &#34;&#34;)
+                print(&#34;Reading file : &#34;, name_xls, &#34;sheet :&#34;, sheet_name)
+                df = df.T.drop_duplicates().T
+                df.to_excel(writer, sheet_name=&#34;rpt_&#34; + str(j), index=False)
+                docs.append([&#34;rpt_&#34; + str(j), name_xls, sheet_name])
+                clearConsole()
+                clear_output(wait=True)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pydbsmgr.main.check_dtypes"><code class="name flex">
+<span>def <span class="ident">check_dtypes</span></span>(<span>dataframe: pandas.core.frame.DataFrame, datatypes: pandas.core.series.Series) ‑> pandas.core.frame.DataFrame</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Checks and updates the data types of columns in a <code>DataFrame</code>.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>dataframe</code></strong> :&ensp;<code>DataFrame</code></dt>
+<dd>The <code>DataFrame</code> to check and update the data types.</dd>
+<dt><strong><code>datatypes</code></strong> :&ensp;<code>Series</code></dt>
+<dd>The <code>Series</code> containing the desired data types for each column in the <code>DataFrame</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>dataframe</code></strong> :&ensp;<code>DataFrame</code></dt>
+<dd>The <code>DataFrame</code> with updated data types.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def check_dtypes(dataframe: DataFrame, datatypes: Series) -&gt; DataFrame:
+    &#34;&#34;&#34;
+    Checks and updates the data types of columns in a `DataFrame`.
+
+    Parameters
+    ----------
+    dataframe : `DataFrame`
+        The `DataFrame` to check and update the data types.
+    datatypes : `Series`
+        The `Series` containing the desired data types for each column in the `DataFrame`.
+
+    Returns
+    -------
+    dataframe : `DataFrame`
+        The `DataFrame` with updated data types.
+    &#34;&#34;&#34;
+    cols = dataframe.columns
+
+    for column_index, datatype in enumerate(datatypes):
+        if datatype == &#34;object&#34; or datatype == &#34;datetime64[ns]&#34;:
+            dataframe[cols[column_index]] = dataframe[cols[column_index]].apply(
+                clean_and_convert_to
+            )
+            dataframe[cols[column_index]] = dataframe[cols[column_index]].apply(correct_nan)
+            try:
+                dataframe[cols[column_index]] = dataframe[cols[column_index]].map(str.strip)
+            except:
+                try:
+                    dataframe[cols[column_index]] = dataframe[cols[column_index]].astype(
+                        &#34;datetime64[ns]&#34;
+                    )
+                except:
+                    warning_type = &#34;UserWarning&#34;
+                    msg = (
+                        &#34;It was not possible to convert the column {%s} to datetime64[ns] type&#34;
+                        % cols[column_index]
+                    )
+                    print(f&#34;{warning_type}: {msg}&#34;)
+    return dataframe</code></pre>
+</details>
+</dd>
+<dt id="pydbsmgr.main.check_if_contains_dates"><code class="name flex">
+<span>def <span class="ident">check_if_contains_dates</span></span>(<span>input_string: str) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Check if a string contains date.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def check_if_contains_dates(input_string: str) -&gt; bool:
+    &#34;&#34;&#34;Check if a string contains date.&#34;&#34;&#34;
+    if input_string == &#34;&#34;:
+        return False
+    else:
+        if re.search(r&#34;\d{4}(-|/)\d{1,2}(-|/)\d{1,2}&#34;, str(input_string)):
+            return True
+        else:
+            if re.search(r&#34;\d{1,2}(-|/)\d{1,2}(-|/)\d{4}&#34;, str(input_string)):
+                return True
+            else:
+                return False</code></pre>
+</details>
+</dd>
+<dt id="pydbsmgr.main.check_if_isemail"><code class="name flex">
+<span>def <span class="ident">check_if_isemail</span></span>(<span>check_email: str) ‑> Tuple[str, bool]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Checks if a string is an email address and returns the cleaned string and a flag indicating if the string is an email.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>check_email</code></strong> :&ensp;<code>str</code></dt>
+<dd>The input string to be checked for an email address.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>check_email</code></strong>, <strong><code>found_email</code></strong> :&ensp;<code>str<code>,</code>bool</code></dt>
+<dd>A tuple containing the cleaned string and a boolean flag indicating if an email address was found.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def check_if_isemail(check_email: str) -&gt; Tuple[str, bool]:
+    &#34;&#34;&#34;
+    Checks if a string is an email address and returns the cleaned string and a flag indicating if the string is an email.
+
+    Parameters
+    ----------
+    check_email : `str`
+        The input string to be checked for an email address.
+
+    Returns
+    -------
+    check_email, found_email : `str`, `bool`
+        A tuple containing the cleaned string and a boolean flag indicating if an email address was found.
+    &#34;&#34;&#34;
+    found_email = False
+    if str(check_email).find(&#34;@&#34;) != -1:
+        check_email = str(clean(check_email))
+        found_email = True
+        print(f&#34;An e-mail has been detected.&#34;)
+
+    return check_email, found_email</code></pre>
+</details>
+</dd>
+<dt id="pydbsmgr.main.clean"><code class="name flex">
+<span>def <span class="ident">clean</span></span>(<span>dirty_string: str, pattern: str = '[a-zA-Zñáéíóú_@.0-9]+\\b', no_emoji: bool = False, title_mode: bool = False) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Receive a string and clean it of special characters</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>dirty_string</code></strong> :&ensp;<code>str</code></dt>
+<dd>string of characters</dd>
+<dt><strong><code>pattern</code></strong> :&ensp;<code>str</code></dt>
+<dd>regular expression string</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>result</code></strong> :&ensp;<code>str</code></dt>
+<dd>clean character string</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def clean(
+    dirty_string: str,
+    pattern: str = r&#34;[a-zA-Zñáéíóú_@.0-9]+\b&#34;,
+    no_emoji: bool = False,
+    title_mode: bool = False,
+) -&gt; str:
+    &#34;&#34;&#34;
+    Receive a string and clean it of special characters
+
+    Parameters
+    ----------
+    dirty_string : `str`
+        string of characters
+    pattern : `str`
+        regular expression string
+
+    Returns
+    -------
+    result : `str`
+        clean character string
+    &#34;&#34;&#34;
+    if no_emoji:
+        emoji_pattern = re.compile(
+            &#34;[&#34;
+            &#34;\U0001F600-\U0001F64F&#34;
+            &#34;\U0001F300-\U0001F5FF&#34;
+            &#34;\U0001F680-\U0001F6FF&#34;
+            &#34;\U0001F1E0-\U0001F1FF&#34;
+            &#34;]+&#34;,
+            flags=re.UNICODE,
+        )
+        dirty_string = emoji_pattern.sub(r&#34;&#34;, dirty_string)
+    dirty_string = dirty_string.lower()
+    words = dirty_string.split()
+    processed_words = [&#34;&#34;.join(re.findall(pattern, word)) for word in words]
+    result = &#34; &#34;.join(processed_words)
+    # Remove any extra spaces that were introduced by
+    result = result.strip()
+    if title_mode:
+        return result.title()
+    else:
+        return result</code></pre>
+</details>
+</dd>
+<dt id="pydbsmgr.main.clean_and_convert_to"><code class="name flex">
+<span>def <span class="ident">clean_and_convert_to</span></span>(<span>x: str) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Performs cleaning and some conversions on a <code>str</code>.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>x</code></strong> :&ensp;<code>str</code></dt>
+<dd>The input string to be cleaned and converted.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>x</code></strong> :&ensp;<code>str</code></dt>
+<dd>The cleaned and converted string.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def clean_and_convert_to(x: str) -&gt; str:
+    &#34;&#34;&#34;
+    Performs cleaning and some conversions on a `str`.
+
+    Parameters
+    ----------
+    x : `str`
+        The input string to be cleaned and converted.
+
+    Returns
+    -------
+    x : `str`
+        The cleaned and converted string.
+    &#34;&#34;&#34;
+
+    # Consider cases where a number is passed as a `str`
+    if is_number_regex(str(x)):
+        if str(x).find(&#34;.&#34;) != -1:
+            try:
+                return float(x)
+            except:
+                # Could not convert to float, converted to `np.nan`.
+                return np.nan
+        else:
+            try:
+                return int(x)
+            except:
+                # Could not convert to `int`, converted to `np.nan`.
+                return np.nan
+    else:
+        # Consider cases in which a `float` number is passed as a `str` and is erroneous
+        if str(x).find(&#34;.&#34;) != -1:
+            try:
+                return float(x)
+            except:
+                # Could not convert {x} to float, converting to `str`...
+                x = str(x)
+                # Successfully converted {x} to `str`.
+        # Cases in which we have an identifier with numbers and letters
+        else:
+            result = re.findall(r&#34;^[A-Za-z0-9]+$&#34;, str(x))
+            try:
+                return result[0]
+            # Case in which none of the above applies
+            except:
+                x = str(x)
+
+    x = remove_char(x)
+    try:
+        x, find_ = check_if_isemail(x)
+        if (x.find(&#34;/&#34;) != -1 or x.find(&#34;-&#34;)) != -1 and not (x.find(&#34;//&#34;) or x.find(&#34;\\&#34;)) != -1:
+            x_ = x.replace(&#34;/&#34;, &#34;&#34;)
+            x_ = x_.replace(&#34;-&#34;, &#34;&#34;)
+
+            if len(x_) == 8:
+                x = convert_date(x_)
+            else:
+                if str(x_).find(&#34;:&#34;) != -1:
+                    x = convert_date(x_[:8])
+                else:
+                    # No date found.
+                    x = clean(x)
+                    x = x.title()
+        else:
+            if not find_:
+                if str(x).find(&#34;.&#34;) != -1:
+                    x_ = x.replace(&#34;.&#34;, &#34;&#34;)
+                    if len(x) == 8:
+                        x = convert_date(x_)
+                    else:
+                        if x.find(&#34;//&#34;) == -1:
+                            x_ = x.replace(&#34;.&#34;, &#34; &#34;)
+                            x_ = &#34; &#34;.join(x_.split())
+                            x_ = clean(x_)
+                            x = x_.title()
+                else:
+                    x = clean(x)
+                    x = &#34; &#34;.join(x.split())
+                    x = x.title()
+    except:
+        print(f&#34;No transformation has been performed, the character will be returned as it came.&#34;)
+    return x</code></pre>
+</details>
+</dd>
+<dt id="pydbsmgr.main.clean_transform"><code class="name flex">
+<span>def <span class="ident">clean_transform</span></span>(<span>col_index: pandas.core.indexes.base.Index, mode: bool = True, remove_spaces: bool = True, remove_numeric: bool = True) ‑> List[str]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Transforms a column index by cleaning the column names and if needed makes them capital.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>col_index</code></strong> :&ensp;<code>Index</code></dt>
+<dd>The column index to be transformed.</dd>
+<dt><strong><code>mode</code></strong> :&ensp;<code>bool</code></dt>
+<dd>Indicates if names will be capitalized. By default it is set to <code>True</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>col_name_list</code></strong> :&ensp;<code>str</code></dt>
+<dd>The transformed column names as a <code>list</code> of strings.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def clean_transform(
+    col_index: Index,
+    mode: bool = True,
+    remove_spaces: bool = True,
+    remove_numeric: bool = True,
+) -&gt; List[str]:
+    &#34;&#34;&#34;
+    Transforms a column index by cleaning the column names and if needed makes them capital.
+
+    Parameters
+    ----------
+    col_index : `Index`
+        The column index to be transformed.
+    mode : bool
+        Indicates if names will be capitalized. By default it is set to `True`.
+
+    Returns
+    -------
+    col_name_list : `str`
+        The transformed column names as a `list` of strings.
+    &#34;&#34;&#34;
+    return [
+        clean_transform_helper(
+            col, mode=mode, remove_spaces=remove_spaces, remove_numeric=remove_numeric
+        )
+        for col in col_index
+    ]</code></pre>
+</details>
+</dd>
+<dt id="pydbsmgr.main.clean_transform_helper"><code class="name flex">
+<span>def <span class="ident">clean_transform_helper</span></span>(<span>col: str, mode: bool = True, remove_numeric: bool = True, remove_spaces: bool = True) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Transforms a column name by cleaning the column name and if needed makes it capital.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>col</code></strong> :&ensp;<code>str</code></dt>
+<dd>The column name to be transformed.</dd>
+<dt><strong><code>mode</code></strong> :&ensp;<code>bool</code></dt>
+<dd>Indicates if names will be capitalized. By default it is set to <code>True</code>.</dd>
+<dt><strong><code>remove_numeric</code></strong> :&ensp;<code>bool</code></dt>
+<dd>Indicates if numeric characters will be removed. By default it is set to <code>True</code>.</dd>
+<dt><strong><code>remove_spaces</code></strong> :&ensp;<code>bool</code></dt>
+<dd>Indicates if spaces will be removed. By default it is set to <code>True</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>col_name</code></strong> :&ensp;<code>str</code></dt>
+<dd>The transformed column name.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def clean_transform_helper(
+    col: str, mode: bool = True, remove_numeric: bool = True, remove_spaces: bool = True
+) -&gt; str:
+    &#34;&#34;&#34;
+    Transforms a column name by cleaning the column name and if needed makes it capital.
+
+    Parameters
+    ----------
+    col : `str`
+        The column name to be transformed.
+    mode : `bool`
+        Indicates if names will be capitalized. By default it is set to `True`.
+    remove_numeric : `bool`
+        Indicates if numeric characters will be removed. By default it is set to `True`.
+    remove_spaces : `bool`
+        Indicates if spaces will be removed. By default it is set to `True`.
+    Returns
+    -------
+    col_name : `str`
+        The transformed column name.
+    &#34;&#34;&#34;
+    col_name = remove_char(str(clean(col)))
+    if mode:
+        col_name = col_name.title()
+    if remove_numeric:
+        col_name = remove_numeric_char(col_name).strip()
+    if remove_spaces:
+        col_name = col_name.replace(&#34; &#34;, &#34;_&#34;).replace(&#34;-&#34;, &#34;_&#34;).replace(&#34;/&#34;, &#34;_&#34;)
+
+    return col_name</code></pre>
+</details>
+</dd>
+<dt id="pydbsmgr.main.clearConsole"><code class="name flex">
+<span>def <span class="ident">clearConsole</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def clearConsole():
+    command = &#34;clear&#34;
+    if os.name in (&#34;nt&#34;, &#34;dos&#34;):
+        command = &#34;cls&#34;
+    os.system(command)</code></pre>
+</details>
+</dd>
+<dt id="pydbsmgr.main.convert_date"><code class="name flex">
+<span>def <span class="ident">convert_date</span></span>(<span>date_string: str) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Converts a <code>str</code> of a date to a proper <code>datetime64[ns]</code> format.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>date_string</code></strong> :&ensp;<code>str</code></dt>
+<dd>The input string representing a date.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>proper_date</code></strong> :&ensp;<code>str</code></dt>
+<dd>The date string in the proper format <code>YYYY-MM-DD</code>.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def convert_date(date_string: str) -&gt; str:
+    &#34;&#34;&#34;
+    Converts a `str` of a date to a proper `datetime64[ns]` format.
+
+    Parameters
+    ----------
+    date_string : `str`
+        The input string representing a date.
+
+    Returns
+    -------
+    proper_date : `str`
+        The date string in the proper format `YYYY-MM-DD`.
+    &#34;&#34;&#34;
+    try:
+        proper_date = str(pd.to_datetime(date_string, format=&#34;%Y%m%d&#34;, errors=&#34;raise&#34;))[:10]
+    except:
+        try:
+            proper_date = str(pd.to_datetime(date_string, format=&#34;%d%m%Y&#34;, errors=&#34;raise&#34;))[:10]
+        except:
+            proper_date = str(pd.to_datetime(date_string, format=&#34;%Y%m%d&#34;, errors=&#34;ignore&#34;))[:10]
+    return proper_date</code></pre>
+</details>
+</dd>
+<dt id="pydbsmgr.main.correct_nan"><code class="name flex">
+<span>def <span class="ident">correct_nan</span></span>(<span>check_missing: str) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Corrects the format of missing values in a <code>str</code> to the correct <code>empty str</code>.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>check_missing</code></strong> :&ensp;<code>str</code></dt>
+<dd>The string to be checked for incorrect missing value format.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>check_missing</code></strong> :&ensp;<code>str</code></dt>
+<dd>The corrected string format or <code>empty str</code>.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def correct_nan(check_missing: str) -&gt; str:
+    &#34;&#34;&#34;
+    Corrects the format of missing values in a `str` to the correct `empty str`.
+
+    Parameters
+    ----------
+    check_missing : `str`
+        The string to be checked for incorrect missing value format.
+
+    Returns
+    -------
+    check_missing : `str`
+        The corrected string format or `empty str`.
+    &#34;&#34;&#34;
+    if str(check_missing).lower() == &#34;nan&#34;:
+        return &#34;&#34;
+    return check_missing</code></pre>
+</details>
+</dd>
+<dt id="pydbsmgr.main.drop_empty_columns"><code class="name flex">
+<span>def <span class="ident">drop_empty_columns</span></span>(<span>df_: pandas.core.frame.DataFrame) ‑> pandas.core.frame.DataFrame</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Function that removes empty columns</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def drop_empty_columns(df_: DataFrame) -&gt; DataFrame:
+    &#34;&#34;&#34;
+    Function that removes empty columns
+    &#34;&#34;&#34;
+    cols_to_keep = []
+    for col in df_.columns:
+        if not (pd.isnull(df_[col]).sum() == len(df_[col])):
+            cols_to_keep.append(col)
+    return df_[cols_to_keep].copy()</code></pre>
+</details>
+</dd>
+<dt id="pydbsmgr.main.get_date_format"><code class="name flex">
+<span>def <span class="ident">get_date_format</span></span>(<span>input_string: str) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Infer the date format from a given string.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_date_format(input_string: str) -&gt; str:
+    &#34;&#34;&#34;Infer the date format from a given string.&#34;&#34;&#34;
+    regex_formats = [
+        r&#34;\d{4}(-|/)[0-1]+[0-9](-|/)[0-3]+[0-9]&#34;,
+        r&#34;\d{4}(-|/)[0-3]+[0-9](-|/)[0-1]+[0-9]&#34;,
+        r&#34;[0-3]+[0-9](-|/)[0-1]+[0-9](-|/)\d{4}&#34;,
+        r&#34;[0-1]+[0-9](-|/)[0-3]+[0-9](-|/)\d{4}&#34;,
+        r&#34;([1-9]|[12][0-9]|3[01])(-|/)([1-9]|1[0-2])(-|/)\d{4}&#34;,
+        r&#34;([1-9]|1[0-2])(-|/)([1-9]|[12][0-9]|3[01])(-|/)\d{4}&#34;,
+    ]
+    formats = [&#34;%Y%m%d&#34;, &#34;%Y%d%m&#34;, &#34;%d%m%Y&#34;, &#34;%m%d%Y&#34;, &#34;dayfirst&#34;, &#34;monthfirst&#34;]
+    for format, regex in enumerate(regex_formats):
+        if re.search(regex, str(input_string)):
+            if formats[format] == formats[2] and int((input_string[3:5]).replace(&#34;0&#34;, &#34;&#34;)) &gt; 12:
+                return formats[3]
+            return formats[format]
+
+    return &#34;&#34;</code></pre>
+</details>
+</dd>
+<dt id="pydbsmgr.main.intersection_cols"><code class="name flex">
+<span>def <span class="ident">intersection_cols</span></span>(<span>dfs_: List[pandas.core.frame.DataFrame]) ‑> pandas.core.frame.DataFrame</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Function that resolves columns issues of a <code>list</code> of dataframes</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>dfs_</code></strong> :&ensp;<code>List[</code>DataFrame<code>]</code></dt>
+<dd>The <code>list</code> of dataframes with columns to be resolves.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>dfs_</code></strong> :&ensp;<code>List[</code>DataFrame<code>]</code></dt>
+<dd>The <code>list</code> of dataframes with the corrections in their columns (intersection).</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def intersection_cols(dfs_: List[DataFrame]) -&gt; DataFrame:
+    &#34;&#34;&#34;
+    Function that resolves columns issues of a `list` of dataframes
+
+    Parameters
+    ----------
+    dfs_ : List[`DataFrame`]
+        The `list` of dataframes with columns to be resolves.
+
+    Returns
+    -------
+    dfs_ : List[`DataFrame`]
+        The `list` of dataframes with the corrections in their columns (intersection).
+    &#34;&#34;&#34;
+    min_cols = []
+    index_dfs = []
+    for i, df in enumerate(dfs_):
+        min_cols.append(len(df.columns))
+        index_dfs.append(i)
+    df_dict = dict(zip(min_cols, index_dfs))
+
+    min_col = min(min_cols)
+    index_min = df_dict[min_col]
+    cols_ = set(dfs_[index_min].columns)
+    for i, df in enumerate(dfs_):
+        dfs_[i] = (dfs_[i][list(cols_)]).copy()
+
+    return dfs_</code></pre>
+</details>
+</dd>
+<dt id="pydbsmgr.main.is_number_regex"><code class="name flex">
+<span>def <span class="ident">is_number_regex</span></span>(<span>s)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns True if string is a number.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_number_regex(s):
+    &#34;&#34;&#34;Returns True if string is a number.&#34;&#34;&#34;
+    if re.match(&#34;^\d+?\.\d+?$&#34;, s) is None:
+        return s.isdigit()
+    return True</code></pre>
+</details>
+</dd>
+<dt id="pydbsmgr.main.remove_char"><code class="name flex">
+<span>def <span class="ident">remove_char</span></span>(<span>input_string: str) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Removes special characters from a string.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>input_string</code></strong> :&ensp;<code>str</code></dt>
+<dd>The input string from which characters will be removed.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>input_string</code></strong> :&ensp;<code>str</code></dt>
+<dd>The string with specified characters removed.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def remove_char(input_string: str) -&gt; str:
+    &#34;&#34;&#34;
+    Removes special characters from a string.
+
+    Parameters
+    ----------
+    input_string : `str`
+        The input string from which characters will be removed.
+
+    Returns
+    -------
+    input_string : `str`
+        The string with specified characters removed.
+    &#34;&#34;&#34;
+    list_of_char = [&#34;#&#34;, &#34;$&#34;, &#34;*&#34;, &#34;?&#34;, &#34;!&#34;, &#34;(&#34;, &#34;)&#34;, &#34;&amp;&#34;, &#34;%&#34;]
+    for char in list_of_char:
+        try:
+            input_string = input_string.replace(char, &#34;&#34;)
+        except:
+            pass
+    input_string = correct_nan(input_string)
+    return input_string</code></pre>
+</details>
+</dd>
+<dt id="pydbsmgr.main.remove_numeric_char"><code class="name flex">
+<span>def <span class="ident">remove_numeric_char</span></span>(<span>input_string: str) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Remove all numeric characters from a string.</p>
+<h2 id="args">Args</h2>
+<p>input_string (<code>str</code>): character string to be cleaned of numeric characters</p>
+<h2 id="returns">Returns</h2>
+<p><code>str</code>: clean character string</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def remove_numeric_char(input_string: str) -&gt; str:
+    &#34;&#34;&#34;Remove all numeric characters from a string.
+
+    Args:
+        input_string (`str`): character string to be cleaned of numeric characters
+
+    Returns:
+        `str`: clean character string
+    &#34;&#34;&#34;
+    return re.sub(r&#34;\d&#34;, &#34;&#34;, input_string)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pydbsmgr" href="index.html">pydbsmgr</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pydbsmgr.main.check_dtypes" href="#pydbsmgr.main.check_dtypes">check_dtypes</a></code></li>
+<li><code><a title="pydbsmgr.main.check_if_contains_dates" href="#pydbsmgr.main.check_if_contains_dates">check_if_contains_dates</a></code></li>
+<li><code><a title="pydbsmgr.main.check_if_isemail" href="#pydbsmgr.main.check_if_isemail">check_if_isemail</a></code></li>
+<li><code><a title="pydbsmgr.main.clean" href="#pydbsmgr.main.clean">clean</a></code></li>
+<li><code><a title="pydbsmgr.main.clean_and_convert_to" href="#pydbsmgr.main.clean_and_convert_to">clean_and_convert_to</a></code></li>
+<li><code><a title="pydbsmgr.main.clean_transform" href="#pydbsmgr.main.clean_transform">clean_transform</a></code></li>
+<li><code><a title="pydbsmgr.main.clean_transform_helper" href="#pydbsmgr.main.clean_transform_helper">clean_transform_helper</a></code></li>
+<li><code><a title="pydbsmgr.main.clearConsole" href="#pydbsmgr.main.clearConsole">clearConsole</a></code></li>
+<li><code><a title="pydbsmgr.main.convert_date" href="#pydbsmgr.main.convert_date">convert_date</a></code></li>
+<li><code><a title="pydbsmgr.main.correct_nan" href="#pydbsmgr.main.correct_nan">correct_nan</a></code></li>
+<li><code><a title="pydbsmgr.main.drop_empty_columns" href="#pydbsmgr.main.drop_empty_columns">drop_empty_columns</a></code></li>
+<li><code><a title="pydbsmgr.main.get_date_format" href="#pydbsmgr.main.get_date_format">get_date_format</a></code></li>
+<li><code><a title="pydbsmgr.main.intersection_cols" href="#pydbsmgr.main.intersection_cols">intersection_cols</a></code></li>
+<li><code><a title="pydbsmgr.main.is_number_regex" href="#pydbsmgr.main.is_number_regex">is_number_regex</a></code></li>
+<li><code><a title="pydbsmgr.main.remove_char" href="#pydbsmgr.main.remove_char">remove_char</a></code></li>
+<li><code><a title="pydbsmgr.main.remove_numeric_char" href="#pydbsmgr.main.remove_numeric_char">remove_numeric_char</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>
