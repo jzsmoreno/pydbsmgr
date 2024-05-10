@@ -37,13 +37,13 @@ def process_dates(x: str, format_type: str, auxiliary_type: str, errors: str = &
 
     Parameters
     ----------
-        x : `str`
-            character of type date.
+    x : `str`
+        character of type date.
 
     Returns
     ----------
-        x : `str`
-            character after processing with format `YYYY-MM-DD`.
+    x : `str`
+        character after processing with format `YYYY-MM-DD`.
     &#34;&#34;&#34;
     # performing data type conversion
     x = str(x)
@@ -106,16 +106,17 @@ class LightCleaner:
 
         Parameters
         ----------
-        - sample_frac (`float`): The fraction of rows to use for date type inference. Default is 0.1 i.e., 10%.
-        - fast_execution (`bool`): If `False` use `applymap` pandas for extra text cleanup. Default is `True`.
+        sample_frac : `float`
+            The fraction of rows to use for date type inference. Default is 0.1 i.e., 10%.
+        fast_execution : `bool`
+            If `False` use `applymap` pandas for extra text cleanup. Default is `True`.
 
         Keyword Arguments:
         ----------
-        - no_emoji: (`bool`): By default it is set to `False`.
-        If `True`, removes all emojis from text data. Works only when `fast_execution` = `False`.
-        - title_mode: (`bool`): By default it is set to `True`.
-        If `False`, converts the text to lowercase. Works only when `fast_execution` = `False`.
-        By default, converts everything to `title`.
+        no_emoji : `bool`
+            By default it is set to `False`. If `True`, removes all emojis from text data. Works only when `fast_execution` = `False`.
+        title_mode : `bool`
+            By default it is set to `True`. If `False`, converts the text to lowercase. Works only when `fast_execution` = `False`. By default, converts everything to `title`.
         &#34;&#34;&#34;
         table = (self.df).copy()
         cols = table.columns
@@ -271,13 +272,15 @@ class LightCleaner:
 <dd>
 <div class="desc"><p>Auxiliary function in date type string processing</p>
 <h2 id="parameters">Parameters</h2>
-<pre><code>x : &lt;code&gt;str&lt;/code&gt;
-    character of type date.
-</code></pre>
+<dl>
+<dt><strong><code>x</code></strong> :&ensp;<code>str</code></dt>
+<dd>character of type date.</dd>
+</dl>
 <h2 id="returns">Returns</h2>
-<pre><code>x : &lt;code&gt;str&lt;/code&gt;
-    character after processing with format `YYYY-MM-DD`.
-</code></pre></div>
+<dl>
+<dt><strong><code>x</code></strong> :&ensp;<code>str</code></dt>
+<dd>character after processing with format <code>YYYY-MM-DD</code>.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -287,13 +290,13 @@ class LightCleaner:
 
     Parameters
     ----------
-        x : `str`
-            character of type date.
+    x : `str`
+        character of type date.
 
     Returns
     ----------
-        x : `str`
-            character after processing with format `YYYY-MM-DD`.
+    x : `str`
+        character after processing with format `YYYY-MM-DD`.
     &#34;&#34;&#34;
     # performing data type conversion
     x = str(x)
@@ -371,16 +374,17 @@ class LightCleaner:
 
         Parameters
         ----------
-        - sample_frac (`float`): The fraction of rows to use for date type inference. Default is 0.1 i.e., 10%.
-        - fast_execution (`bool`): If `False` use `applymap` pandas for extra text cleanup. Default is `True`.
+        sample_frac : `float`
+            The fraction of rows to use for date type inference. Default is 0.1 i.e., 10%.
+        fast_execution : `bool`
+            If `False` use `applymap` pandas for extra text cleanup. Default is `True`.
 
         Keyword Arguments:
         ----------
-        - no_emoji: (`bool`): By default it is set to `False`.
-        If `True`, removes all emojis from text data. Works only when `fast_execution` = `False`.
-        - title_mode: (`bool`): By default it is set to `True`.
-        If `False`, converts the text to lowercase. Works only when `fast_execution` = `False`.
-        By default, converts everything to `title`.
+        no_emoji : `bool`
+            By default it is set to `False`. If `True`, removes all emojis from text data. Works only when `fast_execution` = `False`.
+        title_mode : `bool`
+            By default it is set to `True`. If `False`, converts the text to lowercase. Works only when `fast_execution` = `False`. By default, converts everything to `title`.
         &#34;&#34;&#34;
         table = (self.df).copy()
         cols = table.columns
@@ -541,18 +545,17 @@ class LightCleaner:
 <dd>
 <div class="desc"><p><code>DataFrame</code> cleaning main function</p>
 <h2 id="parameters">Parameters</h2>
-<ul>
-<li>sample_frac (<code>float</code>): The fraction of rows to use for date type inference. Default is 0.1 i.e., 10%.</li>
-<li>fast_execution (<code>bool</code>): If <code>False</code> use <code>applymap</code> pandas for extra text cleanup. Default is <code>True</code>.</li>
-</ul>
+<dl>
+<dt><strong><code>sample_frac</code></strong> :&ensp;<code>float</code></dt>
+<dd>The fraction of rows to use for date type inference. Default is 0.1 i.e., 10%.</dd>
+<dt><strong><code>fast_execution</code></strong> :&ensp;<code>bool</code></dt>
+<dd>If <code>False</code> use <code>applymap</code> pandas for extra text cleanup. Default is <code>True</code>.</dd>
+</dl>
 <h2 id="keyword-arguments">Keyword Arguments:</h2>
-<ul>
-<li>no_emoji: (<code>bool</code>): By default it is set to <code>False</code>.
-If <code>True</code>, removes all emojis from text data. Works only when <code>fast_execution</code> = <code>False</code>.</li>
-<li>title_mode: (<code>bool</code>): By default it is set to <code>True</code>.
-If <code>False</code>, converts the text to lowercase. Works only when <code>fast_execution</code> = <code>False</code>.
-By default, converts everything to <code>title</code>.</li>
-</ul></div>
+<p>no_emoji : <code>bool</code>
+By default it is set to <code>False</code>. If <code>True</code>, removes all emojis from text data. Works only when <code>fast_execution</code> = <code>False</code>.
+title_mode : <code>bool</code>
+By default it is set to <code>True</code>. If <code>False</code>, converts the text to lowercase. Works only when <code>fast_execution</code> = <code>False</code>. By default, converts everything to <code>title</code>.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -568,16 +571,17 @@ By default, converts everything to <code>title</code>.</li>
 
     Parameters
     ----------
-    - sample_frac (`float`): The fraction of rows to use for date type inference. Default is 0.1 i.e., 10%.
-    - fast_execution (`bool`): If `False` use `applymap` pandas for extra text cleanup. Default is `True`.
+    sample_frac : `float`
+        The fraction of rows to use for date type inference. Default is 0.1 i.e., 10%.
+    fast_execution : `bool`
+        If `False` use `applymap` pandas for extra text cleanup. Default is `True`.
 
     Keyword Arguments:
     ----------
-    - no_emoji: (`bool`): By default it is set to `False`.
-    If `True`, removes all emojis from text data. Works only when `fast_execution` = `False`.
-    - title_mode: (`bool`): By default it is set to `True`.
-    If `False`, converts the text to lowercase. Works only when `fast_execution` = `False`.
-    By default, converts everything to `title`.
+    no_emoji : `bool`
+        By default it is set to `False`. If `True`, removes all emojis from text data. Works only when `fast_execution` = `False`.
+    title_mode : `bool`
+        By default it is set to `True`. If `False`, converts the text to lowercase. Works only when `fast_execution` = `False`. By default, converts everything to `title`.
     &#34;&#34;&#34;
     table = (self.df).copy()
     cols = table.columns

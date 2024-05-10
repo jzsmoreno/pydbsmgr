@@ -83,11 +83,15 @@ def check_if_contains_dates(input_string: str) -&gt; bool:
 def remove_numeric_char(input_string: str) -&gt; str:
     &#34;&#34;&#34;Remove all numeric characters from a string.
 
-    Args:
-        input_string (`str`): character string to be cleaned of numeric characters
+    Parameters
+    ----------
+    input_string : `str`
+        character string to be cleaned of numeric characters
 
-    Returns:
-        `str`: clean character string
+    Returns
+    -------
+    `str`
+        clean character string
     &#34;&#34;&#34;
     return re.sub(r&#34;\d&#34;, &#34;&#34;, input_string)
 
@@ -1183,10 +1187,14 @@ if __name__ == &#34;__main__&#34;:
 </code></dt>
 <dd>
 <div class="desc"><p>Remove all numeric characters from a string.</p>
-<h2 id="args">Args</h2>
-<p>input_string (<code>str</code>): character string to be cleaned of numeric characters</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>input_string</code></strong> :&ensp;<code>str</code></dt>
+<dd>character string to be cleaned of numeric characters</dd>
+</dl>
 <h2 id="returns">Returns</h2>
-<p><code>str</code>: clean character string</p></div>
+<p><code>str</code>
+clean character string</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1194,11 +1202,15 @@ if __name__ == &#34;__main__&#34;:
 <pre><code class="python">def remove_numeric_char(input_string: str) -&gt; str:
     &#34;&#34;&#34;Remove all numeric characters from a string.
 
-    Args:
-        input_string (`str`): character string to be cleaned of numeric characters
+    Parameters
+    ----------
+    input_string : `str`
+        character string to be cleaned of numeric characters
 
-    Returns:
-        `str`: clean character string
+    Returns
+    -------
+    `str`
+        clean character string
     &#34;&#34;&#34;
     return re.sub(r&#34;\d&#34;, &#34;&#34;, input_string)</code></pre>
 </details>

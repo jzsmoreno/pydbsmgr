@@ -70,14 +70,17 @@ def disableprints(func: Callable) -&gt; Callable:
 def most_repeated_item(items: list, two_most_common: bool = False) -&gt; Tuple[str, str | None]:
     &#34;&#34;&#34;Returns a `Tuple` with the most common elements of a `list`.
 
-    Args:
+    Parameters
     ----------
-        items (`list`): the `list` containing the items to be evaluated.
-        two_most_common (`bool`, optional): If `False`, returns only one element. Defaults to `False`.
+    items : `list`
+        the `list` containing the items to be evaluated.
+    two_most_common : `bool`, `optional`
+        If `False`, returns only one element. Defaults to `False`.
 
-    Returns:
-    ----------
-        Tuple[`str`, `str` | `None`]: The two most common elements.
+    Returns
+    -------
+    Tuple[`str`, `str` | `None`]
+        The two most common elements.
     &#34;&#34;&#34;
     # Use Counter to count occurrences of each item in the list
     counter = Counter(items)
@@ -184,7 +187,7 @@ class ControllerFeatures:
         overwrite: bool = True,
         upload: bool = True,
     ) -&gt; None:
-        &#34;&#34;&#34;Write dataframes as `parquet` format by converting them first into `bytes`&#34;&#34;&#34;
+        &#34;&#34;&#34;Write dataframes as `parquet` format by converting them first into `bytes`.&#34;&#34;&#34;
         files = []
         format_type = &#34;parquet&#34;
         files_not_loaded = []
@@ -213,6 +216,7 @@ class ControllerFeatures:
 
 
 def column_coincidence(df1: DataFrame, df2: DataFrame) -&gt; float:
+    &#34;&#34;&#34;Return the percentage of coincident columns between two pandas dataframes.&#34;&#34;&#34;
     if not isinstance(df1, pd.DataFrame) or not isinstance(df2, pd.DataFrame):
         raise ValueError(&#34;Both inputs should be pandas DataFrames&#34;)
 
@@ -227,6 +231,7 @@ def column_coincidence(df1: DataFrame, df2: DataFrame) -&gt; float:
 
 
 def merge_by_coincidence(df1: DataFrame, df2: DataFrame, tol: float = 0.9) -&gt; DataFrame:
+    &#34;&#34;&#34;Merge two pandas dataframes by finding the most similar columns based on their names.&#34;&#34;&#34;
     percentage = column_coincidence(df1, df2)
     total_columns = set(df1.columns).union(set(df2.columns))
     num_col1 = len(df1.columns)
@@ -277,14 +282,17 @@ def get_extraction_date(
 ) -&gt; str:
     &#34;&#34;&#34;Allows to extract the date of extraction according to the directory within the storage account.
 
-    Args:
+    Parameters
     ----------
-        filename (`str` | List[`str`]): file path inside the storage account
-        REGEX_PATTERN (`str`, optional): regular expression pattern to extract the date. Defaults to `r&#34;\d{4}-\d{2}-\d{2}&#34;`.
+    filename : `str` | List[`str`]
+        file path inside the storage account
+    REGEX_PATTERN : `str`, `optional`
+        regular expression pattern to extract the date. Defaults to `r&#34;\d{4}-\d{2}-\d{2}&#34;`.
 
-    Returns:
-    ----------
-        `str`: the date that was extracted if found in the file path.
+    Returns
+    -------
+    `str`
+        the date that was extracted if found in the file path.
     &#34;&#34;&#34;
 
     def sub_extraction_date(filename: str, REGEX_PATTERN: str) -&gt; str:
@@ -324,9 +332,7 @@ class ColumnsDtypes:
         return self.df
 
     def _check_int_float(self, drop_values: bool = False, drop_rows: bool = False) -&gt; None:
-        &#34;&#34;&#34;
-        Check and correct the data types of columns in a `DataFrame`.
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;Check and correct the data types of columns in a `DataFrame`.&#34;&#34;&#34;
 
         def check_float(x):
             if isinstance(x, str):
@@ -378,9 +384,7 @@ class ColumnsDtypes:
         self.df = df_
 
     def _check_datetime(self, sample_frac: float) -&gt; None:
-        &#34;&#34;&#34;
-        Check and convert date-time string columns to datetime objects.
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;Check and convert date-time string columns to `datetime` objects.&#34;&#34;&#34;
         df_ = self.df
         cols = df_.columns
         df_sample = df_.sample(frac=sample_frac)
@@ -410,9 +414,7 @@ class ColumnsDtypes:
 
 
 def create_directory(data, parent_path=&#34;&#34;):
-    &#34;&#34;&#34;
-    Creates the directory tree from a yaml file
-    &#34;&#34;&#34;
+    &#34;&#34;&#34;Creates the directory tree from a `yaml` file.&#34;&#34;&#34;
     for key, value in data.items():
         path = os.path.join(parent_path, key)
         if isinstance(value, dict):
@@ -423,6 +425,7 @@ def create_directory(data, parent_path=&#34;&#34;):
 
 
 def create_directories_from_yaml(yaml_file):
+    &#34;&#34;&#34;Reads a `yaml` file and creates directories based on its content.&#34;&#34;&#34;
     with open(yaml_file, &#34;r&#34;) as file:
         data = yaml.safe_load(file)
         create_directory(data)
@@ -461,12 +464,13 @@ if __name__ == &#34;__main__&#34;:
 <span>def <span class="ident">column_coincidence</span></span>(<span>df1: pandas.core.frame.DataFrame, df2: pandas.core.frame.DataFrame) ‑> float</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Return the percentage of coincident columns between two pandas dataframes.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def column_coincidence(df1: DataFrame, df2: DataFrame) -&gt; float:
+    &#34;&#34;&#34;Return the percentage of coincident columns between two pandas dataframes.&#34;&#34;&#34;
     if not isinstance(df1, pd.DataFrame) or not isinstance(df2, pd.DataFrame):
         raise ValueError(&#34;Both inputs should be pandas DataFrames&#34;)
 
@@ -484,12 +488,13 @@ if __name__ == &#34;__main__&#34;:
 <span>def <span class="ident">create_directories_from_yaml</span></span>(<span>yaml_file)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Reads a <code>yaml</code> file and creates directories based on its content.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def create_directories_from_yaml(yaml_file):
+    &#34;&#34;&#34;Reads a `yaml` file and creates directories based on its content.&#34;&#34;&#34;
     with open(yaml_file, &#34;r&#34;) as file:
         data = yaml.safe_load(file)
         create_directory(data)</code></pre>
@@ -499,15 +504,13 @@ if __name__ == &#34;__main__&#34;:
 <span>def <span class="ident">create_directory</span></span>(<span>data, parent_path='')</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Creates the directory tree from a yaml file</p></div>
+<div class="desc"><p>Creates the directory tree from a <code>yaml</code> file.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def create_directory(data, parent_path=&#34;&#34;):
-    &#34;&#34;&#34;
-    Creates the directory tree from a yaml file
-    &#34;&#34;&#34;
+    &#34;&#34;&#34;Creates the directory tree from a `yaml` file.&#34;&#34;&#34;
     for key, value in data.items():
         path = os.path.join(parent_path, key)
         if isinstance(value, dict):
@@ -589,13 +592,16 @@ if __name__ == &#34;__main__&#34;:
 </code></dt>
 <dd>
 <div class="desc"><p>Allows to extract the date of extraction according to the directory within the storage account.</p>
-<h2 id="args">Args:</h2>
-<pre><code>filename (&lt;code&gt;str&lt;/code&gt; | List[`str`]): file path inside the storage account
-REGEX_PATTERN (&lt;code&gt;str&lt;/code&gt;, optional): regular expression pattern to extract the date. Defaults to `r"\d{4}-\d{2}-\d{2}"`.
-</code></pre>
-<h2 id="returns">Returns:</h2>
-<pre><code>&lt;code&gt;str&lt;/code&gt;: the date that was extracted if found in the file path.
-</code></pre></div>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>filename</code></strong> :&ensp;<code><code>str&lt;/code&gt; | List[</code>str<code>]</code></dt>
+<dd>file path inside the storage account</dd>
+<dt><strong><code>REGEX_PATTERN</code></strong> :&ensp;<code>str<code>,</code>optional</code></dt>
+<dd>regular expression pattern to extract the date. Defaults to <code>r"\d{4}-\d{2}-\d{2}"</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p><code>str</code>
+the date that was extracted if found in the file path.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -605,14 +611,17 @@ REGEX_PATTERN (&lt;code&gt;str&lt;/code&gt;, optional): regular expression patte
 ) -&gt; str:
     &#34;&#34;&#34;Allows to extract the date of extraction according to the directory within the storage account.
 
-    Args:
+    Parameters
     ----------
-        filename (`str` | List[`str`]): file path inside the storage account
-        REGEX_PATTERN (`str`, optional): regular expression pattern to extract the date. Defaults to `r&#34;\d{4}-\d{2}-\d{2}&#34;`.
+    filename : `str` | List[`str`]
+        file path inside the storage account
+    REGEX_PATTERN : `str`, `optional`
+        regular expression pattern to extract the date. Defaults to `r&#34;\d{4}-\d{2}-\d{2}&#34;`.
 
-    Returns:
-    ----------
-        `str`: the date that was extracted if found in the file path.
+    Returns
+    -------
+    `str`
+        the date that was extracted if found in the file path.
     &#34;&#34;&#34;
 
     def sub_extraction_date(filename: str, REGEX_PATTERN: str) -&gt; str:
@@ -636,12 +645,13 @@ REGEX_PATTERN (&lt;code&gt;str&lt;/code&gt;, optional): regular expression patte
 <span>def <span class="ident">merge_by_coincidence</span></span>(<span>df1: pandas.core.frame.DataFrame, df2: pandas.core.frame.DataFrame, tol: float = 0.9) ‑> pandas.core.frame.DataFrame</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Merge two pandas dataframes by finding the most similar columns based on their names.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def merge_by_coincidence(df1: DataFrame, df2: DataFrame, tol: float = 0.9) -&gt; DataFrame:
+    &#34;&#34;&#34;Merge two pandas dataframes by finding the most similar columns based on their names.&#34;&#34;&#34;
     percentage = column_coincidence(df1, df2)
     total_columns = set(df1.columns).union(set(df2.columns))
     num_col1 = len(df1.columns)
@@ -673,13 +683,16 @@ REGEX_PATTERN (&lt;code&gt;str&lt;/code&gt;, optional): regular expression patte
 </code></dt>
 <dd>
 <div class="desc"><p>Returns a <code>Tuple</code> with the most common elements of a <code>list</code>.</p>
-<h2 id="args">Args:</h2>
-<pre><code>items (&lt;code&gt;list&lt;/code&gt;): the &lt;code&gt;list&lt;/code&gt; containing the items to be evaluated.
-two_most_common (&lt;code&gt;bool&lt;/code&gt;, optional): If &lt;code&gt;False&lt;/code&gt;, returns only one element. Defaults to &lt;code&gt;False&lt;/code&gt;.
-</code></pre>
-<h2 id="returns">Returns:</h2>
-<pre><code>Tuple[`str`, &lt;code&gt;str&lt;/code&gt; | &lt;code&gt;None&lt;/code&gt;]: The two most common elements.
-</code></pre></div>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>items</code></strong> :&ensp;<code>list</code></dt>
+<dd>the <code>list</code> containing the items to be evaluated.</dd>
+<dt><strong><code>two_most_common</code></strong> :&ensp;<code>bool<code>,</code>optional</code></dt>
+<dd>If <code>False</code>, returns only one element. Defaults to <code>False</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Tuple[<code>str</code>, <code>str</code> | <code>None</code>]
+The two most common elements.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -687,14 +700,17 @@ two_most_common (&lt;code&gt;bool&lt;/code&gt;, optional): If &lt;code&gt;False&
 <pre><code class="python">def most_repeated_item(items: list, two_most_common: bool = False) -&gt; Tuple[str, str | None]:
     &#34;&#34;&#34;Returns a `Tuple` with the most common elements of a `list`.
 
-    Args:
+    Parameters
     ----------
-        items (`list`): the `list` containing the items to be evaluated.
-        two_most_common (`bool`, optional): If `False`, returns only one element. Defaults to `False`.
+    items : `list`
+        the `list` containing the items to be evaluated.
+    two_most_common : `bool`, `optional`
+        If `False`, returns only one element. Defaults to `False`.
 
-    Returns:
-    ----------
-        Tuple[`str`, `str` | `None`]: The two most common elements.
+    Returns
+    -------
+    Tuple[`str`, `str` | `None`]
+        The two most common elements.
     &#34;&#34;&#34;
     # Use Counter to count occurrences of each item in the list
     counter = Counter(items)
@@ -826,9 +842,7 @@ two_most_common (&lt;code&gt;bool&lt;/code&gt;, optional): If &lt;code&gt;False&
         return self.df
 
     def _check_int_float(self, drop_values: bool = False, drop_rows: bool = False) -&gt; None:
-        &#34;&#34;&#34;
-        Check and correct the data types of columns in a `DataFrame`.
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;Check and correct the data types of columns in a `DataFrame`.&#34;&#34;&#34;
 
         def check_float(x):
             if isinstance(x, str):
@@ -880,9 +894,7 @@ two_most_common (&lt;code&gt;bool&lt;/code&gt;, optional): If &lt;code&gt;False&
         self.df = df_
 
     def _check_datetime(self, sample_frac: float) -&gt; None:
-        &#34;&#34;&#34;
-        Check and convert date-time string columns to datetime objects.
-        &#34;&#34;&#34;
+        &#34;&#34;&#34;Check and convert date-time string columns to `datetime` objects.&#34;&#34;&#34;
         df_ = self.df
         cols = df_.columns
         df_sample = df_.sample(frac=sample_frac)
@@ -995,7 +1007,7 @@ two_most_common (&lt;code&gt;bool&lt;/code&gt;, optional): If &lt;code&gt;False&
         overwrite: bool = True,
         upload: bool = True,
     ) -&gt; None:
-        &#34;&#34;&#34;Write dataframes as `parquet` format by converting them first into `bytes`&#34;&#34;&#34;
+        &#34;&#34;&#34;Write dataframes as `parquet` format by converting them first into `bytes`.&#34;&#34;&#34;
         files = []
         format_type = &#34;parquet&#34;
         files_not_loaded = []
@@ -1032,7 +1044,7 @@ two_most_common (&lt;code&gt;bool&lt;/code&gt;, optional): If &lt;code&gt;False&
 <span>def <span class="ident">write_parquet</span></span>(<span>self, directory_name: str, dfs: List[pandas.core.frame.DataFrame], names: List[str], overwrite: bool = True, upload: bool = True) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Write dataframes as <code>parquet</code> format by converting them first into <code>bytes</code></p></div>
+<div class="desc"><p>Write dataframes as <code>parquet</code> format by converting them first into <code>bytes</code>.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1045,7 +1057,7 @@ two_most_common (&lt;code&gt;bool&lt;/code&gt;, optional): If &lt;code&gt;False&
     overwrite: bool = True,
     upload: bool = True,
 ) -&gt; None:
-    &#34;&#34;&#34;Write dataframes as `parquet` format by converting them first into `bytes`&#34;&#34;&#34;
+    &#34;&#34;&#34;Write dataframes as `parquet` format by converting them first into `bytes`.&#34;&#34;&#34;
     files = []
     format_type = &#34;parquet&#34;
     files_not_loaded = []

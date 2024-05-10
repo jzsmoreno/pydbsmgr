@@ -61,10 +61,12 @@ class FrameCheck:
     def fix(self, cols_upper_case: bool = False, drop_empty_cols: bool = True) -&gt; None:
         &#34;&#34;&#34;Performs the clean of the data and validation
 
-        Args:
-        -----
-            cols_upper_case (`bool`, optional): Indicates whether to convert column names to uppercase. Defaults to `False`.
-            drop_empty_cols (`bool`, optional): Variable indicating whether columns with all their values empty should be removed. Defaults to `True`.
+        Parameters
+        ----------
+        cols_upper_case : `bool`, `optional`
+            Indicates whether to convert column names to uppercase. Defaults to `False`.
+        drop_empty_cols : `bool`, `optional`
+            Variable indicating whether columns with all their values empty should be removed. Defaults to `True`.
         &#34;&#34;&#34;
         if drop_empty_cols:
             for count, df in enumerate(self._dfs):
@@ -88,14 +90,20 @@ class FrameCheck:
     ) -&gt; None:
         &#34;&#34;&#34;Generate a `.html` health check report.
 
-        Args:
-        -----
-            report_name (`str`, optional): Name of the quality assessment report. Defaults to `./report.html`.
-            yaml_name (`str`, optional): Indicates the name of the `.yaml` file that will serve as a template for the creation of the SQL table. Defaults to `./output.yaml`.
-            database_name (`str`, optional): The header of the `.yaml` file. Default value is `database`
-            directory_name (`str`, optional): Folder in which the reports will be saved. Defaults to `summary`.
-            concat_vertically: (`bool`, optional), Variable indicating whether the list of dataframes should be vertically concatenated into a single one. Default value is `False`.
-            encoding (`str`, optional): The encoding of dataframes. Defaults to `utf-8`.
+        Parameters
+        ----------
+        report_name : `str`, `optional`
+            Name of the quality assessment report. Defaults to `./report.html`.
+        yaml_name : `str`, `optional`
+            Indicates the name of the `.yaml` file that will serve as a template for the creation of the SQL table. Defaults to `./output.yaml`.
+        database_name : `str`, `optional`
+            The header of the `.yaml` file. Default value is `database`
+        directory_name : `str`, `optional`
+            Folder in which the reports will be saved. Defaults to `summary`.
+        concat_vertically : `bool`, `optional`
+            Variable indicating whether the list of dataframes should be vertically concatenated into a single one. Default value is `False`.
+        encoding : `str`, `optional`
+            The encoding of dataframes. Defaults to `utf-8`.
         &#34;&#34;&#34;
         self.df_files_info = pd.DataFrame()
         self.yaml_name = yaml_name
@@ -239,10 +247,12 @@ class FrameCheck:
     def fix(self, cols_upper_case: bool = False, drop_empty_cols: bool = True) -&gt; None:
         &#34;&#34;&#34;Performs the clean of the data and validation
 
-        Args:
-        -----
-            cols_upper_case (`bool`, optional): Indicates whether to convert column names to uppercase. Defaults to `False`.
-            drop_empty_cols (`bool`, optional): Variable indicating whether columns with all their values empty should be removed. Defaults to `True`.
+        Parameters
+        ----------
+        cols_upper_case : `bool`, `optional`
+            Indicates whether to convert column names to uppercase. Defaults to `False`.
+        drop_empty_cols : `bool`, `optional`
+            Variable indicating whether columns with all their values empty should be removed. Defaults to `True`.
         &#34;&#34;&#34;
         if drop_empty_cols:
             for count, df in enumerate(self._dfs):
@@ -266,14 +276,20 @@ class FrameCheck:
     ) -&gt; None:
         &#34;&#34;&#34;Generate a `.html` health check report.
 
-        Args:
-        -----
-            report_name (`str`, optional): Name of the quality assessment report. Defaults to `./report.html`.
-            yaml_name (`str`, optional): Indicates the name of the `.yaml` file that will serve as a template for the creation of the SQL table. Defaults to `./output.yaml`.
-            database_name (`str`, optional): The header of the `.yaml` file. Default value is `database`
-            directory_name (`str`, optional): Folder in which the reports will be saved. Defaults to `summary`.
-            concat_vertically: (`bool`, optional), Variable indicating whether the list of dataframes should be vertically concatenated into a single one. Default value is `False`.
-            encoding (`str`, optional): The encoding of dataframes. Defaults to `utf-8`.
+        Parameters
+        ----------
+        report_name : `str`, `optional`
+            Name of the quality assessment report. Defaults to `./report.html`.
+        yaml_name : `str`, `optional`
+            Indicates the name of the `.yaml` file that will serve as a template for the creation of the SQL table. Defaults to `./output.yaml`.
+        database_name : `str`, `optional`
+            The header of the `.yaml` file. Default value is `database`
+        directory_name : `str`, `optional`
+            Folder in which the reports will be saved. Defaults to `summary`.
+        concat_vertically : `bool`, `optional`
+            Variable indicating whether the list of dataframes should be vertically concatenated into a single one. Default value is `False`.
+        encoding : `str`, `optional`
+            The encoding of dataframes. Defaults to `utf-8`.
         &#34;&#34;&#34;
         self.df_files_info = pd.DataFrame()
         self.yaml_name = yaml_name
@@ -383,10 +399,13 @@ class FrameCheck:
 </code></dt>
 <dd>
 <div class="desc"><p>Performs the clean of the data and validation</p>
-<h2 id="args">Args:</h2>
-<pre><code>cols_upper_case (&lt;code&gt;bool&lt;/code&gt;, optional): Indicates whether to convert column names to uppercase. Defaults to &lt;code&gt;False&lt;/code&gt;.
-drop_empty_cols (&lt;code&gt;bool&lt;/code&gt;, optional): Variable indicating whether columns with all their values empty should be removed. Defaults to &lt;code&gt;True&lt;/code&gt;.
-</code></pre></div>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>cols_upper_case</code></strong> :&ensp;<code>bool<code>,</code>optional</code></dt>
+<dd>Indicates whether to convert column names to uppercase. Defaults to <code>False</code>.</dd>
+<dt><strong><code>drop_empty_cols</code></strong> :&ensp;<code>bool<code>,</code>optional</code></dt>
+<dd>Variable indicating whether columns with all their values empty should be removed. Defaults to <code>True</code>.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -394,10 +413,12 @@ drop_empty_cols (&lt;code&gt;bool&lt;/code&gt;, optional): Variable indicating w
 <pre><code class="python">def fix(self, cols_upper_case: bool = False, drop_empty_cols: bool = True) -&gt; None:
     &#34;&#34;&#34;Performs the clean of the data and validation
 
-    Args:
-    -----
-        cols_upper_case (`bool`, optional): Indicates whether to convert column names to uppercase. Defaults to `False`.
-        drop_empty_cols (`bool`, optional): Variable indicating whether columns with all their values empty should be removed. Defaults to `True`.
+    Parameters
+    ----------
+    cols_upper_case : `bool`, `optional`
+        Indicates whether to convert column names to uppercase. Defaults to `False`.
+    drop_empty_cols : `bool`, `optional`
+        Variable indicating whether columns with all their values empty should be removed. Defaults to `True`.
     &#34;&#34;&#34;
     if drop_empty_cols:
         for count, df in enumerate(self._dfs):
@@ -413,14 +434,21 @@ drop_empty_cols (&lt;code&gt;bool&lt;/code&gt;, optional): Variable indicating w
 </code></dt>
 <dd>
 <div class="desc"><p>Generate a <code>.html</code> health check report.</p>
-<h2 id="args">Args:</h2>
-<pre><code>report_name (&lt;code&gt;str&lt;/code&gt;, optional): Name of the quality assessment report. Defaults to `./report.html`.
-yaml_name (&lt;code&gt;str&lt;/code&gt;, optional): Indicates the name of the &lt;code&gt;.yaml&lt;/code&gt; file that will serve as a template for the creation of the SQL table. Defaults to `./output.yaml`.
-database_name (&lt;code&gt;str&lt;/code&gt;, optional): The header of the &lt;code&gt;.yaml&lt;/code&gt; file. Default value is &lt;code&gt;database&lt;/code&gt;
-directory_name (&lt;code&gt;str&lt;/code&gt;, optional): Folder in which the reports will be saved. Defaults to &lt;code&gt;summary&lt;/code&gt;.
-concat_vertically: (&lt;code&gt;bool&lt;/code&gt;, optional), Variable indicating whether the list of dataframes should be vertically concatenated into a single one. Default value is &lt;code&gt;False&lt;/code&gt;.
-encoding (&lt;code&gt;str&lt;/code&gt;, optional): The encoding of dataframes. Defaults to `utf-8`.
-</code></pre></div>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>report_name</code></strong> :&ensp;<code>str<code>,</code>optional</code></dt>
+<dd>Name of the quality assessment report. Defaults to <code>./report.html</code>.</dd>
+<dt><strong><code>yaml_name</code></strong> :&ensp;<code>str<code>,</code>optional</code></dt>
+<dd>Indicates the name of the <code>.yaml</code> file that will serve as a template for the creation of the SQL table. Defaults to <code>./output.yaml</code>.</dd>
+<dt><strong><code>database_name</code></strong> :&ensp;<code>str<code>,</code>optional</code></dt>
+<dd>The header of the <code>.yaml</code> file. Default value is <code>database</code></dd>
+<dt><strong><code>directory_name</code></strong> :&ensp;<code>str<code>,</code>optional</code></dt>
+<dd>Folder in which the reports will be saved. Defaults to <code>summary</code>.</dd>
+<dt><strong><code>concat_vertically</code></strong> :&ensp;<code>bool<code>,</code>optional</code></dt>
+<dd>Variable indicating whether the list of dataframes should be vertically concatenated into a single one. Default value is <code>False</code>.</dd>
+<dt><strong><code>encoding</code></strong> :&ensp;<code>str<code>,</code>optional</code></dt>
+<dd>The encoding of dataframes. Defaults to <code>utf-8</code>.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -436,14 +464,20 @@ encoding (&lt;code&gt;str&lt;/code&gt;, optional): The encoding of dataframes. D
 ) -&gt; None:
     &#34;&#34;&#34;Generate a `.html` health check report.
 
-    Args:
-    -----
-        report_name (`str`, optional): Name of the quality assessment report. Defaults to `./report.html`.
-        yaml_name (`str`, optional): Indicates the name of the `.yaml` file that will serve as a template for the creation of the SQL table. Defaults to `./output.yaml`.
-        database_name (`str`, optional): The header of the `.yaml` file. Default value is `database`
-        directory_name (`str`, optional): Folder in which the reports will be saved. Defaults to `summary`.
-        concat_vertically: (`bool`, optional), Variable indicating whether the list of dataframes should be vertically concatenated into a single one. Default value is `False`.
-        encoding (`str`, optional): The encoding of dataframes. Defaults to `utf-8`.
+    Parameters
+    ----------
+    report_name : `str`, `optional`
+        Name of the quality assessment report. Defaults to `./report.html`.
+    yaml_name : `str`, `optional`
+        Indicates the name of the `.yaml` file that will serve as a template for the creation of the SQL table. Defaults to `./output.yaml`.
+    database_name : `str`, `optional`
+        The header of the `.yaml` file. Default value is `database`
+    directory_name : `str`, `optional`
+        Folder in which the reports will be saved. Defaults to `summary`.
+    concat_vertically : `bool`, `optional`
+        Variable indicating whether the list of dataframes should be vertically concatenated into a single one. Default value is `False`.
+    encoding : `str`, `optional`
+        The encoding of dataframes. Defaults to `utf-8`.
     &#34;&#34;&#34;
     self.df_files_info = pd.DataFrame()
     self.yaml_name = yaml_name
