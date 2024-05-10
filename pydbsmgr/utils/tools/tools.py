@@ -42,14 +42,17 @@ def disableprints(func: Callable) -> Callable:
 def most_repeated_item(items: list, two_most_common: bool = False) -> Tuple[str, str | None]:
     """Returns a `Tuple` with the most common elements of a `list`.
 
-    Args:
+    Parameters
     ----------
-        items (`list`): the `list` containing the items to be evaluated.
-        two_most_common (`bool`, optional): If `False`, returns only one element. Defaults to `False`.
+    items : `list`
+        the `list` containing the items to be evaluated.
+    two_most_common : `bool`, `optional`
+        If `False`, returns only one element. Defaults to `False`.
 
-    Returns:
-    ----------
-        Tuple[`str`, `str` | `None`]: The two most common elements.
+    Returns
+    -------
+    Tuple[`str`, `str` | `None`]
+        The two most common elements.
     """
     # Use Counter to count occurrences of each item in the list
     counter = Counter(items)
@@ -156,7 +159,7 @@ class ControllerFeatures:
         overwrite: bool = True,
         upload: bool = True,
     ) -> None:
-        """Write dataframes as `parquet` format by converting them first into `bytes`"""
+        """Write dataframes as `parquet` format by converting them first into `bytes`."""
         files = []
         format_type = "parquet"
         files_not_loaded = []
@@ -185,6 +188,7 @@ class ControllerFeatures:
 
 
 def column_coincidence(df1: DataFrame, df2: DataFrame) -> float:
+    """Return the percentage of coincident columns between two pandas dataframes."""
     if not isinstance(df1, pd.DataFrame) or not isinstance(df2, pd.DataFrame):
         raise ValueError("Both inputs should be pandas DataFrames")
 
@@ -199,6 +203,7 @@ def column_coincidence(df1: DataFrame, df2: DataFrame) -> float:
 
 
 def merge_by_coincidence(df1: DataFrame, df2: DataFrame, tol: float = 0.9) -> DataFrame:
+    """Merge two pandas dataframes by finding the most similar columns based on their names."""
     percentage = column_coincidence(df1, df2)
     total_columns = set(df1.columns).union(set(df2.columns))
     num_col1 = len(df1.columns)
@@ -249,14 +254,17 @@ def get_extraction_date(
 ) -> str:
     """Allows to extract the date of extraction according to the directory within the storage account.
 
-    Args:
+    Parameters
     ----------
-        filename (`str` | List[`str`]): file path inside the storage account
-        REGEX_PATTERN (`str`, optional): regular expression pattern to extract the date. Defaults to `r"\d{4}-\d{2}-\d{2}"`.
+    filename : `str` | List[`str`]
+        file path inside the storage account
+    REGEX_PATTERN : `str`, `optional`
+        regular expression pattern to extract the date. Defaults to `r"\d{4}-\d{2}-\d{2}"`.
 
-    Returns:
-    ----------
-        `str`: the date that was extracted if found in the file path.
+    Returns
+    -------
+    `str`
+        the date that was extracted if found in the file path.
     """
 
     def sub_extraction_date(filename: str, REGEX_PATTERN: str) -> str:
@@ -296,9 +304,7 @@ class ColumnsDtypes:
         return self.df
 
     def _check_int_float(self, drop_values: bool = False, drop_rows: bool = False) -> None:
-        """
-        Check and correct the data types of columns in a `DataFrame`.
-        """
+        """Check and correct the data types of columns in a `DataFrame`."""
 
         def check_float(x):
             if isinstance(x, str):
@@ -350,9 +356,7 @@ class ColumnsDtypes:
         self.df = df_
 
     def _check_datetime(self, sample_frac: float) -> None:
-        """
-        Check and convert date-time string columns to datetime objects.
-        """
+        """Check and convert date-time string columns to `datetime` objects."""
         df_ = self.df
         cols = df_.columns
         df_sample = df_.sample(frac=sample_frac)
@@ -382,9 +386,7 @@ class ColumnsDtypes:
 
 
 def create_directory(data, parent_path=""):
-    """
-    Creates the directory tree from a yaml file
-    """
+    """Creates the directory tree from a `yaml` file."""
     for key, value in data.items():
         path = os.path.join(parent_path, key)
         if isinstance(value, dict):
@@ -395,6 +397,7 @@ def create_directory(data, parent_path=""):
 
 
 def create_directories_from_yaml(yaml_file):
+    """Reads a `yaml` file and creates directories based on its content."""
     with open(yaml_file, "r") as file:
         data = yaml.safe_load(file)
         create_directory(data)

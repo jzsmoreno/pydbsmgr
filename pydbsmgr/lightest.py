@@ -9,13 +9,13 @@ def process_dates(x: str, format_type: str, auxiliary_type: str, errors: str = "
 
     Parameters
     ----------
-        x : `str`
-            character of type date.
+    x : `str`
+        character of type date.
 
     Returns
     ----------
-        x : `str`
-            character after processing with format `YYYY-MM-DD`.
+    x : `str`
+        character after processing with format `YYYY-MM-DD`.
     """
     # performing data type conversion
     x = str(x)
@@ -78,16 +78,17 @@ class LightCleaner:
 
         Parameters
         ----------
-        - sample_frac (`float`): The fraction of rows to use for date type inference. Default is 0.1 i.e., 10%.
-        - fast_execution (`bool`): If `False` use `applymap` pandas for extra text cleanup. Default is `True`.
+        sample_frac : `float`
+            The fraction of rows to use for date type inference. Default is 0.1 i.e., 10%.
+        fast_execution : `bool`
+            If `False` use `applymap` pandas for extra text cleanup. Default is `True`.
 
         Keyword Arguments:
         ----------
-        - no_emoji: (`bool`): By default it is set to `False`.
-        If `True`, removes all emojis from text data. Works only when `fast_execution` = `False`.
-        - title_mode: (`bool`): By default it is set to `True`.
-        If `False`, converts the text to lowercase. Works only when `fast_execution` = `False`.
-        By default, converts everything to `title`.
+        no_emoji : `bool`
+            By default it is set to `False`. If `True`, removes all emojis from text data. Works only when `fast_execution` = `False`.
+        title_mode : `bool`
+            By default it is set to `True`. If `False`, converts the text to lowercase. Works only when `fast_execution` = `False`. By default, converts everything to `title`.
         """
         table = (self.df).copy()
         cols = table.columns

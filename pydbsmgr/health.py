@@ -33,10 +33,12 @@ class FrameCheck:
     def fix(self, cols_upper_case: bool = False, drop_empty_cols: bool = True) -> None:
         """Performs the clean of the data and validation
 
-        Args:
-        -----
-            cols_upper_case (`bool`, optional): Indicates whether to convert column names to uppercase. Defaults to `False`.
-            drop_empty_cols (`bool`, optional): Variable indicating whether columns with all their values empty should be removed. Defaults to `True`.
+        Parameters
+        ----------
+        cols_upper_case : `bool`, `optional`
+            Indicates whether to convert column names to uppercase. Defaults to `False`.
+        drop_empty_cols : `bool`, `optional`
+            Variable indicating whether columns with all their values empty should be removed. Defaults to `True`.
         """
         if drop_empty_cols:
             for count, df in enumerate(self._dfs):
@@ -60,14 +62,20 @@ class FrameCheck:
     ) -> None:
         """Generate a `.html` health check report.
 
-        Args:
-        -----
-            report_name (`str`, optional): Name of the quality assessment report. Defaults to `./report.html`.
-            yaml_name (`str`, optional): Indicates the name of the `.yaml` file that will serve as a template for the creation of the SQL table. Defaults to `./output.yaml`.
-            database_name (`str`, optional): The header of the `.yaml` file. Default value is `database`
-            directory_name (`str`, optional): Folder in which the reports will be saved. Defaults to `summary`.
-            concat_vertically: (`bool`, optional), Variable indicating whether the list of dataframes should be vertically concatenated into a single one. Default value is `False`.
-            encoding (`str`, optional): The encoding of dataframes. Defaults to `utf-8`.
+        Parameters
+        ----------
+        report_name : `str`, `optional`
+            Name of the quality assessment report. Defaults to `./report.html`.
+        yaml_name : `str`, `optional`
+            Indicates the name of the `.yaml` file that will serve as a template for the creation of the SQL table. Defaults to `./output.yaml`.
+        database_name : `str`, `optional`
+            The header of the `.yaml` file. Default value is `database`
+        directory_name : `str`, `optional`
+            Folder in which the reports will be saved. Defaults to `summary`.
+        concat_vertically : `bool`, `optional`
+            Variable indicating whether the list of dataframes should be vertically concatenated into a single one. Default value is `False`.
+        encoding : `str`, `optional`
+            The encoding of dataframes. Defaults to `utf-8`.
         """
         self.df_files_info = pd.DataFrame()
         self.yaml_name = yaml_name
