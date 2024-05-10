@@ -55,11 +55,15 @@ def check_if_contains_dates(input_string: str) -> bool:
 def remove_numeric_char(input_string: str) -> str:
     """Remove all numeric characters from a string.
 
-    Args:
-        input_string (`str`): character string to be cleaned of numeric characters
+    Parameters
+    ----------
+    input_string : `str`
+        character string to be cleaned of numeric characters
 
-    Returns:
-        `str`: clean character string
+    Returns
+    -------
+    `str`
+        clean character string
     """
     return re.sub(r"\d", "", input_string)
 

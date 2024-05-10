@@ -28,18 +28,22 @@ class FileToSQL(DataFrameToSQL):
     ) -> None:
         """Insert data into SQL Server.
 
-        Parameters:
+        Parameters
         ----------
-            df (`Dataframe` or `str`): The pandas dataframe that will be inserted into sql server
-            table_name (`str`): Name of the table in which the data is being inserted
-            overwrite (`bool`): If `True` it will delete and recreate the table before inserting new data
-            if `False` it will append the new data onto the end of the existing table
-            char_length (`int`): Length of varchar fields for text columns
-            override_length (`bool`): Override length of varchar fields for text columns.
+        df : `Dataframe` | `str`
+            The pandas dataframe that will be inserted into sql server
+        table_name : `str`
+            Name of the table in which the data is being inserted
+        overwrite : `bool`
+            If `True` it will delete and recreate the table before inserting new data if `False` it will append the new data onto the end of the existing table.
+        char_length : `int`
+            Length of varchar fields for text columns.
+        override_length : `bool`
+            Override length of varchar fields for text columns.
 
-        Returns:
-        ----------
-            `None`
+        Returns
+        -------
+        `None`
         """
 
         self.file_type = None
@@ -131,22 +135,33 @@ class FileToSQL(DataFrameToSQL):
     ) -> bool:
         """Insert data from csv files in Azure Blob Storage into SQL Server with Bulk command
 
-        Parameters:
+        Parameters
         ----------
-            file_path (`str`): Path to the file in Azure Blob Storage
-            db_table_name (`str`): Name of the table in which the data is being inserted
-            sas_str (`str`): SAS string to the storage account
-            storage_connection_string (`str`): Connection string to the storage account
-            storage_account (`str`): Name of the storage account
-            container_name (`str`): Name of the container in which the data is being inserted
-            credential_name (`str`): Name of the credentials
-            data_source_name (`str`): Name of the data source
-            char_length (`int`): Length of varchar fields for text columns
-            overwrite (`bool`): If `True` it will delete and recreate the table before inserting new data
-            if `False` it will append the new data onto the end of the existing table
-        Returns:
-        ----------
-            `bool`: True if the data was inserted successfully
+        file_path : `str`
+            Path to the file in Azure Blob Storage
+        db_table_name : `str`
+            Name of the table in which the data is being inserted
+        sas_str : `str`
+            SAS string to the storage account
+        storage_connection_string : `str`
+            Connection string to the storage account
+        storage_account : `str`
+            Name of the storage account
+        container_name : `str`
+            Name of the container in which the data is being inserted
+        credential_name : `str`
+            Name of the credentials
+        data_source_name : `str`
+            Name of the data source
+        char_length : `int`
+            Length of varchar fields for text columns
+        overwrite : `bool`
+            If `True` it will delete and recreate the table before inserting new data if `False` it will append the new data onto the end of the existing table.
+
+        Returns
+        -------
+        `bool`
+            True if the data was inserted successfully
         """
         # Get all the files in the container or file individually
         filter_condition = ""
@@ -268,13 +283,17 @@ class FileToSQL(DataFrameToSQL):
     ) -> bool:
         """Drop dropable objects
 
-        Parameters:
+        Parameters
         ----------
-            data_source_name (`str`): Name of the data source
-            masterkey (`bool`): If `True` it will drop the master key
-        Returns:
-        ----------
-            `Bool`: True if the data was inserted successfully
+        data_source_name : `str`
+            Name of the data source
+        masterkey : `bool`
+            If `True` it will drop the master key
+
+        Returns
+        -------
+        `bool`
+            True if the data was inserted successfully
         """
         print("DROPPING EXTERNAL DATA SOURCE")
         self._cur.execute(f"DROP EXTERNAL DATA SOURCE {data_source_name}")
@@ -339,14 +358,20 @@ class FileToSQL(DataFrameToSQL):
         write_to_csv: bool = True,
     ) -> None:
         """Write a csv file from parquet files in a container
-        Parameters:
+
+        Parameters
         ----------
-            connection_string (`str`): Connection string to the storage account
-            container_name (`str`): Name of the container in which the data is being inserted
-            directory (`str`): Directory in which the parquet files are located
-        Returns:
-        ----------
-            `bool`: True if the file was created successfully
+        connection_string : `str`
+            Connection string to the storage account
+        container_name : `str`
+            Name of the container in which the data is being inserted
+        directory : `str`
+            Directory in which the parquet files are located
+
+        Returns
+        -------
+        `bool`
+            `True` if the file was created successfully
         """
         # Write the csv files
         if write_to_csv:

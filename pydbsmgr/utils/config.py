@@ -6,12 +6,12 @@ def load_config(config_file):
 
     Parameters
     ----------
-    config_file : str
+    config_file : `str`
         The path to the configuration file.
 
     Returns
     -------
-    config : ConfigParser
+    config : `ConfigParser`
         A configuration object loaded from file.
     """
 
@@ -26,12 +26,12 @@ def parse_config(config):
 
     Parameters
     ----------
-    config : ConfigParser
+    config : `ConfigParser`
         A configuration object loaded from file.
 
     Returns
     -------
-    parsed_config : dict
+    parsed_config : `dict`
         A dictionary of parsed configuration values.
     """
 
