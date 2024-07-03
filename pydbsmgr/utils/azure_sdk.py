@@ -15,7 +15,7 @@ from pydbsmgr.utils.tools import ControllerFeatures
 
 
 def get_connection_string() -> str:
-    """Get connection string. Load env variables from .env"""
+    """Get connection string. Load env variables from `.env`"""
     load_dotenv()
     return os.getenv("CONNECTION_STRING")
 
