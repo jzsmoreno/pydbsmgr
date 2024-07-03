@@ -161,7 +161,7 @@ class FileToSQL(DataFrameToSQL):
         Returns
         -------
         `bool`
-            True if the data was inserted successfully
+            `True` if the data was inserted successfully
         """
         # Get all the files in the container or file individually
         filter_condition = ""
@@ -293,7 +293,7 @@ class FileToSQL(DataFrameToSQL):
         Returns
         -------
         `bool`
-            True if the data was inserted successfully
+            `True` if the data was inserted successfully
         """
         print("DROPPING EXTERNAL DATA SOURCE")
         self._cur.execute(f"DROP EXTERNAL DATA SOURCE {data_source_name}")

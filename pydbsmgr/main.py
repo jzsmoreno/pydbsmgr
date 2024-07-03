@@ -244,9 +244,9 @@ def convert_date(date_string: str) -> str:
     return proper_date
 
 
-def is_number_regex(s):
-    """Returns True if string is a number."""
-    if re.match("^\d+?\.\d+?$", s) is None:
+def is_number_regex(s: str) -> bool:
+    """Returns `True` if string is a number."""
+    if re.match(r"^\d+?\.\d+?$", s) is None:
         return s.isdigit()
     return True
 
@@ -337,7 +337,7 @@ def clean_and_convert_to(x: str) -> str:
 
 def correct_nan(check_missing: str) -> str:
     """
-    Corrects the format of missing values in a `str` to the correct `empty str`.
+    Corrects the format of missing values in a `str` to the correct empty `str`.
 
     Parameters
     ----------
@@ -347,7 +347,7 @@ def correct_nan(check_missing: str) -> str:
     Returns
     -------
     check_missing : `str`
-        The corrected string format or `empty str`.
+        The corrected string format or empty `str`.
     """
     if str(check_missing).lower() == "nan":
         return ""
@@ -412,12 +412,12 @@ def intersection_cols(dfs_: List[DataFrame]) -> DataFrame:
 
     Parameters
     ----------
-    dfs_ : List[`DataFrame`]
+    dfs_ : List[DataFrame]
         The `list` of dataframes with columns to be resolves.
 
     Returns
     -------
-    dfs_ : List[`DataFrame`]
+    dfs_ : List[DataFrame]
         The `list` of dataframes with the corrections in their columns (intersection).
     """
     min_cols = []

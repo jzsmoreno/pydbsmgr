@@ -230,7 +230,8 @@ def merge_by_coincidence(df1: DataFrame, df2: DataFrame, tol: float = 0.9) -> Da
     return df
 
 
-def terminate_process_holding_file(file_path):
+def terminate_process(file_path: str) -> None:
+    """Terminate the process holding the file."""
     for proc in psutil.process_iter(["pid", "open_files"]):
         try:
             if any(file_path in file_info.path for file_info in proc.open_files()):
@@ -241,11 +242,12 @@ def terminate_process_holding_file(file_path):
 
 
 def erase_files(format: str = "log") -> None:
+    """Erase all files with the given format."""
     for filename in glob.glob("*." + format):
         try:
             os.remove(filename)
         except:
-            terminate_process_holding_file(filename)
+            terminate_process(filename)
             os.remove(filename)
 
 
@@ -256,10 +258,10 @@ def get_extraction_date(
 
     Parameters
     ----------
-    filename : `str` | List[`str`]
+    filename : Union[str, List[str]]
         file path inside the storage account
     REGEX_PATTERN : `str`, `optional`
-        regular expression pattern to extract the date. Defaults to `r"\d{4}-\d{2}-\d{2}"`.
+        regular expression pattern to extract the date.
 
     Returns
     -------
@@ -401,8 +403,3 @@ def create_directories_from_yaml(yaml_file):
     with open(yaml_file, "r") as file:
         data = yaml.safe_load(file)
         create_directory(data)
-
-
-if __name__ == "__main__":
-    yaml_file = "directories.yaml"
-    create_directories_from_yaml(yaml_file)
