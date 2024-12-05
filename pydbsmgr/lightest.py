@@ -118,7 +118,7 @@ class LightCleaner:
                     )
 
                     format_type = auxiliary_type or main_type
-                    
+
                     partial_dates = partial(
                         process_dates,
                         format_type=format_type,
