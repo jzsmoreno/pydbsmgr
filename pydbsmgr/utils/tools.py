@@ -88,28 +88,26 @@ def generate_secure_password(pass_len: int = 24) -> str:
 
 
 class ColumnsCheck:
-    """Performs the relevant checks on the columns of the `DataFrame`"""
+    """Performs checks on the columns of a DataFrame"""
 
     def __init__(self, df: DataFrame):
         self.df = df
 
     def get_frame(self, **kwargs) -> DataFrame:
-        self.df = self._process_columns(**kwargs)
-        return self.df
+        return self._process_columns(**kwargs)
 
     def _process_columns(self, surrounding: bool = True) -> DataFrame:
-        df = (self.df).copy()
-        df.columns = df.columns.str.lower()
-        df.columns = df.columns.str.replace(".", "", regex=False)
-        df.columns = df.columns.str.replace(",", "", regex=False)
-        df.columns = df.columns.str.replace(r"[^a-zA-Z0-9ñáéíóú_]", "_", regex=True)
-
-        df.columns = df.columns.str.replace("_+", "_", regex=True)
-        df.columns = df.columns.str.strip()
-        df.columns = df.columns.str.strip("_")
+        df = self.df.copy()
+        df.columns = (
+            df.columns.str.lower()
+            .str.replace("[.,]", "", regex=True)
+            .str.replace(r"[^a-zA-Z0-9ñáéíóú_]", "_", regex=True)
+            .str.replace("_+", "_", regex=True)
+            .str.strip()
+            .str.strip("_")
+        )
         if surrounding:
             df.columns = [f"[{col}]" for col in df.columns]
-
         return df
 
 
