@@ -111,14 +111,6 @@ class ColumnsCheck:
         return df
 
 
-def coerce_datetime(x: str) -> datetime64:
-    try:
-        x = x.replace("-", "")
-        return pd.to_datetime(x, format="%Y%m%d")
-    except:
-        return np.datetime64("NaT")
-
-
 class ControllerFeatures:
     def __init__(self, _container_client):
         self._container_client = _container_client
