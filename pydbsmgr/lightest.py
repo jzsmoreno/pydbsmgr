@@ -118,31 +118,20 @@ class LightCleaner:
                     )
 
                     format_type = auxiliary_type or main_type
-                    try:
-                        partial_dates = partial(
-                            process_dates,
-                            format_type=format_type,
-                            auxiliary_type=None,
-                            errors=errors,
-                        )
-                        vpartial_dates = np.vectorize(partial_dates)
+                    
+                    partial_dates = partial(
+                        process_dates,
+                        format_type=format_type,
+                        auxiliary_type=None,
+                        errors=errors,
+                    )
+                    vpartial_dates = np.vectorize(partial_dates)
 
-                        table[cols[column_index]] = pd.to_datetime(
-                            vpartial_dates(table[cols[column_index]]),
-                            format="%Y-%m-%d",
-                            errors="coerce",
-                        ).normalize()
-                    except:
-                        partial_dates = partial(
-                            process_dates, format_type=main_type, auxiliary_type=None, errors=errors
-                        )
-                        vpartial_dates = np.vectorize(partial_dates)
-
-                        table[cols[column_index]] = pd.to_datetime(
-                            vpartial_dates(table[cols[column_index]]),
-                            format="%Y-%m-%d",
-                            errors="coerce",
-                        ).normalize()
+                    table[cols[column_index]] = pd.to_datetime(
+                        vpartial_dates(table[cols[column_index]]),
+                        format="%Y-%m-%d",
+                        errors="coerce",
+                    ).normalize()
                 else:
                     try:
                         table[cols[column_index]] = (
