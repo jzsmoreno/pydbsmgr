@@ -93,7 +93,10 @@ class LightCleaner:
         """
         table = self.df.copy()
         cols = table.columns
-        table_sample = table.sample(frac=sample_frac, replace=False)
+        if sample_frac != 1.0:
+            table_sample = table.sample(frac=sample_frac, replace=False)
+        else:
+            table_sample = table.copy()
         errors = kwargs.get("errors", "ignore")
 
         for column_index, datatype in enumerate(table.dtypes):
