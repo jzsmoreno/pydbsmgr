@@ -1,71 +1,72 @@
+import logging
+import sys
 from functools import partial
 
-from pydbsmgr.main import *
-from pydbsmgr.utils.tools import coerce_datetime, most_repeated_item
+import numpy as np
+import pandas as pd
+
+from pydbsmgr.main import check_if_contains_dates, clean, get_date_format
+from pydbsmgr.utils.tools import most_repeated_item
+
+logging.basicConfig(level=logging.WARNING)
 
 
-def process_dates(x: str, format_type: str, auxiliary_type: str, errors: str = "ignore") -> str:
-    """Auxiliary function in date type string processing
-
-    Parameters
-    ----------
-    x : `str`
-        character of type date.
-
-    Returns
-    ----------
-    x : `str`
-        character after processing with format `YYYY-MM-DD`.
-    """
-    # performing data type conversion
+def process_dates(
+    x: str, format_type: str, auxiliary_type: str = None, errors: str = "ignore"
+) -> str:
+    """Auxiliary function in date type string processing."""
     x = str(x)
     if format_type in ["dayfirst", "monthfirst"] and len(x) < 10:
-        # split by "/" or "-"
+        separator = "/" if "/" in x else "-"
+        parts = x.split(separator)
         if format_type == "dayfirst":
-            dmy = x.split("/") if "/" in x else x.split("-")
-            day = dmy[0] if len(dmy[0]) == 2 else "0" + dmy[0]
-            month = dmy[1] if len(dmy[1]) == 2 else "0" + dmy[1]
-            year = dmy[-1]
+            day, month, year = parts[0], parts[1], parts[-1]
         elif format_type == "monthfirst":
-            mdy = x.split("/") if "/" in x else x.split("-")
-            month = mdy[0] if len(mdy[0]) == 2 else "0" + mdy[0]
-            day = mdy[1] if len(mdy[1]) == 2 else "0" + mdy[1]
-            year = mdy[-1]
+            month, day, year = parts[0], parts[1], parts[-1]
 
-        return str(pd.to_datetime(f"{year}{month}{day}", format="%Y%m%d", errors="raise"))[:10]
-
-    x = x.replace("/", "")
-    x = x.replace("-", "")
-
-    if len(x) == 8:
+        day = f"{int(day):02d}"
+        month = f"{int(month):02d}"
         try:
-            x = str(pd.to_datetime(x, format=format_type, errors="raise"))[:10]
-        except:
-            if auxiliary_type is not None:
-                x = str(pd.to_datetime(x, format=auxiliary_type, errors="ignore"))[:10]
+            date = pd.to_datetime(f"{year}{month}{day}", format="%Y%m%d", errors="coerce")
+        except ValueError:
+            if auxiliary_type:
+                date = pd.to_datetime(x, format=auxiliary_type, errors="coerce")
             elif errors == "raise":
                 raise ValueError("Date value does not match the expected format.")
     else:
-        if str(x).find(":") != -1:
+        x = x.replace("/", "").replace("-", "")
+
+        if len(x) == 8:
             try:
-                x = str(pd.to_datetime(x[:8], format=format_type, errors="raise"))[:10]
-            except:
-                if auxiliary_type is not None:
-                    x = str(pd.to_datetime(x[:8], format=auxiliary_type, errors="ignore"))[:10]
+                date = pd.to_datetime(x, format=format_type, errors="coerce")
+            except ValueError:
+                if auxiliary_type:
+                    date = pd.to_datetime(x, format=auxiliary_type, errors="coerce")
                 elif errors == "raise":
                     raise ValueError("Date value does not match the expected format.")
-    return x
+        else:
+            try:
+                date = pd.to_datetime(x[:8], format=format_type, errors="coerce")
+            except ValueError:
+                if auxiliary_type:
+                    date = pd.to_datetime(x[:8], format=auxiliary_type, errors="coerce")
+                elif errors == "raise":
+                    raise ValueError("Date value does not match the expected format.")
+
+    if not pd.isnull(date):
+        return date.strftime("%Y-%m-%d")
+    else:
+        return x  # Return original string if no valid date is found
 
 
 class LightCleaner:
-    """Performs a light cleaning on the table"""
+    """Performs a light cleaning on the table."""
 
-    # Increase memory efficiency
     __slots__ = ["df", "dict_dtypes"]
 
-    def __init__(self, df_: DataFrame):
+    def __init__(self, df_: pd.DataFrame):
         self.df = df_.copy()
-        self.dict_dtypes = dict(zip(["float", "int", "str"], ["float64", "int64", "object"]))
+        self.dict_dtypes = {"float": "float64", "int": "int64", "str": "object"}
 
     def clean_frame(
         self,
@@ -73,8 +74,8 @@ class LightCleaner:
         fast_execution: bool = True,
         two_date_formats: bool = True,
         **kwargs,
-    ) -> DataFrame:
-        """`DataFrame` cleaning main function
+    ) -> pd.DataFrame:
+        """DataFrame cleaning main function
 
         Parameters
         ----------
@@ -90,10 +91,14 @@ class LightCleaner:
         title_mode : `bool`
             By default it is set to `True`. If `False`, converts the text to lowercase. Works only when `fast_execution` = `False`. By default, converts everything to `title`.
         """
-        table = (self.df).copy()
+        table = self.df.copy()
         cols = table.columns
-        table_sample = table.sample(frac=sample_frac)
-        errors = kwargs["errors"] if "errors" in kwargs else "ignore"
+        if sample_frac != 1.0:
+            table_sample = table.sample(frac=sample_frac, replace=False)
+        else:
+            table_sample = table.copy()
+        errors = kwargs.get("errors", "ignore")
+
         for column_index, datatype in enumerate(table.dtypes):
             if datatype == "object":
                 datetype_column = (
@@ -111,42 +116,22 @@ class LightCleaner:
                         ),
                         two_date_formats,
                     )
-                    if auxiliary_type != None:
-                        try:
-                            format_type = auxiliary_type
-                            partial_dates = partial(
-                                process_dates,
-                                format_type=format_type,
-                                auxiliary_type=None,
-                                errors=errors,
-                            )
-                            vpartial_dates = np.vectorize(partial_dates)
-                            table[cols[column_index]] = vpartial_dates(table[cols[column_index]])
-                        except:
-                            format_type = main_type
-                            partial_dates = partial(
-                                process_dates,
-                                format_type=format_type,
-                                auxiliary_type=None,
-                                errors=errors,
-                            )
-                            vpartial_dates = np.vectorize(partial_dates)
-                            table[cols[column_index]] = vpartial_dates(table[cols[column_index]])
-                    else:
-                        format_type = main_type
-                        partial_dates = partial(
-                            process_dates,
-                            format_type=format_type,
-                            auxiliary_type=None,
-                            errors=errors,
-                        )
-                        vpartial_dates = np.vectorize(partial_dates)
-                        table[cols[column_index]] = vpartial_dates(table[cols[column_index]])
-                    vcoerce_datetime = np.vectorize(coerce_datetime)
-                    table[cols[column_index]] = vcoerce_datetime(table[cols[column_index]])
+
+                    format_type = auxiliary_type or main_type
+
+                    partial_dates = partial(
+                        process_dates,
+                        format_type=format_type,
+                        auxiliary_type=None,
+                        errors=errors,
+                    )
+                    vpartial_dates = np.vectorize(partial_dates)
+
                     table[cols[column_index]] = pd.to_datetime(
-                        table[cols[column_index]], format="%Y%m%d", errors="coerce"
-                    ).dt.normalize()
+                        vpartial_dates(table[cols[column_index]]),
+                        format="%Y-%m-%d",
+                        errors="coerce",
+                    ).normalize()
                 else:
                     try:
                         table[cols[column_index]] = (
@@ -159,22 +144,14 @@ class LightCleaner:
                             .str.title()
                         )
                     except AttributeError as e:
-                        warning_type = "UserWarning"
-                        msg = (
-                            "It was not possible to perform the cleaning, the column {%s} is duplicated. "
-                            % cols[column_index]
-                        )
-                        msg += "Error: {%s}" % e
-                        print(f"{warning_type}: {msg}")
+                        msg = f"It was not possible to perform the cleaning, the column {cols[column_index]} is duplicated. Error: {e}"
+                        logging.warning(msg)
                         sys.exit("Perform correction manually")
+
                     if not fast_execution:
-                        no_emoji = kwargs["no_emoji"] if "no_emoji" in kwargs else False
-                        title_mode = kwargs["title_mode"] if "title_mode" in kwargs else True
-                        partial_clean = partial(
-                            clean,
-                            no_emoji=no_emoji,
-                            title_mode=title_mode,
-                        )
+                        no_emoji = kwargs.get("no_emoji", False)
+                        title_mode = kwargs.get("title_mode", True)
+                        partial_clean = partial(clean, no_emoji=no_emoji, title_mode=title_mode)
                         vpartial_clean = np.vectorize(partial_clean)
                         table[cols[column_index]] = vpartial_clean(table[cols[column_index]])
 
@@ -182,50 +159,41 @@ class LightCleaner:
         self.df = table.copy()
         return self.df
 
-    def _correct_float(self, value, datatype):
-        """float correction function"""
+    def _correct_type(self, value, datatype):
+        """General type correction function."""
         val_type = type(value).__name__
         if self.dict_dtypes[val_type] != datatype:
             try:
-                return float(value)
-            except:
-                return np.nan
-        else:
-            return value
+                return {"float": float, "int": int, "str": str}[datatype](value)
+            except ValueError:
+                return np.nan if datatype in ["float", "int"] else ""
+        return value
 
-    def _correct_int(self, value, datatype):
-        """integer correction function"""
-        val_type = type(value).__name__
-        if self.dict_dtypes[val_type] != datatype:
-            try:
-                return int(value)
-            except:
-                return np.nan
-        else:
-            return value
+    def _remove_duplicate_columns(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Remove duplicate columns based on column name."""
+        seen = set()
+        unique_cols = [col for col in df.columns if not (col in seen or seen.add(col))]
+        return df[unique_cols]
 
-    def _correct_str(self, value, datatype):
-        """character correction function"""
-        val_type = type(value).__name__
-        if self.dict_dtypes[val_type] != datatype:
-            try:
-                return str(value)
-            except:
-                return ""
-        else:
-            return value
 
-    def _remove_duplicate_columns(self, df: DataFrame) -> DataFrame:
-        """Function that removes duplicate columns based on column name"""
-        # Drop duplicate columns
-        # df = df.T.drop_duplicates().T
-        # df = df.loc[:,~df.columns.duplicated()]
-        seen_columns = set()
-        unique_columns = []
+if __name__ == "__main__":
+    # Example usage
+    df = pd.DataFrame(
+        {
+            "index": ["0", "1", "2", "3", "4"],
+            "fecha": ["10/09/1974", "06/01/1973", "18/01/1975", "25/08/2020", " fecha_no_valida"],
+            "first_date": [
+                "09/10/1974",
+                "01/06/1973",
+                "01/18/1975",
+                "08/25/2020",
+                " fecha_no_valida",
+            ],
+            "another_date": ["9/10/1974", "1/6/1973", "1/18/1975", "8/25/2020", " fecha_no_valida"],
+            "third_date": ["10/9/1974", "6/1/1973", "18/1/1975", "25/8/2020", " fecha_no_valida"],
+        }
+    )
 
-        for col in df.columns:
-            if col not in seen_columns:
-                unique_columns.append(col)
-                seen_columns.add(col)
-
-        return df[unique_columns]
+    handler = LightCleaner(df)
+    df = handler.clean_frame(sample_frac=1.0, fast_execution=False, errors="raise")
+    breakpoint()

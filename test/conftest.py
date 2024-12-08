@@ -64,13 +64,20 @@ def lightest_with_data() -> Callable:
     """Passes a test dataframe to the class"""
     df = pd.DataFrame(
         {
-            "index": ["0", "1", "2", "3"],
-            "fecha": ["10/09/1974", "06/01/1973", "18/01/1975", "25/08/2020"],
-            "first_date": ["09/10/1974", "01/06/1973", "01/18/1975", "08/25/2020"],
-            "another_date": ["9/10/1974", "1/6/1973", "1/18/1975", "8/25/2020"],
-            "third_date": ["10/9/1974", "6/1/1973", "18/1/1975", "25/8/2020"],
+            "index": ["0", "1", "2", "3", "4"],
+            "fecha": ["10/09/1974", "06/01/1973", "18/01/1975", "25/08/2020", " fecha_no_valida"],
+            "first_date": [
+                "09/10/1974",
+                "01/06/1973",
+                "01/18/1975",
+                "08/25/2020",
+                " fecha_no_valida",
+            ],
+            "another_date": ["9/10/1974", "1/6/1973", "1/18/1975", "8/25/2020", " fecha_no_valida"],
+            "third_date": ["10/9/1974", "6/1/1973", "18/1/1975", "25/8/2020", " fecha_no_valida"],
         }
     )
+
     handler = LightCleaner(df)
     df = handler.clean_frame(sample_frac=1.0, fast_execution=False, errors="raise")
 
