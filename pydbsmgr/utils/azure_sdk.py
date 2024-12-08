@@ -141,7 +141,7 @@ class StorageController(ControllerFeatures):
                     dataframes.append(df)
 
             elif file_type == "excel_csv":
-                filename, extension = os.path.splitext(file.name.rsplit("/", 1)[1])
+                filename, extension = os.path.splitext(file.name.split("/")[-1])
                 if extension == ".csv":
                     try:
                         blob_str = blob_data.decode("utf-8")
