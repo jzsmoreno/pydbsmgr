@@ -14,7 +14,6 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import yaml
 from pandas.core.frame import DataFrame
-from pandas.errors import IntCastingNaNError
 from pyarrow import Table
 
 from pydbsmgr.main import check_if_contains_dates, is_number_regex

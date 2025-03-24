@@ -102,7 +102,6 @@ class LightCleaner:
             table_sample = table.clone()
 
         for column_index, datatype in enumerate(table.dtypes):
-            print(f"Processing column: {cols[column_index]}", f"Data type: {datatype}")
             if datatype == pl.String:
                 datetype_column = (
                     table_sample[cols[column_index]]
