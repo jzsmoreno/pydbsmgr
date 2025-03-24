@@ -4,6 +4,7 @@ from functools import partial
 
 import numpy as np
 import pandas as pd
+import polars as pl
 
 from pydbsmgr.main import check_if_contains_dates, clean, get_date_format
 from pydbsmgr.utils.tools import most_repeated_item
@@ -65,8 +66,8 @@ class LightCleaner:
     __slots__ = ["df", "dict_dtypes"]
 
     def __init__(self, df_: pd.DataFrame):
-        self.df = df_.copy()
-        self.dict_dtypes = {"float": "float64", "int": "int64", "str": "object"}
+        self.df = pl.from_pandas(df_)
+        self.dict_dtypes = {"float": pl.Float64, "int": pl.Int64, "str": pl.String}
 
     def clean_frame(
         self,
@@ -74,7 +75,7 @@ class LightCleaner:
         fast_execution: bool = True,
         two_date_formats: bool = True,
         **kwargs,
-    ) -> pd.DataFrame:
+    ) -> pl.DataFrame:
         """DataFrame cleaning main function
 
         Parameters
@@ -91,27 +92,32 @@ class LightCleaner:
         title_mode : `bool`
             By default it is set to `True`. If `False`, converts the text to lowercase. Works only when `fast_execution` = `False`. By default, converts everything to `title`.
         """
-        table = self.df.copy()
+        table = self.df.clone()
         cols = table.columns
-        if sample_frac != 1.0:
-            table_sample = table.sample(frac=sample_frac, replace=False)
-        else:
-            table_sample = table.copy()
         errors = kwargs.get("errors", "ignore")
 
+        if sample_frac != 1.0:
+            table_sample = table.sample(frac=sample_frac, with_replacement=False)
+        else:
+            table_sample = table.clone()
+
         for column_index, datatype in enumerate(table.dtypes):
-            if datatype == "object":
+            print(f"Processing column: {cols[column_index]}", f"Data type: {datatype}")
+            if datatype == pl.String:
                 datetype_column = (
-                    (table_sample[cols[column_index]].apply(check_if_contains_dates))
-                    .isin([True])
+                    table_sample[cols[column_index]]
+                    .map_elements(check_if_contains_dates, return_dtype=pl.Boolean)
                     .any()
                 )
+
                 if datetype_column:
                     main_type, auxiliary_type = most_repeated_item(
                         list(
                             filter(
                                 lambda item: item is not None,
-                                table_sample[cols[column_index]].apply(get_date_format),
+                                table_sample[cols[column_index]].map_elements(
+                                    get_date_format, return_dtype=pl.String
+                                ),
                             )
                         ),
                         two_date_formats,
@@ -127,21 +133,26 @@ class LightCleaner:
                     )
                     vpartial_dates = np.vectorize(partial_dates)
 
-                    table[cols[column_index]] = pd.to_datetime(
-                        vpartial_dates(table[cols[column_index]]),
-                        format="%Y-%m-%d",
-                        errors="coerce",
-                    ).normalize()
+                    _serie = pl.Series(
+                        cols[column_index], vpartial_dates(table[cols[column_index]].to_list())
+                    )
+                    table = table.with_columns(_serie)
+                    table = table.with_columns(
+                        pl.col(cols[column_index]).str.strptime(
+                            pl.Datetime, format="%Y-%m-%d", strict=False
+                        )
+                    )
+
                 else:
                     try:
-                        table[cols[column_index]] = (
-                            table[cols[column_index]]
-                            .replace(np.nan, "")
-                            .astype(str)
-                            .str.normalize("NFKD")
-                            .str.encode("ascii", errors="ignore")
-                            .str.decode("ascii")
-                            .str.title()
+                        partial_clean = partial(clean)
+                        vpartial_clean = np.vectorize(partial_clean)
+
+                        table = table.with_columns(
+                            pl.Series(
+                                cols[column_index],
+                                vpartial_clean(table[cols[column_index]].to_list()),
+                            )
                         )
                     except AttributeError as e:
                         msg = f"It was not possible to perform the cleaning, the column {cols[column_index]} is duplicated. Error: {e}"
@@ -151,13 +162,20 @@ class LightCleaner:
                     if not fast_execution:
                         no_emoji = kwargs.get("no_emoji", False)
                         title_mode = kwargs.get("title_mode", True)
+
                         partial_clean = partial(clean, no_emoji=no_emoji, title_mode=title_mode)
                         vpartial_clean = np.vectorize(partial_clean)
-                        table[cols[column_index]] = vpartial_clean(table[cols[column_index]])
+
+                        table = table.with_columns(
+                            pl.Series(
+                                cols[column_index],
+                                vpartial_clean(table[cols[column_index]].to_list()),
+                            )
+                        )
 
         table = self._remove_duplicate_columns(table)
-        self.df = table.copy()
-        return self.df
+        self.df = table.clone()
+        return self.df.to_pandas()
 
     def _correct_type(self, value, datatype):
         """General type correction function."""
@@ -169,11 +187,11 @@ class LightCleaner:
                 return np.nan if datatype in ["float", "int"] else ""
         return value
 
-    def _remove_duplicate_columns(self, df: pd.DataFrame) -> pd.DataFrame:
+    def _remove_duplicate_columns(self, df: pl.DataFrame) -> pl.DataFrame:
         """Remove duplicate columns based on column name."""
         seen = set()
         unique_cols = [col for col in df.columns if not (col in seen or seen.add(col))]
-        return df[unique_cols]
+        return df.select(unique_cols)
 
 
 if __name__ == "__main__":
