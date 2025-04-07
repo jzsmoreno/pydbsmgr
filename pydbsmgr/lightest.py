@@ -75,7 +75,7 @@ class LightCleaner:
         fast_execution: bool = True,
         two_date_formats: bool = True,
         **kwargs,
-    ) -> pl.DataFrame:
+    ) -> pd.DataFrame:
         """DataFrame cleaning main function
 
         Parameters
