@@ -3,19 +3,30 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
-<meta name="generator" content="pdoc3 0.11.3">
+<meta name="generator" content="pdoc3 0.11.6">
 <title>pydbsmgr.utils.tools API documentation</title>
 <meta name="description" content="">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
-<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
 <style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
 <script>window.addEventListener('DOMContentLoaded', () => {
 hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
 hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
 })</script>
 </head>
 <body>
@@ -37,48 +48,171 @@ hljs.highlightAll();
 <span>def <span class="ident">coerce_datetime</span></span>(<span>x: str) ‑> numpy.datetime64</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def coerce_datetime(x: str) -&gt; np.datetime64:
+    try:
+        x = x.replace(&#34;-&#34;, &#34;&#34;)
+        return pd.to_datetime(x, format=&#34;%Y%m%d&#34;)
+    except ValueError:
+        return np.datetime64(&#34;NaT&#34;)</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="pydbsmgr.utils.tools.column_coincidence"><code class="name flex">
 <span>def <span class="ident">column_coincidence</span></span>(<span>df1: pandas.core.frame.DataFrame, df2: pandas.core.frame.DataFrame) ‑> float</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def column_coincidence(df1: DataFrame, df2: DataFrame) -&gt; float:
+    &#34;&#34;&#34;Return the percentage of coincident columns between two pandas DataFrames.&#34;&#34;&#34;
+    set_columns1 = set(df1.columns)
+    set_columns2 = set(df2.columns)
+
+    common_columns = set_columns1.intersection(set_columns2)
+    total_columns = set_columns1.union(set_columns2)
+
+    return len(common_columns) / len(total_columns)</code></pre>
+</details>
 <div class="desc"><p>Return the percentage of coincident columns between two pandas DataFrames.</p></div>
 </dd>
 <dt id="pydbsmgr.utils.tools.create_directories_from_yaml"><code class="name flex">
 <span>def <span class="ident">create_directories_from_yaml</span></span>(<span>yaml_file)</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def create_directories_from_yaml(yaml_file):
+    &#34;&#34;&#34;Reads a `yaml` file and creates directories based on its content.&#34;&#34;&#34;
+    with open(yaml_file, &#34;r&#34;) as file:
+        data = yaml.safe_load(file)
+        create_directory(data)</code></pre>
+</details>
 <div class="desc"><p>Reads a <code>yaml</code> file and creates directories based on its content.</p></div>
 </dd>
 <dt id="pydbsmgr.utils.tools.create_directory"><code class="name flex">
 <span>def <span class="ident">create_directory</span></span>(<span>data, parent_path='')</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def create_directory(data, parent_path=&#34;&#34;):
+    &#34;&#34;&#34;Creates the directory tree from a `yaml` file.&#34;&#34;&#34;
+    for key, value in data.items():
+        path = os.path.join(parent_path, key)
+        if isinstance(value, dict):
+            os.makedirs(path, exist_ok=True)
+            create_directory(value, path)
+        else:
+            os.makedirs(path, exist_ok=True)</code></pre>
+</details>
 <div class="desc"><p>Creates the directory tree from a <code>yaml</code> file.</p></div>
 </dd>
 <dt id="pydbsmgr.utils.tools.disableprints"><code class="name flex">
 <span>def <span class="ident">disableprints</span></span>(<span>func: Callable) ‑> Callable</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def disableprints(func: Callable) -&gt; Callable:
+    &#34;&#34;&#34;Decorator to temporarily suppress print statements in a function&#34;&#34;&#34;
+
+    def wrapper(*args, **kwargs):
+        with open(os.devnull, &#34;w&#34;) as devnull:
+            old_stdout = sys.stdout
+            sys.stdout = devnull
+            result = func(*args, **kwargs)
+            sys.stdout = old_stdout
+        return result
+
+    if func.__doc__ is not None:
+        wrapper.__doc__ = func.__doc__
+    return wrapper</code></pre>
+</details>
 <div class="desc"><p>Decorator to temporarily suppress print statements in a function</p></div>
 </dd>
 <dt id="pydbsmgr.utils.tools.erase_files"><code class="name flex">
 <span>def <span class="ident">erase_files</span></span>(<span>format: str = 'log') ‑> None</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def erase_files(format: str = &#34;log&#34;) -&gt; None:
+    &#34;&#34;&#34;Erase all files with the given format.&#34;&#34;&#34;
+    for filename in glob.glob(f&#34;*.{format}&#34;):
+        try:
+            os.remove(filename)
+        except OSError:
+            terminate_process(filename)
+            os.remove(filename)</code></pre>
+</details>
 <div class="desc"><p>Erase all files with the given format.</p></div>
 </dd>
 <dt id="pydbsmgr.utils.tools.generate_secure_password"><code class="name flex">
 <span>def <span class="ident">generate_secure_password</span></span>(<span>pass_len: int = 24) ‑> str</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def generate_secure_password(pass_len: int = 24) -&gt; str:
+    &#34;&#34;&#34;
+    Generate a secure password with the length specified
+    &#34;&#34;&#34;
+    config = parse_config(load_config(&#34;./pydbsmgr/utils/config.ini&#34;))
+    char_matrix = config[&#34;security&#34;][&#34;char_matrix&#34;]
+    return &#34;&#34;.join(random.choice(char_matrix) for _ in range(pass_len))</code></pre>
+</details>
 <div class="desc"><p>Generate a secure password with the length specified</p></div>
 </dd>
 <dt id="pydbsmgr.utils.tools.get_extraction_date"><code class="name flex">
 <span>def <span class="ident">get_extraction_date</span></span>(<span>filename: str | List[str], REGEX_PATTERN: str = '\\d{4}-\\d{2}-\\d{2}') ‑> str | List[str]</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_extraction_date(
+    filename: str | List[str], REGEX_PATTERN: str = r&#34;\d{4}-\d{2}-\d{2}&#34;
+) -&gt; str | List[str]:
+    &#34;&#34;&#34;Allows to extract the date of extraction according to the directory within the storage account.
+
+    Parameters
+    ----------
+    filename : Union[str, List[str]]
+        file path inside the storage account
+    REGEX_PATTERN : `str`, `optional`
+        regular expression pattern to extract the date.
+
+    Returns
+    -------
+    `Union[str, List[str]]`
+        the date that was extracted if found in the file path.
+    &#34;&#34;&#34;
+
+    def sub_extraction_date(filename: str) -&gt; str:
+        extraction_date = re.findall(REGEX_PATTERN, filename)
+        return extraction_date[0] if extraction_date else &#34;&#34;
+
+    if isinstance(filename, list):
+        return [sub_extraction_date(name) for name in filename]
+    return sub_extraction_date(filename)</code></pre>
+</details>
 <div class="desc"><p>Allows to extract the date of extraction according to the directory within the storage account.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
@@ -95,12 +229,57 @@ the date that was extracted if found in the file path.</p></div>
 <span>def <span class="ident">merge_by_coincidence</span></span>(<span>df1: pandas.core.frame.DataFrame,<br>df2: pandas.core.frame.DataFrame,<br>tol: float = 0.9) ‑> pandas.core.frame.DataFrame</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def merge_by_coincidence(df1: DataFrame, df2: DataFrame, tol: float = 0.9) -&gt; DataFrame:
+    &#34;&#34;&#34;Merge two pandas DataFrames by finding the most similar columns based on their names.&#34;&#34;&#34;
+    percentage = column_coincidence(df1, df2)
+    if percentage &lt; tol:
+        print(
+            f&#34;The following columns were missed with a match percentage of {percentage*100:.2f}%: &#34;
+            f&#34;{set(df1.columns).union(set(df2.columns)) - set(df1.columns).intersection(set(df2.columns))}&#34;
+        )
+
+    common_cols = set(df1.columns).intersection(set(df2.columns))
+    df_combined = pd.concat([df1[common_cols], df2[common_cols]], ignore_index=True)
+
+    return df_combined</code></pre>
+</details>
 <div class="desc"><p>Merge two pandas DataFrames by finding the most similar columns based on their names.</p></div>
 </dd>
 <dt id="pydbsmgr.utils.tools.most_repeated_item"><code class="name flex">
 <span>def <span class="ident">most_repeated_item</span></span>(<span>items: List[str], two_most_common: bool = False) ‑> Tuple[str, str | None]</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def most_repeated_item(items: List[str], two_most_common: bool = False) -&gt; Tuple[str, str | None]:
+    &#34;&#34;&#34;Returns a `Tuple` with the most common elements of a `list`.
+
+    Parameters
+    ----------
+    items : `List[str]`
+        The list containing the items to be evaluated.
+    two_most_common : `bool`, optional
+        If `False`, returns only one element. Defaults to `False`.
+
+    Returns
+    -------
+    Tuple[`str`, `str` | `None`]
+        The two most common elements.
+    &#34;&#34;&#34;
+    counter = Counter(items)
+    most_common = counter.most_common(2)
+
+    if two_most_common:
+        return tuple(item for item, _ in most_common) + (None,) * (2 - len(most_common))
+    else:
+        return most_common[0], None</code></pre>
+</details>
 <div class="desc"><p>Returns a <code>Tuple</code> with the most common elements of a <code>list</code>.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
@@ -117,6 +296,20 @@ The two most common elements.</p></div>
 <span>def <span class="ident">terminate_process</span></span>(<span>file_path: str) ‑> None</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def terminate_process(file_path: str) -&gt; None:
+    &#34;&#34;&#34;Terminate the process holding the file.&#34;&#34;&#34;
+    for proc in psutil.process_iter([&#34;pid&#34;, &#34;open_files&#34;]):
+        try:
+            if any(file_info.path == file_path for file_info in proc.info[&#34;open_files&#34;] or []):
+                print(f&#34;Terminating process {proc.pid} holding the file.&#34;)
+                proc.terminate()
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            pass</code></pre>
+</details>
 <div class="desc"><p>Terminate the process holding the file.</p></div>
 </dd>
 </dl>
@@ -129,7 +322,6 @@ The two most common elements.</p></div>
 <span>(</span><span>df: pandas.core.frame.DataFrame)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Performs checks on the columns of a DataFrame</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -157,6 +349,7 @@ The two most common elements.</p></div>
             df.columns = [f&#34;[{col}]&#34; for col in df.columns]
         return df</code></pre>
 </details>
+<div class="desc"><p>Performs checks on the columns of a DataFrame</p></div>
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li><a title="pydbsmgr.fast_upload.DataFrameToSQL" href="../fast_upload.html#pydbsmgr.fast_upload.DataFrameToSQL">DataFrameToSQL</a></li>
@@ -167,6 +360,13 @@ The two most common elements.</p></div>
 <span>def <span class="ident">get_frame</span></span>(<span>self, surrounding: bool = True) ‑> pandas.core.frame.DataFrame</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_frame(self, surrounding: bool = True) -&gt; DataFrame:
+    return self._process_columns(surrounding)</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 </dl>
@@ -176,7 +376,6 @@ The two most common elements.</p></div>
 <span>(</span><span>df_: pandas.core.frame.DataFrame)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Convert all columns to specified dtype.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -240,18 +439,40 @@ The two most common elements.</p></div>
                     except ValueError:
                         print(f&#34;Failed to transform the &#39;{col}&#39; column into datetime.&#34;)</code></pre>
 </details>
+<div class="desc"><p>Convert all columns to specified dtype.</p></div>
 <h3>Methods</h3>
 <dl>
 <dt id="pydbsmgr.utils.tools.ColumnsDtypes.correct"><code class="name flex">
 <span>def <span class="ident">correct</span></span>(<span>self,<br>drop_values: bool = False,<br>drop_rows: bool = False,<br>sample_frac: float = 0.1) ‑> pandas.core.frame.DataFrame</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def correct(
+    self,
+    drop_values: bool = False,
+    drop_rows: bool = False,
+    sample_frac: float = 0.1,
+) -&gt; DataFrame:
+    self._check_int_float(drop_values, drop_rows)
+    self._check_datetime(sample_frac)
+    return self.df</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 <dt id="pydbsmgr.utils.tools.ColumnsDtypes.get_frame"><code class="name flex">
 <span>def <span class="ident">get_frame</span></span>(<span>self) ‑> pandas.core.frame.DataFrame</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_frame(self) -&gt; DataFrame:
+    return self.df</code></pre>
+</details>
 <div class="desc"></div>
 </dd>
 </dl>
@@ -261,7 +482,6 @@ The two most common elements.</p></div>
 <span>(</span><span>container_client)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -321,6 +541,7 @@ The two most common elements.</p></div>
 
         return files_not_loaded or (collected_files if not upload else None)</code></pre>
 </details>
+<div class="desc"></div>
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li><a title="pydbsmgr.utils.azure_sdk.StorageController" href="azure_sdk.html#pydbsmgr.utils.azure_sdk.StorageController">StorageController</a></li>
@@ -331,12 +552,42 @@ The two most common elements.</p></div>
 <span>def <span class="ident">write_parquet</span></span>(<span>self,<br>directory_name: str,<br>dfs: List[pandas.core.frame.DataFrame],<br>names: List[str],<br>overwrite: bool = True,<br>upload: bool = True) ‑> List[str] | List[bytes] | None</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_parquet(
+    self,
+    directory_name: str,
+    dfs: List[DataFrame],
+    names: List[str],
+    overwrite: bool = True,
+    upload: bool = True,
+) -&gt; List[str] | List[bytes] | None:
+    &#34;&#34;&#34;Write DataFrames as Parquet format by converting them to bytes first.&#34;&#34;&#34;
+    pytables = [pa.Table.from_pandas(df) for df in dfs]
+    return self._write_tables(directory_name, pytables, names, &#34;parquet&#34;, overwrite, upload)</code></pre>
+</details>
 <div class="desc"><p>Write DataFrames as Parquet format by converting them to bytes first.</p></div>
 </dd>
 <dt id="pydbsmgr.utils.tools.ControllerFeatures.write_pyarrow"><code class="name flex">
 <span>def <span class="ident">write_pyarrow</span></span>(<span>self,<br>directory_name: str,<br>pytables: List[pyarrow.lib.Table],<br>names: List[str],<br>overwrite: bool = True) ‑> List[str] | None</span>
 </code></dt>
 <dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_pyarrow(
+    self,
+    directory_name: str,
+    pytables: List[Table],
+    names: List[str],
+    overwrite: bool = True,
+) -&gt; List[str] | None:
+    &#34;&#34;&#34;Write PyArrow tables as Parquet format.&#34;&#34;&#34;
+    return self._write_tables(directory_name, pytables, names, &#34;parquet&#34;, overwrite)</code></pre>
+</details>
 <div class="desc"><p>Write PyArrow tables as Parquet format.</p></div>
 </dd>
 </dl>
@@ -397,7 +648,7 @@ The two most common elements.</p></div>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.3</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
 </footer>
 </body>
 </html>
