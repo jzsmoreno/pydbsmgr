@@ -20,24 +20,44 @@ permissions:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
+
     - name: Set up Python 3.10
       uses: actions/setup-python@v4
       with:
         python-version: "3.10"
+
+    # ✅ Install ODBC Driver 18
+    - name: Install ODBC Driver 18 for SQL Server
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y curl apt-transport-https gnupg
+
+        curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+        curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list \
+          | sudo tee /etc/apt/sources.list.d/mssql-release.list
+
+        sudo apt-get update
+        sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18 unixodbc-dev
+
+    # 🔍 Optional: verify driver is installed
+    - name: Verify ODBC installation
+      run: odbcinst -q -d
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest black[jupyter]==24.1.1
+        pip install flake8 pytest black[jupyter]==24.1.1 pyodbc
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
     - name: Lint with flake8
       run: |
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
     - name: Run black
       run: |
         black . --check --line-length 100
@@ -46,22 +66,28 @@ jobs:
     - name: Build Docker image
       run: docker build -t test .
 
-    # 🐳 Run container
+    # 🐳 Run container (SQL Server expected on 1433)
     - name: Run Docker container
       run: docker run -d -p 1435:1433 --name test-container test
 
-    # ⏳ Wait until port is available (robust)
+    # ⏳ Wait for service
     - name: Wait for service on port 1435
       run: |
-        for i in {1..15}; do
+        for i in {1..20}; do
           nc -z localhost 1435 && echo "Service is ready" && exit 0
           echo "Waiting for service..."
           sleep 2
         done
+        docker logs test-container
         echo "Service not ready in time" && exit 1
 
     - name: Test with pytest
       run: pytest
+
+    # 🪵 Show logs if something fails
+    - name: Show container logs
+      if: failure()
+      run: docker logs test-container
 
     # 🧹 Cleanup
     - name: Stop Docker container
