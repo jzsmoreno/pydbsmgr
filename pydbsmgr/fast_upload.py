@@ -22,14 +22,24 @@ class DataFrameToSQL(ColumnsCheck):
 
     This class provides efficient methods for importing DataFrames into SQL tables with
     automatic schema inference, connection pooling, and robust error handling.
+
+    Parameters
+    ----------
+    connection_string : `str`
+        Database connection string
+    max_pool_size : `int`, `optional`
+        Maximum number of connections in the pool. Defaults to `5`.
     """
 
     def __init__(self, connection_string: str, max_pool_size: int = 5) -> None:
         """Initialize the DataFrameToSQL instance.
 
-        Args:
-            connection_string: Database connection string
-            max_pool_size: Maximum number of connections in the pool (default: 5)
+        Parameters
+        ----------
+        connection_string : `str`
+            Database connection string
+        max_pool_size : `int`, `optional`
+            Maximum number of connections in the pool. Defaults to `5`.
         """
         self._connection_string = connection_string
         self._max_pool_size = max_pool_size
@@ -38,7 +48,13 @@ class DataFrameToSQL(ColumnsCheck):
 
     @contextmanager
     def _get_connection(self):
-        """Context manager for database connections with pooling."""
+        """Context manager for database connections with pooling.
+
+        Yields
+        ------
+        `pyodbc.Connection`
+            Database connection object for use within context
+        """
         conn = None
         try:
             # Try to get connection from pool
@@ -81,17 +97,28 @@ class DataFrameToSQL(ColumnsCheck):
     ) -> Dict[str, Any]:
         """Import a DataFrame into the database as a new table with optimized performance.
 
-        Args:
-            df: DataFrame to import
-            table_name: Name of the target table
-            overwrite: Whether to overwrite existing table (default: True)
-            char_length: Default length for VARCHAR columns (default: 512)
-            override_length: Whether to override column lengths (default: True)
-            batch_size: Number of rows to insert per batch (default: 1000)
-            use_transactions: Whether to use transactions for data integrity (default: True)
-            verbose: Whether to print progress information (default: False)
+        Parameters
+        ----------
+        df : `DataFrame`
+            DataFrame to import
+        table_name : `str`
+            Name of the target table
+        overwrite : `bool`, `optional`
+            Whether to overwrite existing table. Defaults to `True`.
+        char_length : `int`, `optional`
+            Default length for VARCHAR columns. Defaults to `512`.
+        override_length : `bool`, `optional`
+            Whether to override column lengths. Defaults to `True`.
+        batch_size : `int`, `optional`
+            Number of rows to insert per batch. Defaults to `1000`.
+        use_transactions : `bool`, `optional`
+            Whether to use transactions for data integrity. Defaults to `True`.
+        verbose : `bool`, `optional`
+            Whether to print progress information. Defaults to `False`.
 
-        Returns:
+        Returns
+        -------
+        `Dict[str, Any]`
             Dictionary with operation statistics
         """
         start_time = datetime.now()
@@ -176,14 +203,22 @@ class DataFrameToSQL(ColumnsCheck):
     ) -> Dict[str, Any]:
         """Update data in an existing table from a DataFrame with optimized performance.
 
-        Args:
-            df: DataFrame to upload
-            table_name: Name of the target table
-            batch_size: Number of rows to insert per batch (default: 1000)
-            use_transactions: Whether to use transactions for data integrity (default: True)
-            verbose: Whether to print progress information (default: False)
+        Parameters
+        ----------
+        df : `DataFrame`
+            DataFrame to upload
+        table_name : `str`
+            Name of the target table
+        batch_size : `int`, `optional`
+            Number of rows to insert per batch. Defaults to `1000`.
+        use_transactions : `bool`, `optional`
+            Whether to use transactions for data integrity. Defaults to `True`.
+        verbose : `bool`, `optional`
+            Whether to print progress information. Defaults to `False`.
 
-        Returns:
+        Returns
+        -------
+        `Dict[str, Any]`
             Dictionary with operation statistics
         """
         start_time = datetime.now()
@@ -227,6 +262,18 @@ class DataFrameToSQL(ColumnsCheck):
         return stats
 
     def _preprocess_dataframe(self, df: DataFrame) -> DataFrame:
+        """Clean and preprocess a DataFrame for database upload.
+
+        Parameters
+        ----------
+        df : `DataFrame`
+            Input DataFrame to clean
+
+        Returns
+        -------
+        `DataFrame`
+            Cleaned DataFrame with null values handled
+        """
         df_cleaned = df.copy()
 
         df_cleaned.replace(
@@ -251,7 +298,30 @@ class DataFrameToSQL(ColumnsCheck):
         use_transactions: bool,
         verbose: bool,
     ) -> Dict[str, Any]:
-        """Insert DataFrame data in optimized batches."""
+        """Insert DataFrame data in optimized batches.
+
+        Parameters
+        ----------
+        conn : `pyodbc.Connection`
+            Database connection object
+        cursor : `pyodbc.Cursor`
+            Database cursor for executing queries
+        table_name : `str`
+            Name of the target table
+        df : `DataFrame`
+            DataFrame containing data to insert
+        batch_size : `int`
+            Number of rows to insert per batch
+        use_transactions : `bool`
+            Whether to use transactions for data integrity
+        verbose : `bool`
+            Whether to print progress information
+
+        Returns
+        -------
+        `Dict[str, Any]`
+            Dictionary with insertion statistics (rows_inserted, batches_processed)
+        """
         stats = {"rows_inserted": 0, "batches_processed": 0}
 
         try:
@@ -307,7 +377,20 @@ class DataFrameToSQL(ColumnsCheck):
         return stats
 
     def _table_exists(self, cursor: pyodbc.Cursor, table_name: str) -> bool:
-        """Check if a table exists in the database."""
+        """Check if a table exists in the database.
+
+        Parameters
+        ----------
+        cursor : `pyodbc.Cursor`
+            Database cursor for executing queries
+        table_name : `str`
+            Name of the table to check
+
+        Returns
+        -------
+        `bool`
+            True if table exists, False otherwise
+        """
         try:
             # Use parameterized query to prevent SQL injection
             query = """
@@ -323,7 +406,18 @@ class DataFrameToSQL(ColumnsCheck):
             return False
 
     def _sanitize_identifier(self, identifier: str) -> str:
-        """Sanitize SQL identifiers to prevent injection attacks."""
+        """Sanitize SQL identifiers to prevent injection attacks.
+
+        Parameters
+        ----------
+        identifier : `str`
+            SQL identifier (table name, column name) to sanitize
+
+        Returns
+        -------
+        `str`
+            Sanitized identifier safe for SQL queries
+        """
         # Remove any characters that could be used for SQL injection
         sanitized = identifier.replace("'", "").replace('"', "").replace(";", "").replace("--", "")
         # Ensure it starts with a letter or underscore
@@ -334,7 +428,24 @@ class DataFrameToSQL(ColumnsCheck):
     def _create_table_query(
         self, table_name: str, df: DataFrame, char_length: int, override_length: bool
     ) -> str:
-        """Generate CREATE TABLE query with optimized data type inference."""
+        """Generate CREATE TABLE query with optimized data type inference.
+
+        Parameters
+        ----------
+        table_name : `str`
+            Name of the table to create
+        df : `DataFrame`
+            DataFrame containing column definitions
+        char_length : `int`
+            Default length for VARCHAR columns
+        override_length : `bool`
+            Whether to override column lengths
+
+        Returns
+        -------
+        `str`
+            CREATE TABLE SQL query string
+        """
         columns = []
 
         for col in df.columns:
@@ -345,7 +456,20 @@ class DataFrameToSQL(ColumnsCheck):
         return f"CREATE TABLE {self._sanitize_identifier(table_name)} ({', '.join(columns)})"
 
     def _insert_table_query(self, table_name: str, df: DataFrame) -> str:
-        """Generate INSERT INTO query with proper parameterization."""
+        """Generate INSERT INTO query with proper parameterization.
+
+        Parameters
+        ----------
+        table_name : `str`
+            Name of the target table
+        df : `DataFrame`
+            DataFrame containing column definitions
+
+        Returns
+        -------
+        `str`
+            INSERT INTO SQL query string with parameterized values
+        """
         columns = [self._sanitize_identifier(col) for col in df.columns]
         placeholders = ", ".join(["?" for _ in columns])
         return f"INSERT INTO {self._sanitize_identifier(table_name)} ({', '.join(columns)}) VALUES ({placeholders})"
@@ -353,7 +477,24 @@ class DataFrameToSQL(ColumnsCheck):
     def _infer_schema(
         self, column: str, df: DataFrame, char_length: int, override_length: bool
     ) -> str:
-        """Enhanced data type inference with better SQL type mapping."""
+        """Enhanced data type inference with better SQL type mapping.
+
+        Parameters
+        ----------
+        column : `str`
+            Name of the column to infer schema for
+        df : `DataFrame`
+            DataFrame containing the column data
+        char_length : `int`
+            Default length for VARCHAR columns
+        override_length : `bool`
+            Whether to override column lengths
+
+        Returns
+        -------
+        `str`
+            SQL data type string (e.g., VARCHAR, INT, FLOAT, DATETIME2)
+        """
         dtype = str(df[column].dtype).lower()
 
         try:
@@ -401,7 +542,18 @@ class DataFrameToSQL(ColumnsCheck):
             return f"VARCHAR({char_length})"
 
     def _prepare_data_for_insertion(self, df: DataFrame) -> List[List[Any]]:
-        """Prepare DataFrame data for SQL insertion with enhanced type handling."""
+        """Prepare DataFrame data for SQL insertion with enhanced type handling.
+
+        Parameters
+        ----------
+        df : `DataFrame`
+            DataFrame containing data to prepare for insertion
+
+        Returns
+        -------
+        `List[List[Any]]`
+            List of lists with processed values ready for SQL insertion
+        """
         prepared_data = []
 
         for _, row in df.iterrows():
@@ -434,14 +586,24 @@ class UploadToSQL(DataFrameToSQL):
 
     This class extends DataFrameToSQL with chunking, automatic batch size optimization,
     and comprehensive monitoring capabilities.
+
+    Parameters
+    ----------
+    connection_string : `str`
+        Database connection string
+    max_pool_size : `int`, `optional`
+        Maximum number of connections in the pool. Defaults to `5`.
     """
 
     def __init__(self, connection_string: str, max_pool_size: int = 5) -> None:
         """Initialize the UploadToSQL instance.
 
-        Args:
-            connection_string: Database connection string
-            max_pool_size: Maximum number of connections in the pool (default: 5)
+        Parameters
+        ----------
+        connection_string : `str`
+            Database connection string
+        max_pool_size : `int`, `optional`
+            Maximum number of connections in the pool. Defaults to `5`.
         """
         super().__init__(connection_string, max_pool_size)
         self._verbose = True
@@ -462,19 +624,32 @@ class UploadToSQL(DataFrameToSQL):
     ) -> Dict[str, Any]:
         """Execute the import/update operation with intelligent chunking and optimization.
 
-        Args:
-            df: DataFrame to process
-            table_name: Name of the target table
-            chunk_size: Number of chunks to split DataFrame into (auto-calculated if None)
-            method: Operation method ("override" or "append")
-            char_length: Default length for VARCHAR columns (default: 512)
-            override_length: Whether to override column lengths (default: True)
-            use_transactions: Whether to use transactions (default: True)
-            auto_resolve: Whether to auto-resolve large DataFrames (default: True)
-            frac: Fraction for auto-resolution (default: 0.01)
-            verbose: Whether to print progress information (default: False)
+        Parameters
+        ----------
+        df : `DataFrame`
+            DataFrame to process
+        table_name : `str`
+            Name of the target table
+        chunk_size : `int`, `optional`
+            Number of chunks to split DataFrame into (auto-calculated if None)
+        method : `str`, `optional`
+            Operation method ("override" or "append"). Defaults to "override".
+        char_length : `int`, `optional`
+            Default length for VARCHAR columns. Defaults to 512.
+        override_length : `bool`, `optional`
+            Whether to override column lengths. Defaults to True.
+        use_transactions : `bool`, `optional`
+            Whether to use transactions. Defaults to True.
+        auto_resolve : `bool`, `optional`
+            Whether to auto-resolve large DataFrames. Defaults to True.
+        frac : `float`, `optional`
+            Fraction for auto-resolution. Defaults to 0.01.
+        verbose : `bool`, `optional`
+            Whether to print progress information. Defaults to False.
 
-        Returns:
+        Returns
+        -------
+        `Dict[str, Any]`
             Dictionary with comprehensive operation statistics
         """
         start_time = datetime.now()
@@ -544,7 +719,18 @@ class UploadToSQL(DataFrameToSQL):
         return stats
 
     def _calculate_optimal_chunk_size(self, total_rows: int) -> int:
-        """Calculate optimal chunk size based on DataFrame size and system resources."""
+        """Calculate optimal chunk size based on DataFrame size and system resources.
+
+        Parameters
+        ----------
+        total_rows : `int`
+            Total number of rows in the DataFrame
+
+        Returns
+        -------
+        `int`
+            Optimal number of chunks for processing
+        """
         # Base chunk sizes for different data volumes
         if total_rows < 10000:
             return 1  # Single chunk for small datasets
@@ -564,7 +750,28 @@ class UploadToSQL(DataFrameToSQL):
         use_transactions: bool,
         verbose: bool,
     ) -> Dict[str, Any]:
-        """Execute override method with first chunk creating the table."""
+        """Execute override method with first chunk creating the table.
+
+        Parameters
+        ----------
+        df_chunks : `List[DataFrame]`
+            List of DataFrame chunks to process
+        table_name : `str`
+            Name of the target table
+        char_length : `int`
+            Default length for VARCHAR columns
+        override_length : `bool`
+            Whether to override column lengths
+        use_transactions : `bool`
+            Whether to use transactions for data integrity
+        verbose : `bool`
+            Whether to print progress information
+
+        Returns
+        -------
+        `Dict[str, Any]`
+            Dictionary with chunk statistics and operation results
+        """
         stats = {"chunk_stats": []}
 
         # Check if table exists and drop if necessary
@@ -621,7 +828,24 @@ class UploadToSQL(DataFrameToSQL):
     def _execute_append(
         self, df_chunks: List[DataFrame], table_name: str, use_transactions: bool, verbose: bool
     ) -> Dict[str, Any]:
-        """Execute append method for existing table."""
+        """Execute append method for existing table.
+
+        Parameters
+        ----------
+        df_chunks : `List[DataFrame]`
+            List of DataFrame chunks to process
+        table_name : `str`
+            Name of the target table
+        use_transactions : `bool`
+            Whether to use transactions for data integrity
+        verbose : `bool`
+            Whether to print progress information
+
+        Returns
+        -------
+        `Dict[str, Any]`
+            Dictionary with chunk statistics and operation results
+        """
         stats = {"chunk_stats": []}
 
         # Validate table exists
