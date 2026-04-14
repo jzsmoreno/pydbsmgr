@@ -44,7 +44,7 @@ class DataFrameToSQL(ColumnsCheck):
         self._connection_string = connection_string
         self._max_pool_size = max_pool_size
         self._connection_pool = []
-        self._transaction_batch_size = 1000  # Optimal batch size for transactions
+        self._transaction_batch_size = 1000
 
     @contextmanager
     def _get_connection(self):
@@ -57,7 +57,6 @@ class DataFrameToSQL(ColumnsCheck):
         """
         conn = None
         try:
-            # Try to get connection from pool
             if self._connection_pool:
                 conn = self._connection_pool.pop()
                 if conn.closed:
@@ -67,7 +66,6 @@ class DataFrameToSQL(ColumnsCheck):
 
             yield conn
 
-            # Return connection to pool if not at capacity
             if not conn.closed and len(self._connection_pool) < self._max_pool_size:
                 self._connection_pool.append(conn)
             elif conn and not conn.closed:
@@ -80,7 +78,6 @@ class DataFrameToSQL(ColumnsCheck):
             logger.error(f"Connection error: {e}")
             raise
         finally:
-            # Ensure connection is closed if not returned to pool
             if conn and not conn.closed and conn not in self._connection_pool:
                 conn.close()
 
@@ -138,12 +135,10 @@ class DataFrameToSQL(ColumnsCheck):
             with self._get_connection() as conn:
                 cursor = conn.cursor()
 
-                # Create table with transaction
                 try:
                     if use_transactions:
                         conn.autocommit = False
 
-                    # Check if table exists and handle overwrite
                     if self._table_exists(cursor, table_name):
                         if overwrite:
                             if verbose:
@@ -154,7 +149,6 @@ class DataFrameToSQL(ColumnsCheck):
                                 f"Table {table_name} already exists and overwrite=False"
                             )
 
-                    # Create table
                     create_query = self._create_table_query(
                         table_name, df, char_length, override_length
                     )
@@ -171,7 +165,6 @@ class DataFrameToSQL(ColumnsCheck):
                     stats["errors"].append(str(e))
                     raise
 
-                # Insert data in batches
                 if len(df) > 0:
                     insert_stats = self._batch_insert_data(
                         conn, cursor, table_name, df, batch_size, use_transactions, verbose
@@ -234,7 +227,6 @@ class DataFrameToSQL(ColumnsCheck):
             df = self._preprocess_dataframe(df)
             stats["rows_processed"] = len(df)
 
-            # Validate table exists
             with self._get_connection() as conn:
                 cursor = conn.cursor()
                 if not self._table_exists(cursor, table_name):
@@ -325,13 +317,9 @@ class DataFrameToSQL(ColumnsCheck):
         stats = {"rows_inserted": 0, "batches_processed": 0}
 
         try:
-            # Prepare insert query
             insert_query = self._insert_table_query(table_name, df)
-
-            # Enable fast execution
             cursor.fast_executemany = True
 
-            # Process in batches
             total_rows = len(df)
             for start_idx in range(0, total_rows, batch_size):
                 end_idx = min(start_idx + batch_size, total_rows)
@@ -341,15 +329,12 @@ class DataFrameToSQL(ColumnsCheck):
                     conn.autocommit = False
 
                 try:
-                    # Prepare batch data
                     batch_data = self._prepare_data_for_insertion(batch_df)
 
-                    # Execute batch insert
                     cursor.executemany(insert_query, batch_data)
                     stats["rows_inserted"] += len(batch_data)
                     stats["batches_processed"] += 1
 
-                    # Commit transaction periodically
                     if (
                         use_transactions
                         and (start_idx + batch_size) % self._transaction_batch_size == 0
@@ -366,7 +351,6 @@ class DataFrameToSQL(ColumnsCheck):
                     logger.error(f"Batch insert failed at row {start_idx}: {e}")
                     raise
 
-            # Final commit
             if use_transactions:
                 conn.commit()
 
@@ -392,7 +376,6 @@ class DataFrameToSQL(ColumnsCheck):
             True if table exists, False otherwise
         """
         try:
-            # Use parameterized query to prevent SQL injection
             query = """
                 SELECT COUNT(*) 
                 FROM INFORMATION_SCHEMA.TABLES 
@@ -418,9 +401,7 @@ class DataFrameToSQL(ColumnsCheck):
         `str`
             Sanitized identifier safe for SQL queries
         """
-        # Remove any characters that could be used for SQL injection
         sanitized = identifier.replace("'", "").replace('"', "").replace(";", "").replace("--", "")
-        # Ensure it starts with a letter or underscore
         if not sanitized[0].isalpha() and sanitized[0] != "_":
             sanitized = "_" + sanitized
         return sanitized.replace(" ", "")
@@ -498,17 +479,14 @@ class DataFrameToSQL(ColumnsCheck):
         dtype = str(df[column].dtype).lower()
 
         try:
-            # Handle null columns
             if df[column].isnull().all():
                 return f"VARCHAR({char_length})"
 
-            # Remove null values for type analysis
             non_null_values = df[column].dropna()
             if len(non_null_values) == 0:
                 return f"VARCHAR({char_length})"
 
             if "float" in dtype:
-                # Check if all values are integers
                 if non_null_values.apply(lambda x: float(x).is_integer()).all():
                     return "BIGINT"
                 return "FLOAT"
@@ -523,7 +501,6 @@ class DataFrameToSQL(ColumnsCheck):
             elif "datetime" in dtype:
                 return "DATETIME2"
             elif "object" in dtype or "category" in dtype:
-                # Calculate actual max length
                 max_length = non_null_values.astype(str).str.len().max()
                 length = (
                     char_length if override_length or max_length == 0 else int(max_length * 1.2)
@@ -534,7 +511,6 @@ class DataFrameToSQL(ColumnsCheck):
             elif "bool" in dtype:
                 return "BIT"
             else:
-                # Default to VARCHAR for unknown types
                 return f"VARCHAR({char_length})"
 
         except Exception as e:
@@ -559,16 +535,13 @@ class DataFrameToSQL(ColumnsCheck):
         for _, row in df.iterrows():
             processed_row = []
             for value in row:
-                # Handle NaN and infinite values
                 if isinstance(value, float):
                     if np.isnan(value) or np.isinf(value):
                         processed_row.append(None)
                     else:
                         processed_row.append(value)
-                # Handle pandas timestamps
                 elif isinstance(value, pd.Timestamp):
                     processed_row.append(value.to_pydatetime() if not pd.isna(value) else None)
-                # Handle numpy datetime64
                 elif isinstance(value, np.datetime64):
                     processed_row.append(
                         pd.Timestamp(value).to_pydatetime() if not pd.isna(value) else None
@@ -665,21 +638,18 @@ class UploadToSQL(DataFrameToSQL):
         }
 
         try:
-            # Validate inputs
             if df.empty:
                 raise ValueError("DataFrame is empty")
 
             if method not in ["override", "append"]:
                 raise ValueError('Invalid method. Choose from ["override", "append"]')
 
-            # Auto-calculate optimal chunk size
             if chunk_size is None:
                 chunk_size = self._calculate_optimal_chunk_size(len(df))
 
             if chunk_size <= 0:
                 raise ValueError("chunk_size must be positive")
 
-            # Determine chunking strategy
             if auto_resolve and len(df) >= 500000:  # 0.5M rows
                 n = max(int(len(df) * frac), 1000)  # Minimum 1000 rows per chunk
                 df_chunks = [df[i : i + n] for i in range(0, len(df), n)]
@@ -690,7 +660,6 @@ class UploadToSQL(DataFrameToSQL):
 
             stats["chunks_processed"] = len(df_chunks)
 
-            # Execute based on method
             if method == "override":
                 stats.update(
                     self._execute_override(
@@ -731,15 +700,14 @@ class UploadToSQL(DataFrameToSQL):
         `int`
             Optimal number of chunks for processing
         """
-        # Base chunk sizes for different data volumes
         if total_rows < 10000:
-            return 1  # Single chunk for small datasets
+            return 1
         elif total_rows < 100000:
-            return 4  # 4 chunks for medium datasets
+            return 4
         elif total_rows < 1000000:
-            return 10  # 10 chunks for large datasets
+            return 10
         else:
-            return 20  # 20 chunks for very large datasets
+            return 20
 
     def _execute_override(
         self,
@@ -774,7 +742,6 @@ class UploadToSQL(DataFrameToSQL):
         """
         stats = {"chunk_stats": []}
 
-        # Check if table exists and drop if necessary
         with self._get_connection() as conn:
             cursor = conn.cursor()
             if self._table_exists(cursor, table_name):
@@ -783,13 +750,11 @@ class UploadToSQL(DataFrameToSQL):
                 cursor.execute(f"DROP TABLE {self._sanitize_identifier(table_name)}")
                 conn.commit()
 
-        # Process chunks
         for i, chunk in enumerate(df_chunks):
             chunk_stats = {"chunk_index": i, "rows": len(chunk)}
 
             try:
                 if i == 0:
-                    # First chunk creates the table
                     result = self.import_table(
                         df=chunk,
                         table_name=table_name,
@@ -801,7 +766,6 @@ class UploadToSQL(DataFrameToSQL):
                         verbose=verbose and len(df_chunks) == 1,
                     )
                 else:
-                    # Subsequent chunks append to existing table
                     result = self.upload_table(
                         df=chunk,
                         table_name=table_name,
@@ -848,13 +812,11 @@ class UploadToSQL(DataFrameToSQL):
         """
         stats = {"chunk_stats": []}
 
-        # Validate table exists
         with self._get_connection() as conn:
             cursor = conn.cursor()
             if not self._table_exists(cursor, table_name):
                 raise ValueError(f"Table {table_name} does not exist for append operation")
 
-        # Process chunks
         for i, chunk in enumerate(df_chunks):
             chunk_stats = {"chunk_index": i, "rows": len(chunk)}
 
@@ -894,10 +856,8 @@ class UploadToSQL(DataFrameToSQL):
 ########################################################################################
 
 if __name__ == "__main__":
-    # Example usage with connection string from environment
     connection_string = os.getenv("conn_string")
 
-    # Fallback connection string for testing
     if connection_string is None:
         connection_string = (
             "Driver={ODBC Driver 18 for SQL Server};"
@@ -909,13 +869,11 @@ if __name__ == "__main__":
             "TrustServerCertificate=yes;"
         )
 
-    # Create test DataFrame
     data = {"Name": ["John", "Alice", "Bob"], "Age": [25, 30, 35]}
     df = pd.DataFrame(data)
     table_name = "test_table"
 
     try:
-        # Initialize uploader
         upload_from_df = UploadToSQL(connection_string)
 
         # Override example
