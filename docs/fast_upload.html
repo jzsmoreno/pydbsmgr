@@ -48,7 +48,7 @@ el.replaceWith(d);
 <dl>
 <dt id="pydbsmgr.fast_upload.DataFrameToSQL"><code class="flex name class">
 <span>class <span class="ident">DataFrameToSQL</span></span>
-<span>(</span><span>connection_string: str)</span>
+<span>(</span><span>connection_string: str, max_pool_size: int = 5)</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -56,12 +56,68 @@ el.replaceWith(d);
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class DataFrameToSQL(ColumnsCheck):
-    &#34;&#34;&#34;Allows creation of a table from a DataFrame and uploading data to the database&#34;&#34;&#34;
+    &#34;&#34;&#34;Optimized class for creating tables from DataFrames and uploading data to SQL databases.
 
-    def __init__(self, connection_string: str) -&gt; None:
+    This class provides efficient methods for importing DataFrames into SQL tables with
+    automatic schema inference, connection pooling, and robust error handling.
+
+    Parameters
+    ----------
+    connection_string : `str`
+        Database connection string
+    max_pool_size : `int`, `optional`
+        Maximum number of connections in the pool. Defaults to `5`.
+    &#34;&#34;&#34;
+
+    def __init__(self, connection_string: str, max_pool_size: int = 5) -&gt; None:
+        &#34;&#34;&#34;Initialize the DataFrameToSQL instance.
+
+        Parameters
+        ----------
+        connection_string : `str`
+            Database connection string
+        max_pool_size : `int`, `optional`
+            Maximum number of connections in the pool. Defaults to `5`.
+        &#34;&#34;&#34;
         self._connection_string = connection_string
-        self._con = pyodbc.connect(self._connection_string, autocommit=True)
-        self._cur = self._con.cursor()
+        self._max_pool_size = max_pool_size
+        self._connection_pool = []
+        self._transaction_batch_size = 1000
+
+    @contextmanager
+    def _get_connection(self):
+        &#34;&#34;&#34;Context manager for database connections with pooling.
+
+        Yields
+        ------
+        `pyodbc.Connection`
+            Database connection object for use within context
+        &#34;&#34;&#34;
+        conn = None
+        try:
+            if self._connection_pool:
+                conn = self._connection_pool.pop()
+                if conn.closed:
+                    conn = pyodbc.connect(self._connection_string, autocommit=False)
+            else:
+                conn = pyodbc.connect(self._connection_string, autocommit=False)
+
+            yield conn
+
+            if not conn.closed and len(self._connection_pool) &lt; self._max_pool_size:
+                self._connection_pool.append(conn)
+            elif conn and not conn.closed:
+                conn.close()
+
+        except Exception as e:
+            if conn and not conn.closed:
+                conn.rollback()
+                conn.close()
+            logger.error(f&#34;Connection error: {e}&#34;)
+            raise
+        finally:
+            if conn and not conn.closed and conn not in self._connection_pool:
+                conn.close()
 
     def import_table(
         self,
@@ -70,112 +126,489 @@ el.replaceWith(d);
         overwrite: bool = True,
         char_length: int = 512,
         override_length: bool = True,
-        close_connection: bool = True,
+        batch_size: int = 1000,
+        use_transactions: bool = True,
         verbose: bool = False,
-    ) -&gt; None:
-        &#34;&#34;&#34;Imports a DataFrame into the database as a new table&#34;&#34;&#34;
+    ) -&gt; Dict[str, Any]:
+        &#34;&#34;&#34;Import a DataFrame into the database as a new table with optimized performance.
 
-        df = self._preprocess_dataframe(df)
+        Parameters
+        ----------
+        df : `DataFrame`
+            DataFrame to import
+        table_name : `str`
+            Name of the target table
+        overwrite : `bool`, `optional`
+            Whether to overwrite existing table. Defaults to `True`.
+        char_length : `int`, `optional`
+            Default length for VARCHAR columns. Defaults to `512`.
+        override_length : `bool`, `optional`
+            Whether to override column lengths. Defaults to `True`.
+        batch_size : `int`, `optional`
+            Number of rows to insert per batch. Defaults to `1000`.
+        use_transactions : `bool`, `optional`
+            Whether to use transactions for data integrity. Defaults to `True`.
+        verbose : `bool`, `optional`
+            Whether to print progress information. Defaults to `False`.
 
-        if self._con.closed:
-            self._reconnect()
+        Returns
+        -------
+        `Dict[str, Any]`
+            Dictionary with operation statistics
+        &#34;&#34;&#34;
+        start_time = datetime.now()
+        stats = {
+            &#34;table_name&#34;: table_name,
+            &#34;rows_processed&#34;: 0,
+            &#34;rows_inserted&#34;: 0,
+            &#34;execution_time&#34;: 0,
+            &#34;errors&#34;: [],
+            &#34;warnings&#34;: [],
+        }
 
         try:
-            query = self._create_table_query(table_name, df, char_length, override_length)
-            self._cur.execute(query)
-        except pyodbc.Error as e:
-            if overwrite:
-                self._drop_and_recreate_table(table_name, query)
-            else:
-                print(f&#34;UserWarning: Could not create table {table_name}. Error: {e}&#34;)
+            df = self._preprocess_dataframe(df)
+            stats[&#34;rows_processed&#34;] = len(df)
 
-        query = self._insert_table_query(table_name, df)
-        self._cur.fast_executemany = True
-        self._cur.executemany(query, self._prepare_data_for_insertion(df))
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
 
-        if close_connection:
-            self._con.close()
+                try:
+                    if use_transactions:
+                        conn.autocommit = False
 
-        if verbose:
-            print(f&#34;Table {table_name} successfully imported!&#34;)
+                    if self._table_exists(cursor, table_name):
+                        if overwrite:
+                            if verbose:
+                                logger.info(f&#34;Dropping existing table {table_name}&#34;)
+                            cursor.execute(f&#34;DROP TABLE {self._sanitize_identifier(table_name)}&#34;)
+                        else:
+                            raise ValueError(
+                                f&#34;Table {table_name} already exists and overwrite=False&#34;
+                            )
+
+                    create_query = self._create_table_query(
+                        table_name, df, char_length, override_length
+                    )
+                    if verbose:
+                        logger.info(f&#34;Creating table {table_name}&#34;)
+                    cursor.execute(create_query)
+
+                    if use_transactions:
+                        conn.commit()
+
+                except Exception as e:
+                    if use_transactions:
+                        conn.rollback()
+                    stats[&#34;errors&#34;].append(str(e))
+                    raise
+
+                if len(df) &gt; 0:
+                    insert_stats = self._batch_insert_data(
+                        conn, cursor, table_name, df, batch_size, use_transactions, verbose
+                    )
+                    stats.update(insert_stats)
+
+                if verbose:
+                    execution_time = (datetime.now() - start_time).total_seconds()
+                    logger.info(
+                        f&#34;Table {table_name} successfully imported in {execution_time:.2f} seconds&#34;
+                    )
+
+        except Exception as e:
+            logger.error(f&#34;Failed to import table {table_name}: {e}&#34;)
+            stats[&#34;errors&#34;].append(str(e))
+            raise
+        finally:
+            stats[&#34;execution_time&#34;] = (datetime.now() - start_time).total_seconds()
+
+        return stats
 
     def upload_table(
-        self, df: DataFrame, table_name: str, close_connection: bool = True, verbose: bool = False
-    ) -&gt; None:
-        &#34;&#34;&#34;Updates data in an existing table from a DataFrame&#34;&#34;&#34;
+        self,
+        df: DataFrame,
+        table_name: str,
+        batch_size: int = 1000,
+        use_transactions: bool = True,
+        verbose: bool = False,
+    ) -&gt; Dict[str, Any]:
+        &#34;&#34;&#34;Update data in an existing table from a DataFrame with optimized performance.
 
-        df = self._preprocess_dataframe(df)
+        Parameters
+        ----------
+        df : `DataFrame`
+            DataFrame to upload
+        table_name : `str`
+            Name of the target table
+        batch_size : `int`, `optional`
+            Number of rows to insert per batch. Defaults to `1000`.
+        use_transactions : `bool`, `optional`
+            Whether to use transactions for data integrity. Defaults to `True`.
+        verbose : `bool`, `optional`
+            Whether to print progress information. Defaults to `False`.
 
-        if self._con.closed:
-            self._reconnect()
+        Returns
+        -------
+        `Dict[str, Any]`
+            Dictionary with operation statistics
+        &#34;&#34;&#34;
+        start_time = datetime.now()
+        stats = {
+            &#34;table_name&#34;: table_name,
+            &#34;rows_processed&#34;: 0,
+            &#34;rows_inserted&#34;: 0,
+            &#34;execution_time&#34;: 0,
+            &#34;errors&#34;: [],
+        }
 
         try:
-            query = self._insert_table_query(table_name, df)
-            self._cur.fast_executemany = True
-            self._cur.executemany(query, self._prepare_data_for_insertion(df))
-        except pyodbc.Error as e:
-            print(f&#34;UserWarning: Could not upload data to table {table_name}. Error: {e}&#34;)
+            df = self._preprocess_dataframe(df)
+            stats[&#34;rows_processed&#34;] = len(df)
 
-        if close_connection:
-            self._con.close()
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
+                if not self._table_exists(cursor, table_name):
+                    raise ValueError(f&#34;Table {table_name} does not exist&#34;)
 
-        if verbose:
-            print(f&#34;Data successfully uploaded to table {table_name}!&#34;)
+                if len(df) &gt; 0:
+                    insert_stats = self._batch_insert_data(
+                        conn, cursor, table_name, df, batch_size, use_transactions, verbose
+                    )
+                    stats.update(insert_stats)
+
+                if verbose:
+                    execution_time = (datetime.now() - start_time).total_seconds()
+                    logger.info(
+                        f&#34;Data successfully uploaded to table {table_name} in {execution_time:.2f} seconds&#34;
+                    )
+
+        except Exception as e:
+            logger.error(f&#34;Failed to upload data to table {table_name}: {e}&#34;)
+            stats[&#34;errors&#34;].append(str(e))
+            raise
+        finally:
+            stats[&#34;execution_time&#34;] = (datetime.now() - start_time).total_seconds()
+
+        return stats
 
     def _preprocess_dataframe(self, df: DataFrame) -&gt; DataFrame:
-        super().__init__(df)
-        return self.get_frame().replace([&#34; &#34;, &#34;&lt;NA&gt;&#34;, np.datetime64(&#34;NaT&#34;)], None)
+        &#34;&#34;&#34;Clean and preprocess a DataFrame for database upload.
 
-    def _reconnect(self):
-        self._con = pyodbc.connect(self._connection_string, autocommit=True)
-        self._cur = self._con.cursor()
+        Parameters
+        ----------
+        df : `DataFrame`
+            Input DataFrame to clean
 
-    def _drop_and_recreate_table(self, table_name: str, query: str) -&gt; None:
+        Returns
+        -------
+        `DataFrame`
+            Cleaned DataFrame with null values handled
+        &#34;&#34;&#34;
+        df_cleaned = df.copy()
+
+        df_cleaned.replace(
+            [&#34;&#34;, &#34; &#34;, &#34;&lt;NA&gt;&#34;, &#34;NULL&#34;, &#34;nan&#34;],
+            np.nan,
+            inplace=True,
+        )
+
+        df_cleaned.replace([np.inf, -np.inf], np.nan, inplace=True)
+
+        df_cleaned = df_cleaned.where(pd.notna(df_cleaned), None)
+
+        return df_cleaned
+
+    def _batch_insert_data(
+        self,
+        conn: pyodbc.Connection,
+        cursor: pyodbc.Cursor,
+        table_name: str,
+        df: DataFrame,
+        batch_size: int,
+        use_transactions: bool,
+        verbose: bool,
+    ) -&gt; Dict[str, Any]:
+        &#34;&#34;&#34;Insert DataFrame data in optimized batches.
+
+        Parameters
+        ----------
+        conn : `pyodbc.Connection`
+            Database connection object
+        cursor : `pyodbc.Cursor`
+            Database cursor for executing queries
+        table_name : `str`
+            Name of the target table
+        df : `DataFrame`
+            DataFrame containing data to insert
+        batch_size : `int`
+            Number of rows to insert per batch
+        use_transactions : `bool`
+            Whether to use transactions for data integrity
+        verbose : `bool`
+            Whether to print progress information
+
+        Returns
+        -------
+        `Dict[str, Any]`
+            Dictionary with insertion statistics (rows_inserted, batches_processed)
+        &#34;&#34;&#34;
+        stats = {&#34;rows_inserted&#34;: 0, &#34;batches_processed&#34;: 0}
+
         try:
-            self._cur.execute(f&#34;DROP TABLE {table_name}&#34;)
-            self._cur.execute(query)
-        except pyodbc.Error as e:
-            print(f&#34;UserWarning: Could not recreate table {table_name}. Error: {e}&#34;)
+            insert_query = self._insert_table_query(table_name, df)
+            cursor.fast_executemany = True
+
+            total_rows = len(df)
+            for start_idx in range(0, total_rows, batch_size):
+                end_idx = min(start_idx + batch_size, total_rows)
+                batch_df = df.iloc[start_idx:end_idx]
+
+                if use_transactions and start_idx % self._transaction_batch_size == 0:
+                    conn.autocommit = False
+
+                try:
+                    batch_data = self._prepare_data_for_insertion(batch_df)
+
+                    cursor.executemany(insert_query, batch_data)
+                    stats[&#34;rows_inserted&#34;] += len(batch_data)
+                    stats[&#34;batches_processed&#34;] += 1
+
+                    if (
+                        use_transactions
+                        and (start_idx + batch_size) % self._transaction_batch_size == 0
+                    ):
+                        conn.commit()
+
+                    if verbose:
+                        progress = (end_idx / total_rows) * 100
+                        logger.info(f&#34;Progress: {progress:.1f}% ({end_idx}/{total_rows} rows)&#34;)
+
+                except Exception as e:
+                    if use_transactions:
+                        conn.rollback()
+                    logger.error(f&#34;Batch insert failed at row {start_idx}: {e}&#34;)
+                    raise
+
+            if use_transactions:
+                conn.commit()
+
+        except Exception as e:
+            logger.error(f&#34;Batch insert failed: {e}&#34;)
+            raise
+
+        return stats
+
+    def _table_exists(self, cursor: pyodbc.Cursor, table_name: str) -&gt; bool:
+        &#34;&#34;&#34;Check if a table exists in the database.
+
+        Parameters
+        ----------
+        cursor : `pyodbc.Cursor`
+            Database cursor for executing queries
+        table_name : `str`
+            Name of the table to check
+
+        Returns
+        -------
+        `bool`
+            True if table exists, False otherwise
+        &#34;&#34;&#34;
+        try:
+            query = &#34;&#34;&#34;
+                SELECT COUNT(*) 
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+            &#34;&#34;&#34;
+            cursor.execute(query, (table_name,))
+            result = cursor.fetchone()
+            return bool(result[0])
+        except Exception as e:
+            logger.error(f&#34;Error checking if table {table_name} exists: {e}&#34;)
+            return False
+
+    def _sanitize_identifier(self, identifier: str) -&gt; str:
+        &#34;&#34;&#34;Sanitize SQL identifiers to prevent injection attacks.
+
+        Parameters
+        ----------
+        identifier : `str`
+            SQL identifier (table name, column name) to sanitize
+
+        Returns
+        -------
+        `str`
+            Sanitized identifier safe for SQL queries
+        &#34;&#34;&#34;
+        sanitized = identifier.replace(&#34;&#39;&#34;, &#34;&#34;).replace(&#39;&#34;&#39;, &#34;&#34;).replace(&#34;;&#34;, &#34;&#34;).replace(&#34;--&#34;, &#34;&#34;)
+        if not sanitized[0].isalpha() and sanitized[0] != &#34;_&#34;:
+            sanitized = &#34;_&#34; + sanitized
+        return sanitized.replace(&#34; &#34;, &#34;&#34;)
 
     def _create_table_query(
         self, table_name: str, df: DataFrame, char_length: int, override_length: bool
     ) -&gt; str:
-        columns = &#34;, &#34;.join(
-            f&#34;{col} {self._infer_schema(col, df, char_length, override_length)}&#34;
-            for col in df.columns
-        )
-        return f&#34;CREATE TABLE {table_name} ({columns})&#34;
+        &#34;&#34;&#34;Generate CREATE TABLE query with optimized data type inference.
+
+        Parameters
+        ----------
+        table_name : `str`
+            Name of the table to create
+        df : `DataFrame`
+            DataFrame containing column definitions
+        char_length : `int`
+            Default length for VARCHAR columns
+        override_length : `bool`
+            Whether to override column lengths
+
+        Returns
+        -------
+        `str`
+            CREATE TABLE SQL query string
+        &#34;&#34;&#34;
+        columns = []
+
+        for col in df.columns:
+            col_name = self._sanitize_identifier(col)
+            data_type = self._infer_schema(col, df, char_length, override_length)
+            columns.append(f&#34;{col_name} {data_type}&#34;)
+
+        return f&#34;CREATE TABLE {self._sanitize_identifier(table_name)} ({&#39;, &#39;.join(columns)})&#34;
 
     def _insert_table_query(self, table_name: str, df: DataFrame) -&gt; str:
-        columns = &#34;, &#34;.join(df.columns)
-        placeholders = &#34;, &#34;.join(&#34;?&#34; * len(df.columns))
-        return f&#34;INSERT INTO {table_name} ({columns}) VALUES ({placeholders})&#34;
+        &#34;&#34;&#34;Generate INSERT INTO query with proper parameterization.
+
+        Parameters
+        ----------
+        table_name : `str`
+            Name of the target table
+        df : `DataFrame`
+            DataFrame containing column definitions
+
+        Returns
+        -------
+        `str`
+            INSERT INTO SQL query string with parameterized values
+        &#34;&#34;&#34;
+        columns = [self._sanitize_identifier(col) for col in df.columns]
+        placeholders = &#34;, &#34;.join([&#34;?&#34; for _ in columns])
+        return f&#34;INSERT INTO {self._sanitize_identifier(table_name)} ({&#39;, &#39;.join(columns)}) VALUES ({placeholders})&#34;
 
     def _infer_schema(
         self, column: str, df: DataFrame, char_length: int, override_length: bool
     ) -&gt; str:
-        dtype = str(df[column].dtype).lower()
-        if &#34;float&#34; in dtype:
-            return &#34;FLOAT&#34;
-        elif &#34;int&#34; in dtype:
-            return &#34;BIGINT&#34; if &#34;64&#34; in dtype else &#34;INT&#34;
-        elif &#34;datetime&#34; in dtype:
-            return &#34;DATE&#34;
-        elif &#34;object&#34; in dtype or &#34;category&#34; in dtype:
-            max_length = df[column].astype(str).str.len().max()
-            length = char_length if override_length or max_length == 0 else max_length
-            return f&#34;VARCHAR({length})&#34;
-        elif &#34;bool&#34; in dtype:
-            return &#34;BIT&#34;
-        raise ValueError(f&#34;Data type of column {column} could not be inferred: {dtype}&#34;)
+        &#34;&#34;&#34;Enhanced data type inference with better SQL type mapping.
 
-    def _prepare_data_for_insertion(self, df: DataFrame) -&gt; list:
-        return [
-            [None if (isinstance(value, float) and np.isnan(value)) else value for value in row]
-            for row in df.values.tolist()
-        ]</code></pre>
+        Parameters
+        ----------
+        column : `str`
+            Name of the column to infer schema for
+        df : `DataFrame`
+            DataFrame containing the column data
+        char_length : `int`
+            Default length for VARCHAR columns
+        override_length : `bool`
+            Whether to override column lengths
+
+        Returns
+        -------
+        `str`
+            SQL data type string (e.g., VARCHAR, INT, FLOAT, DATETIME2)
+        &#34;&#34;&#34;
+        dtype = str(df[column].dtype).lower()
+
+        try:
+            if df[column].isnull().all():
+                return f&#34;VARCHAR({char_length})&#34;
+
+            non_null_values = df[column].dropna()
+            if len(non_null_values) == 0:
+                return f&#34;VARCHAR({char_length})&#34;
+
+            if &#34;float&#34; in dtype:
+                if non_null_values.apply(lambda x: float(x).is_integer()).all():
+                    return &#34;BIGINT&#34;
+                return &#34;FLOAT&#34;
+            elif &#34;int&#34; in dtype:
+                if (
+                    &#34;64&#34; in dtype
+                    or non_null_values.max() &gt; 2147483647
+                    or non_null_values.min() &lt; -2147483648
+                ):
+                    return &#34;BIGINT&#34;
+                return &#34;INT&#34;
+            elif &#34;datetime&#34; in dtype:
+                return &#34;DATETIME2&#34;
+            elif &#34;object&#34; in dtype or &#34;category&#34; in dtype:
+                max_length = non_null_values.astype(str).str.len().max()
+                length = (
+                    char_length if override_length or max_length == 0 else int(max_length * 1.2)
+                )  # Add 20% buffer
+                # Cap at reasonable maximum
+                length = min(length, 4000)
+                return f&#34;VARCHAR({length})&#34;
+            elif &#34;bool&#34; in dtype:
+                return &#34;BIT&#34;
+            else:
+                return f&#34;VARCHAR({char_length})&#34;
+
+        except Exception as e:
+            logger.warning(f&#34;Could not infer schema for column {column}: {e}&#34;)
+            return f&#34;VARCHAR({char_length})&#34;
+
+    def _prepare_data_for_insertion(self, df: DataFrame) -&gt; List[List[Any]]:
+        &#34;&#34;&#34;Prepare DataFrame data for SQL insertion with enhanced type handling.
+
+        Parameters
+        ----------
+        df : `DataFrame`
+            DataFrame containing data to prepare for insertion
+
+        Returns
+        -------
+        `List[List[Any]]`
+            List of lists with processed values ready for SQL insertion
+        &#34;&#34;&#34;
+        prepared_data = []
+
+        for _, row in df.iterrows():
+            processed_row = []
+            for value in row:
+                if isinstance(value, float):
+                    if np.isnan(value) or np.isinf(value):
+                        processed_row.append(None)
+                    else:
+                        processed_row.append(value)
+                elif isinstance(value, pd.Timestamp):
+                    processed_row.append(value.to_pydatetime() if not pd.isna(value) else None)
+                elif isinstance(value, np.datetime64):
+                    processed_row.append(
+                        pd.Timestamp(value).to_pydatetime() if not pd.isna(value) else None
+                    )
+                else:
+                    processed_row.append(value)
+
+            prepared_data.append(processed_row)
+
+        return prepared_data</code></pre>
 </details>
-<div class="desc"><p>Allows creation of a table from a DataFrame and uploading data to the database</p></div>
+<div class="desc"><p>Optimized class for creating tables from DataFrames and uploading data to SQL databases.</p>
+<p>This class provides efficient methods for importing DataFrames into SQL tables with
+automatic schema inference, connection pooling, and robust error handling.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>connection_string</code></strong> :&ensp;<code>str</code></dt>
+<dd>Database connection string</dd>
+<dt><strong><code>max_pool_size</code></strong> :&ensp;<code>int<code>,</code>optional</code></dt>
+<dd>Maximum number of connections in the pool. Defaults to <code>5</code>.</dd>
+</dl>
+<p>Initialize the DataFrameToSQL instance.</p>
+<h2 id="parameters_1">Parameters</h2>
+<dl>
+<dt><strong><code>connection_string</code></strong> :&ensp;<code>str</code></dt>
+<dd>Database connection string</dd>
+<dt><strong><code>max_pool_size</code></strong> :&ensp;<code>int<code>,</code>optional</code></dt>
+<dd>Maximum number of connections in the pool. Defaults to <code>5</code>.</dd>
+</dl></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="pydbsmgr.utils.tools.ColumnsCheck" href="utils/tools.html#pydbsmgr.utils.tools.ColumnsCheck">ColumnsCheck</a></li>
@@ -187,7 +620,7 @@ el.replaceWith(d);
 <h3>Methods</h3>
 <dl>
 <dt id="pydbsmgr.fast_upload.DataFrameToSQL.import_table"><code class="name flex">
-<span>def <span class="ident">import_table</span></span>(<span>self,<br>df: pandas.core.frame.DataFrame,<br>table_name: str,<br>overwrite: bool = True,<br>char_length: int = 512,<br>override_length: bool = True,<br>close_connection: bool = True,<br>verbose: bool = False) ‑> None</span>
+<span>def <span class="ident">import_table</span></span>(<span>self,<br>df: pandas.core.frame.DataFrame,<br>table_name: str,<br>overwrite: bool = True,<br>char_length: int = 512,<br>override_length: bool = True,<br>batch_size: int = 1000,<br>use_transactions: bool = True,<br>verbose: bool = False) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -201,39 +634,130 @@ el.replaceWith(d);
     overwrite: bool = True,
     char_length: int = 512,
     override_length: bool = True,
-    close_connection: bool = True,
+    batch_size: int = 1000,
+    use_transactions: bool = True,
     verbose: bool = False,
-) -&gt; None:
-    &#34;&#34;&#34;Imports a DataFrame into the database as a new table&#34;&#34;&#34;
+) -&gt; Dict[str, Any]:
+    &#34;&#34;&#34;Import a DataFrame into the database as a new table with optimized performance.
 
-    df = self._preprocess_dataframe(df)
+    Parameters
+    ----------
+    df : `DataFrame`
+        DataFrame to import
+    table_name : `str`
+        Name of the target table
+    overwrite : `bool`, `optional`
+        Whether to overwrite existing table. Defaults to `True`.
+    char_length : `int`, `optional`
+        Default length for VARCHAR columns. Defaults to `512`.
+    override_length : `bool`, `optional`
+        Whether to override column lengths. Defaults to `True`.
+    batch_size : `int`, `optional`
+        Number of rows to insert per batch. Defaults to `1000`.
+    use_transactions : `bool`, `optional`
+        Whether to use transactions for data integrity. Defaults to `True`.
+    verbose : `bool`, `optional`
+        Whether to print progress information. Defaults to `False`.
 
-    if self._con.closed:
-        self._reconnect()
+    Returns
+    -------
+    `Dict[str, Any]`
+        Dictionary with operation statistics
+    &#34;&#34;&#34;
+    start_time = datetime.now()
+    stats = {
+        &#34;table_name&#34;: table_name,
+        &#34;rows_processed&#34;: 0,
+        &#34;rows_inserted&#34;: 0,
+        &#34;execution_time&#34;: 0,
+        &#34;errors&#34;: [],
+        &#34;warnings&#34;: [],
+    }
 
     try:
-        query = self._create_table_query(table_name, df, char_length, override_length)
-        self._cur.execute(query)
-    except pyodbc.Error as e:
-        if overwrite:
-            self._drop_and_recreate_table(table_name, query)
-        else:
-            print(f&#34;UserWarning: Could not create table {table_name}. Error: {e}&#34;)
+        df = self._preprocess_dataframe(df)
+        stats[&#34;rows_processed&#34;] = len(df)
 
-    query = self._insert_table_query(table_name, df)
-    self._cur.fast_executemany = True
-    self._cur.executemany(query, self._prepare_data_for_insertion(df))
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
 
-    if close_connection:
-        self._con.close()
+            try:
+                if use_transactions:
+                    conn.autocommit = False
 
-    if verbose:
-        print(f&#34;Table {table_name} successfully imported!&#34;)</code></pre>
+                if self._table_exists(cursor, table_name):
+                    if overwrite:
+                        if verbose:
+                            logger.info(f&#34;Dropping existing table {table_name}&#34;)
+                        cursor.execute(f&#34;DROP TABLE {self._sanitize_identifier(table_name)}&#34;)
+                    else:
+                        raise ValueError(
+                            f&#34;Table {table_name} already exists and overwrite=False&#34;
+                        )
+
+                create_query = self._create_table_query(
+                    table_name, df, char_length, override_length
+                )
+                if verbose:
+                    logger.info(f&#34;Creating table {table_name}&#34;)
+                cursor.execute(create_query)
+
+                if use_transactions:
+                    conn.commit()
+
+            except Exception as e:
+                if use_transactions:
+                    conn.rollback()
+                stats[&#34;errors&#34;].append(str(e))
+                raise
+
+            if len(df) &gt; 0:
+                insert_stats = self._batch_insert_data(
+                    conn, cursor, table_name, df, batch_size, use_transactions, verbose
+                )
+                stats.update(insert_stats)
+
+            if verbose:
+                execution_time = (datetime.now() - start_time).total_seconds()
+                logger.info(
+                    f&#34;Table {table_name} successfully imported in {execution_time:.2f} seconds&#34;
+                )
+
+    except Exception as e:
+        logger.error(f&#34;Failed to import table {table_name}: {e}&#34;)
+        stats[&#34;errors&#34;].append(str(e))
+        raise
+    finally:
+        stats[&#34;execution_time&#34;] = (datetime.now() - start_time).total_seconds()
+
+    return stats</code></pre>
 </details>
-<div class="desc"><p>Imports a DataFrame into the database as a new table</p></div>
+<div class="desc"><p>Import a DataFrame into the database as a new table with optimized performance.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>DataFrame</code></dt>
+<dd>DataFrame to import</dd>
+<dt><strong><code>table_name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of the target table</dd>
+<dt><strong><code>overwrite</code></strong> :&ensp;<code>bool<code>,</code>optional</code></dt>
+<dd>Whether to overwrite existing table. Defaults to <code>True</code>.</dd>
+<dt><strong><code>char_length</code></strong> :&ensp;<code>int<code>,</code>optional</code></dt>
+<dd>Default length for VARCHAR columns. Defaults to <code>512</code>.</dd>
+<dt><strong><code>override_length</code></strong> :&ensp;<code>bool<code>,</code>optional</code></dt>
+<dd>Whether to override column lengths. Defaults to <code>True</code>.</dd>
+<dt><strong><code>batch_size</code></strong> :&ensp;<code>int<code>,</code>optional</code></dt>
+<dd>Number of rows to insert per batch. Defaults to <code>1000</code>.</dd>
+<dt><strong><code>use_transactions</code></strong> :&ensp;<code>bool<code>,</code>optional</code></dt>
+<dd>Whether to use transactions for data integrity. Defaults to <code>True</code>.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>bool<code>,</code>optional</code></dt>
+<dd>Whether to print progress information. Defaults to <code>False</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p><code>Dict[str, Any]</code>
+Dictionary with operation statistics</p></div>
 </dd>
 <dt id="pydbsmgr.fast_upload.DataFrameToSQL.upload_table"><code class="name flex">
-<span>def <span class="ident">upload_table</span></span>(<span>self,<br>df: pandas.core.frame.DataFrame,<br>table_name: str,<br>close_connection: bool = True,<br>verbose: bool = False) ‑> None</span>
+<span>def <span class="ident">upload_table</span></span>(<span>self,<br>df: pandas.core.frame.DataFrame,<br>table_name: str,<br>batch_size: int = 1000,<br>use_transactions: bool = True,<br>verbose: bool = False) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -241,35 +765,95 @@ el.replaceWith(d);
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def upload_table(
-    self, df: DataFrame, table_name: str, close_connection: bool = True, verbose: bool = False
-) -&gt; None:
-    &#34;&#34;&#34;Updates data in an existing table from a DataFrame&#34;&#34;&#34;
+    self,
+    df: DataFrame,
+    table_name: str,
+    batch_size: int = 1000,
+    use_transactions: bool = True,
+    verbose: bool = False,
+) -&gt; Dict[str, Any]:
+    &#34;&#34;&#34;Update data in an existing table from a DataFrame with optimized performance.
 
-    df = self._preprocess_dataframe(df)
+    Parameters
+    ----------
+    df : `DataFrame`
+        DataFrame to upload
+    table_name : `str`
+        Name of the target table
+    batch_size : `int`, `optional`
+        Number of rows to insert per batch. Defaults to `1000`.
+    use_transactions : `bool`, `optional`
+        Whether to use transactions for data integrity. Defaults to `True`.
+    verbose : `bool`, `optional`
+        Whether to print progress information. Defaults to `False`.
 
-    if self._con.closed:
-        self._reconnect()
+    Returns
+    -------
+    `Dict[str, Any]`
+        Dictionary with operation statistics
+    &#34;&#34;&#34;
+    start_time = datetime.now()
+    stats = {
+        &#34;table_name&#34;: table_name,
+        &#34;rows_processed&#34;: 0,
+        &#34;rows_inserted&#34;: 0,
+        &#34;execution_time&#34;: 0,
+        &#34;errors&#34;: [],
+    }
 
     try:
-        query = self._insert_table_query(table_name, df)
-        self._cur.fast_executemany = True
-        self._cur.executemany(query, self._prepare_data_for_insertion(df))
-    except pyodbc.Error as e:
-        print(f&#34;UserWarning: Could not upload data to table {table_name}. Error: {e}&#34;)
+        df = self._preprocess_dataframe(df)
+        stats[&#34;rows_processed&#34;] = len(df)
 
-    if close_connection:
-        self._con.close()
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            if not self._table_exists(cursor, table_name):
+                raise ValueError(f&#34;Table {table_name} does not exist&#34;)
 
-    if verbose:
-        print(f&#34;Data successfully uploaded to table {table_name}!&#34;)</code></pre>
+            if len(df) &gt; 0:
+                insert_stats = self._batch_insert_data(
+                    conn, cursor, table_name, df, batch_size, use_transactions, verbose
+                )
+                stats.update(insert_stats)
+
+            if verbose:
+                execution_time = (datetime.now() - start_time).total_seconds()
+                logger.info(
+                    f&#34;Data successfully uploaded to table {table_name} in {execution_time:.2f} seconds&#34;
+                )
+
+    except Exception as e:
+        logger.error(f&#34;Failed to upload data to table {table_name}: {e}&#34;)
+        stats[&#34;errors&#34;].append(str(e))
+        raise
+    finally:
+        stats[&#34;execution_time&#34;] = (datetime.now() - start_time).total_seconds()
+
+    return stats</code></pre>
 </details>
-<div class="desc"><p>Updates data in an existing table from a DataFrame</p></div>
+<div class="desc"><p>Update data in an existing table from a DataFrame with optimized performance.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>DataFrame</code></dt>
+<dd>DataFrame to upload</dd>
+<dt><strong><code>table_name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of the target table</dd>
+<dt><strong><code>batch_size</code></strong> :&ensp;<code>int<code>,</code>optional</code></dt>
+<dd>Number of rows to insert per batch. Defaults to <code>1000</code>.</dd>
+<dt><strong><code>use_transactions</code></strong> :&ensp;<code>bool<code>,</code>optional</code></dt>
+<dd>Whether to use transactions for data integrity. Defaults to <code>True</code>.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>bool<code>,</code>optional</code></dt>
+<dd>Whether to print progress information. Defaults to <code>False</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p><code>Dict[str, Any]</code>
+Dictionary with operation statistics</p></div>
 </dd>
 </dl>
 </dd>
 <dt id="pydbsmgr.fast_upload.UploadToSQL"><code class="flex name class">
 <span>class <span class="ident">UploadToSQL</span></span>
-<span>(</span><span>connection_string: str)</span>
+<span>(</span><span>connection_string: str, max_pool_size: int = 5)</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -277,118 +861,294 @@ el.replaceWith(d);
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class UploadToSQL(DataFrameToSQL):
-    &#34;&#34;&#34;Efficiently imports/updates a table from a `DataFrame` using the `DataFrameToSQL` class.&#34;&#34;&#34;
+    &#34;&#34;&#34;Enhanced class for efficiently importing/updating tables from DataFrames.
 
-    def __init__(self, connection_string: str) -&gt; None:
-        &#34;&#34;&#34;Establishes the connection to the database.&#34;&#34;&#34;
-        super().__init__(connection_string)
+    This class extends DataFrameToSQL with chunking, automatic batch size optimization,
+    and comprehensive monitoring capabilities.
+
+    Parameters
+    ----------
+    connection_string : `str`
+        Database connection string
+    max_pool_size : `int`, `optional`
+        Maximum number of connections in the pool. Defaults to `5`.
+    &#34;&#34;&#34;
+
+    def __init__(self, connection_string: str, max_pool_size: int = 5) -&gt; None:
+        &#34;&#34;&#34;Initialize the UploadToSQL instance.
+
+        Parameters
+        ----------
+        connection_string : `str`
+            Database connection string
+        max_pool_size : `int`, `optional`
+            Maximum number of connections in the pool. Defaults to `5`.
+        &#34;&#34;&#34;
+        super().__init__(connection_string, max_pool_size)
         self._verbose = True
+        self._auto_batch_size = True
 
     def execute(
         self,
         df: DataFrame,
         table_name: str,
-        chunk_size: int,
-        method: str = &#34;override&#34;,  # or append
+        chunk_size: Optional[int] = None,
+        method: str = &#34;override&#34;,
         char_length: int = 512,
         override_length: bool = True,
-        close_connection: bool = True,
+        use_transactions: bool = True,
         auto_resolve: bool = True,
         frac: float = 0.01,
         verbose: bool = False,
-    ) -&gt; None:
-        &#34;&#34;&#34;Executes the import/update operation based on the specified method.&#34;&#34;&#34;
-        if len(df) &lt;= chunk_size:
-            raise ValueError(
-                &#34;&#39;chunk_size&#39; cannot be greater than or equal to the length of the &#39;DataFrame&#39;. Change the &#39;chunk_size&#39;.&#34;
-            )
+    ) -&gt; Dict[str, Any]:
+        &#34;&#34;&#34;Execute the import/update operation with intelligent chunking and optimization.
 
-        # Get chunks of DataFrame
-        if auto_resolve and len(df) &gt;= 0.5e6:
-            n = int(len(df) * frac)
-            df_chunks = [df[i : i + n] for i in range(0, len(df), n)]
-        else:
-            df_chunks = np.array_split(df, chunk_size)
+        Parameters
+        ----------
+        df : `DataFrame`
+            DataFrame to process
+        table_name : `str`
+            Name of the target table
+        chunk_size : `int`, `optional`
+            Number of chunks to split DataFrame into (auto-calculated if None)
+        method : `str`, `optional`
+            Operation method (&#34;override&#34; or &#34;append&#34;). Defaults to &#34;override&#34;.
+        char_length : `int`, `optional`
+            Default length for VARCHAR columns. Defaults to 512.
+        override_length : `bool`, `optional`
+            Whether to override column lengths. Defaults to True.
+        use_transactions : `bool`, `optional`
+            Whether to use transactions. Defaults to True.
+        auto_resolve : `bool`, `optional`
+            Whether to auto-resolve large DataFrames. Defaults to True.
+        frac : `float`, `optional`
+            Fraction for auto-resolution. Defaults to 0.01.
+        verbose : `bool`, `optional`
+            Whether to print progress information. Defaults to False.
 
-        if method == &#34;override&#34;:
-            if self._check_table_exists(table_name):
-                print(&#34;Table exists, executing OVERRIDE...&#34;)
-                self._drop_table(table_name)
-                # Create table with the first chunk
-                self.import_table(
-                    df=df_chunks[0],
-                    table_name=table_name,
-                    overwrite=True,
-                    char_length=char_length,
-                    override_length=override_length,
-                    close_connection=False,
-                    verbose=verbose,
-                )
+        Returns
+        -------
+        `Dict[str, Any]`
+            Dictionary with comprehensive operation statistics
+        &#34;&#34;&#34;
+        start_time = datetime.now()
+        stats = {
+            &#34;operation&#34;: method,
+            &#34;table_name&#34;: table_name,
+            &#34;total_rows&#34;: len(df),
+            &#34;chunks_processed&#34;: 0,
+            &#34;execution_time&#34;: 0,
+            &#34;errors&#34;: [],
+            &#34;warnings&#34;: [],
+            &#34;chunk_stats&#34;: [],
+        }
+
+        try:
+            if df.empty:
+                raise ValueError(&#34;DataFrame is empty&#34;)
+
+            if method not in [&#34;override&#34;, &#34;append&#34;]:
+                raise ValueError(&#39;Invalid method. Choose from [&#34;override&#34;, &#34;append&#34;]&#39;)
+
+            if chunk_size is None:
+                chunk_size = self._calculate_optimal_chunk_size(len(df))
+
+            if chunk_size &lt;= 0:
+                raise ValueError(&#34;chunk_size must be positive&#34;)
+
+            if auto_resolve and len(df) &gt;= 500000:  # 0.5M rows
+                n = max(int(len(df) * frac), 1000)  # Minimum 1000 rows per chunk
+                df_chunks = [df[i : i + n] for i in range(0, len(df), n)]
+                if verbose:
+                    logger.info(f&#34;Auto-resolved to {len(df_chunks)} chunks of ~{n} rows each&#34;)
             else:
-                print(&#34;Table does not exist, proceeding with CREATE TABLE.&#34;)
-                # Create table with the first chunk
-                self.import_table(
-                    df=df_chunks[0],
+                df_chunks = np.array_split(df, chunk_size)
+
+            stats[&#34;chunks_processed&#34;] = len(df_chunks)
+
+            if method == &#34;override&#34;:
+                stats.update(
+                    self._execute_override(
+                        df_chunks,
+                        table_name,
+                        char_length,
+                        override_length,
+                        use_transactions,
+                        verbose,
+                    )
+                )
+            elif method == &#34;append&#34;:
+                stats.update(self._execute_append(df_chunks, table_name, use_transactions, verbose))
+
+            if verbose:
+                execution_time = (datetime.now() - start_time).total_seconds()
+                logger.info(f&#34;Operation completed in {execution_time:.2f} seconds&#34;)
+
+        except Exception as e:
+            logger.error(f&#34;Operation failed: {e}&#34;)
+            stats[&#34;errors&#34;].append(str(e))
+            raise
+        finally:
+            stats[&#34;execution_time&#34;] = (datetime.now() - start_time).total_seconds()
+
+        return stats
+
+    def _calculate_optimal_chunk_size(self, total_rows: int) -&gt; int:
+        &#34;&#34;&#34;Calculate optimal chunk size based on DataFrame size and system resources.
+
+        Parameters
+        ----------
+        total_rows : `int`
+            Total number of rows in the DataFrame
+
+        Returns
+        -------
+        `int`
+            Optimal number of chunks for processing
+        &#34;&#34;&#34;
+        if total_rows &lt; 10000:
+            return 1
+        elif total_rows &lt; 100000:
+            return 4
+        elif total_rows &lt; 1000000:
+            return 10
+        else:
+            return 20
+
+    def _execute_override(
+        self,
+        df_chunks: List[DataFrame],
+        table_name: str,
+        char_length: int,
+        override_length: bool,
+        use_transactions: bool,
+        verbose: bool,
+    ) -&gt; Dict[str, Any]:
+        &#34;&#34;&#34;Execute override method with first chunk creating the table.
+
+        Parameters
+        ----------
+        df_chunks : `List[DataFrame]`
+            List of DataFrame chunks to process
+        table_name : `str`
+            Name of the target table
+        char_length : `int`
+            Default length for VARCHAR columns
+        override_length : `bool`
+            Whether to override column lengths
+        use_transactions : `bool`
+            Whether to use transactions for data integrity
+        verbose : `bool`
+            Whether to print progress information
+
+        Returns
+        -------
+        `Dict[str, Any]`
+            Dictionary with chunk statistics and operation results
+        &#34;&#34;&#34;
+        stats = {&#34;chunk_stats&#34;: []}
+
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            if self._table_exists(cursor, table_name):
+                if verbose:
+                    logger.info(f&#34;Table {table_name} exists, dropping...&#34;)
+                cursor.execute(f&#34;DROP TABLE {self._sanitize_identifier(table_name)}&#34;)
+                conn.commit()
+
+        for i, chunk in enumerate(df_chunks):
+            chunk_stats = {&#34;chunk_index&#34;: i, &#34;rows&#34;: len(chunk)}
+
+            try:
+                if i == 0:
+                    result = self.import_table(
+                        df=chunk,
+                        table_name=table_name,
+                        overwrite=True,
+                        char_length=char_length,
+                        override_length=override_length,
+                        batch_size=1000,
+                        use_transactions=use_transactions,
+                        verbose=verbose and len(df_chunks) == 1,
+                    )
+                else:
+                    result = self.upload_table(
+                        df=chunk,
+                        table_name=table_name,
+                        batch_size=1000,
+                        use_transactions=use_transactions,
+                        verbose=False,
+                    )
+
+                chunk_stats.update(result)
+                stats[&#34;chunk_stats&#34;].append(chunk_stats)
+
+                if verbose and len(df_chunks) &gt; 1:
+                    progress = ((i + 1) / len(df_chunks)) * 100
+                    logger.info(f&#34;Progress: {progress:.1f}% ({i + 1}/{len(df_chunks)} chunks)&#34;)
+
+            except Exception as e:
+                chunk_stats[&#34;error&#34;] = str(e)
+                stats[&#34;chunk_stats&#34;].append(chunk_stats)
+                logger.error(f&#34;Chunk {i} failed: {e}&#34;)
+                raise
+
+        return stats
+
+    def _execute_append(
+        self, df_chunks: List[DataFrame], table_name: str, use_transactions: bool, verbose: bool
+    ) -&gt; Dict[str, Any]:
+        &#34;&#34;&#34;Execute append method for existing table.
+
+        Parameters
+        ----------
+        df_chunks : `List[DataFrame]`
+            List of DataFrame chunks to process
+        table_name : `str`
+            Name of the target table
+        use_transactions : `bool`
+            Whether to use transactions for data integrity
+        verbose : `bool`
+            Whether to print progress information
+
+        Returns
+        -------
+        `Dict[str, Any]`
+            Dictionary with chunk statistics and operation results
+        &#34;&#34;&#34;
+        stats = {&#34;chunk_stats&#34;: []}
+
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            if not self._table_exists(cursor, table_name):
+                raise ValueError(f&#34;Table {table_name} does not exist for append operation&#34;)
+
+        for i, chunk in enumerate(df_chunks):
+            chunk_stats = {&#34;chunk_index&#34;: i, &#34;rows&#34;: len(chunk)}
+
+            try:
+                result = self.upload_table(
+                    df=chunk,
                     table_name=table_name,
-                    overwrite=True,
-                    char_length=char_length,
-                    override_length=override_length,
-                    close_connection=False,
-                    verbose=verbose,
+                    batch_size=1000,
+                    use_transactions=use_transactions,
+                    verbose=False,
                 )
 
-            # Insert the rest of the chunks
-            for i in range(1, len(df_chunks)):
-                self.upload_table(df_chunks[i], table_name, close_connection=False)
+                chunk_stats.update(result)
+                stats[&#34;chunk_stats&#34;].append(chunk_stats)
 
-        elif method == &#34;append&#34;:
-            if self._check_table_exists(table_name):
-                for data in df_chunks:
-                    self.upload_table(data, table_name, close_connection=False)
-            else:
-                raise ValueError(&#34;Method &#39;append&#39; requires an existing table.&#34;)
-        else:
-            raise ValueError(
-                &#39;Invalid value for argument &#34;method&#34;. Choose from [&#34;override&#34;, &#34;append&#34;].&#39;
-            )
+                if verbose and len(df_chunks) &gt; 1:
+                    progress = ((i + 1) / len(df_chunks)) * 100
+                    logger.info(f&#34;Progress: {progress:.1f}% ({i + 1}/{len(df_chunks)} chunks)&#34;)
 
-        if close_connection:
-            self._con.close()
+            except Exception as e:
+                chunk_stats[&#34;error&#34;] = str(e)
+                stats[&#34;chunk_stats&#34;].append(chunk_stats)
+                logger.error(f&#34;Chunk {i} failed: {e}&#34;)
+                raise
 
-    def _drop_table(self, table_name: str) -&gt; None:
-        query = f&#34;DROP TABLE IF EXISTS {table_name}&#34;
-        if self._con.closed:
-            self._reconnect()
-        try:
-            self._cur.execute(query)
-            if self.verbose:
-                print(f&#34;Table &#39;{table_name}&#39; dropped successfully.&#34;)
-        except Exception as e:
-            print(f&#34;Failed to drop table &#39;{table_name}&#39;. Error message:\n{str(e)}&#34;)
-
-    def _check_table_exists(self, table_name: str) -&gt; bool:
-        if self._con.closed:
-            self._reconnect()
-        query = f&#34;SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME=&#39;{table_name}&#39;&#34;
-        try:
-            self._cur.execute(query)
-            result = self._cur.fetchone()
-            self._con.close()
-            return bool(result[0])
-        except Exception as e:
-            print(&#34;Error checking if table exists.&#34;)
-            raise ValueError(f&#34;Query Error: {str(e)}&#34;)
-
-    def _execute_query(self, query: str):
-        try:
-            self._cur.execute(query)
-            results = {&#34;columns&#34;: [desc[0] for desc in self._cur.description]}
-            results[&#34;data&#34;] = self._cur.fetchall()
-            results[&#34;count&#34;] = len(results[&#34;data&#34;])
-            return results
-        except Exception as e:
-            print(&#34;Error executing SQL Query&#34;)
-            raise ValueError(f&#34;Query Error: {str(e)}&#34;)
+        return stats
 
     @property
     def verbose(self) -&gt; bool:
@@ -398,8 +1158,24 @@ el.replaceWith(d);
     def verbose(self, value: bool):
         self._verbose = value</code></pre>
 </details>
-<div class="desc"><p>Efficiently imports/updates a table from a <code>DataFrame</code> using the <code><a title="pydbsmgr.fast_upload.DataFrameToSQL" href="#pydbsmgr.fast_upload.DataFrameToSQL">DataFrameToSQL</a></code> class.</p>
-<p>Establishes the connection to the database.</p></div>
+<div class="desc"><p>Enhanced class for efficiently importing/updating tables from DataFrames.</p>
+<p>This class extends DataFrameToSQL with chunking, automatic batch size optimization,
+and comprehensive monitoring capabilities.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>connection_string</code></strong> :&ensp;<code>str</code></dt>
+<dd>Database connection string</dd>
+<dt><strong><code>max_pool_size</code></strong> :&ensp;<code>int<code>,</code>optional</code></dt>
+<dd>Maximum number of connections in the pool. Defaults to <code>5</code>.</dd>
+</dl>
+<p>Initialize the UploadToSQL instance.</p>
+<h2 id="parameters_1">Parameters</h2>
+<dl>
+<dt><strong><code>connection_string</code></strong> :&ensp;<code>str</code></dt>
+<dd>Database connection string</dd>
+<dt><strong><code>max_pool_size</code></strong> :&ensp;<code>int<code>,</code>optional</code></dt>
+<dd>Maximum number of connections in the pool. Defaults to <code>5</code>.</dd>
+</dl></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="pydbsmgr.fast_upload.DataFrameToSQL" href="#pydbsmgr.fast_upload.DataFrameToSQL">DataFrameToSQL</a></li>
@@ -423,7 +1199,7 @@ def verbose(self) -&gt; bool:
 <h3>Methods</h3>
 <dl>
 <dt id="pydbsmgr.fast_upload.UploadToSQL.execute"><code class="name flex">
-<span>def <span class="ident">execute</span></span>(<span>self,<br>df: pandas.core.frame.DataFrame,<br>table_name: str,<br>chunk_size: int,<br>method: str = 'override',<br>char_length: int = 512,<br>override_length: bool = True,<br>close_connection: bool = True,<br>auto_resolve: bool = True,<br>frac: float = 0.01,<br>verbose: bool = False) ‑> None</span>
+<span>def <span class="ident">execute</span></span>(<span>self,<br>df: pandas.core.frame.DataFrame,<br>table_name: str,<br>chunk_size: int | None = None,<br>method: str = 'override',<br>char_length: int = 512,<br>override_length: bool = True,<br>use_transactions: bool = True,<br>auto_resolve: bool = True,<br>frac: float = 0.01,<br>verbose: bool = False) ‑> Dict[str, Any]</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -434,74 +1210,134 @@ def verbose(self) -&gt; bool:
     self,
     df: DataFrame,
     table_name: str,
-    chunk_size: int,
-    method: str = &#34;override&#34;,  # or append
+    chunk_size: Optional[int] = None,
+    method: str = &#34;override&#34;,
     char_length: int = 512,
     override_length: bool = True,
-    close_connection: bool = True,
+    use_transactions: bool = True,
     auto_resolve: bool = True,
     frac: float = 0.01,
     verbose: bool = False,
-) -&gt; None:
-    &#34;&#34;&#34;Executes the import/update operation based on the specified method.&#34;&#34;&#34;
-    if len(df) &lt;= chunk_size:
-        raise ValueError(
-            &#34;&#39;chunk_size&#39; cannot be greater than or equal to the length of the &#39;DataFrame&#39;. Change the &#39;chunk_size&#39;.&#34;
-        )
+) -&gt; Dict[str, Any]:
+    &#34;&#34;&#34;Execute the import/update operation with intelligent chunking and optimization.
 
-    # Get chunks of DataFrame
-    if auto_resolve and len(df) &gt;= 0.5e6:
-        n = int(len(df) * frac)
-        df_chunks = [df[i : i + n] for i in range(0, len(df), n)]
-    else:
-        df_chunks = np.array_split(df, chunk_size)
+    Parameters
+    ----------
+    df : `DataFrame`
+        DataFrame to process
+    table_name : `str`
+        Name of the target table
+    chunk_size : `int`, `optional`
+        Number of chunks to split DataFrame into (auto-calculated if None)
+    method : `str`, `optional`
+        Operation method (&#34;override&#34; or &#34;append&#34;). Defaults to &#34;override&#34;.
+    char_length : `int`, `optional`
+        Default length for VARCHAR columns. Defaults to 512.
+    override_length : `bool`, `optional`
+        Whether to override column lengths. Defaults to True.
+    use_transactions : `bool`, `optional`
+        Whether to use transactions. Defaults to True.
+    auto_resolve : `bool`, `optional`
+        Whether to auto-resolve large DataFrames. Defaults to True.
+    frac : `float`, `optional`
+        Fraction for auto-resolution. Defaults to 0.01.
+    verbose : `bool`, `optional`
+        Whether to print progress information. Defaults to False.
 
-    if method == &#34;override&#34;:
-        if self._check_table_exists(table_name):
-            print(&#34;Table exists, executing OVERRIDE...&#34;)
-            self._drop_table(table_name)
-            # Create table with the first chunk
-            self.import_table(
-                df=df_chunks[0],
-                table_name=table_name,
-                overwrite=True,
-                char_length=char_length,
-                override_length=override_length,
-                close_connection=False,
-                verbose=verbose,
-            )
+    Returns
+    -------
+    `Dict[str, Any]`
+        Dictionary with comprehensive operation statistics
+    &#34;&#34;&#34;
+    start_time = datetime.now()
+    stats = {
+        &#34;operation&#34;: method,
+        &#34;table_name&#34;: table_name,
+        &#34;total_rows&#34;: len(df),
+        &#34;chunks_processed&#34;: 0,
+        &#34;execution_time&#34;: 0,
+        &#34;errors&#34;: [],
+        &#34;warnings&#34;: [],
+        &#34;chunk_stats&#34;: [],
+    }
+
+    try:
+        if df.empty:
+            raise ValueError(&#34;DataFrame is empty&#34;)
+
+        if method not in [&#34;override&#34;, &#34;append&#34;]:
+            raise ValueError(&#39;Invalid method. Choose from [&#34;override&#34;, &#34;append&#34;]&#39;)
+
+        if chunk_size is None:
+            chunk_size = self._calculate_optimal_chunk_size(len(df))
+
+        if chunk_size &lt;= 0:
+            raise ValueError(&#34;chunk_size must be positive&#34;)
+
+        if auto_resolve and len(df) &gt;= 500000:  # 0.5M rows
+            n = max(int(len(df) * frac), 1000)  # Minimum 1000 rows per chunk
+            df_chunks = [df[i : i + n] for i in range(0, len(df), n)]
+            if verbose:
+                logger.info(f&#34;Auto-resolved to {len(df_chunks)} chunks of ~{n} rows each&#34;)
         else:
-            print(&#34;Table does not exist, proceeding with CREATE TABLE.&#34;)
-            # Create table with the first chunk
-            self.import_table(
-                df=df_chunks[0],
-                table_name=table_name,
-                overwrite=True,
-                char_length=char_length,
-                override_length=override_length,
-                close_connection=False,
-                verbose=verbose,
+            df_chunks = np.array_split(df, chunk_size)
+
+        stats[&#34;chunks_processed&#34;] = len(df_chunks)
+
+        if method == &#34;override&#34;:
+            stats.update(
+                self._execute_override(
+                    df_chunks,
+                    table_name,
+                    char_length,
+                    override_length,
+                    use_transactions,
+                    verbose,
+                )
             )
+        elif method == &#34;append&#34;:
+            stats.update(self._execute_append(df_chunks, table_name, use_transactions, verbose))
 
-        # Insert the rest of the chunks
-        for i in range(1, len(df_chunks)):
-            self.upload_table(df_chunks[i], table_name, close_connection=False)
+        if verbose:
+            execution_time = (datetime.now() - start_time).total_seconds()
+            logger.info(f&#34;Operation completed in {execution_time:.2f} seconds&#34;)
 
-    elif method == &#34;append&#34;:
-        if self._check_table_exists(table_name):
-            for data in df_chunks:
-                self.upload_table(data, table_name, close_connection=False)
-        else:
-            raise ValueError(&#34;Method &#39;append&#39; requires an existing table.&#34;)
-    else:
-        raise ValueError(
-            &#39;Invalid value for argument &#34;method&#34;. Choose from [&#34;override&#34;, &#34;append&#34;].&#39;
-        )
+    except Exception as e:
+        logger.error(f&#34;Operation failed: {e}&#34;)
+        stats[&#34;errors&#34;].append(str(e))
+        raise
+    finally:
+        stats[&#34;execution_time&#34;] = (datetime.now() - start_time).total_seconds()
 
-    if close_connection:
-        self._con.close()</code></pre>
+    return stats</code></pre>
 </details>
-<div class="desc"><p>Executes the import/update operation based on the specified method.</p></div>
+<div class="desc"><p>Execute the import/update operation with intelligent chunking and optimization.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>DataFrame</code></dt>
+<dd>DataFrame to process</dd>
+<dt><strong><code>table_name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of the target table</dd>
+<dt><strong><code>chunk_size</code></strong> :&ensp;<code>int<code>,</code>optional</code></dt>
+<dd>Number of chunks to split DataFrame into (auto-calculated if None)</dd>
+<dt><strong><code>method</code></strong> :&ensp;<code>str<code>,</code>optional</code></dt>
+<dd>Operation method ("override" or "append"). Defaults to "override".</dd>
+<dt><strong><code>char_length</code></strong> :&ensp;<code>int<code>,</code>optional</code></dt>
+<dd>Default length for VARCHAR columns. Defaults to 512.</dd>
+<dt><strong><code>override_length</code></strong> :&ensp;<code>bool<code>,</code>optional</code></dt>
+<dd>Whether to override column lengths. Defaults to True.</dd>
+<dt><strong><code>use_transactions</code></strong> :&ensp;<code>bool<code>,</code>optional</code></dt>
+<dd>Whether to use transactions. Defaults to True.</dd>
+<dt><strong><code>auto_resolve</code></strong> :&ensp;<code>bool<code>,</code>optional</code></dt>
+<dd>Whether to auto-resolve large DataFrames. Defaults to True.</dd>
+<dt><strong><code>frac</code></strong> :&ensp;<code>float<code>,</code>optional</code></dt>
+<dd>Fraction for auto-resolution. Defaults to 0.01.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>bool<code>,</code>optional</code></dt>
+<dd>Whether to print progress information. Defaults to False.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p><code>Dict[str, Any]</code>
+Dictionary with comprehensive operation statistics</p></div>
 </dd>
 </dl>
 <h3>Inherited members</h3>
